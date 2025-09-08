@@ -40,3 +40,4 @@ node_modules/
 static/js/react/dist/
 static/js/react/dist/*
 *.c3b53907.js    # or more generally: *.js.map
+AGENTS.md
