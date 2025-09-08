@@ -64,41 +64,18 @@
         z-index: 1;
     }
 
-    .map-overlays {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 999;
-        pointer-events: none;
-    }
-
-    .svg-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-    }
-
-    .svg-overlay svg {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        pointer-events: auto;
-    }
-
-    .svg-overlay svg path,
-    .svg-overlay svg polygon {
+    /* Greenspace overlay shapes inside Leaflet's overlay pane */
+    .leaflet-overlay-pane svg path,
+    .leaflet-overlay-pane svg polygon {
         fill-opacity: 0.7;
         stroke-opacity: 0.8;
         cursor: pointer;
         transition: fill-opacity 0.3s;
+        pointer-events: auto; /* clickable greenspaces */
     }
 
-    .svg-overlay svg path:hover,
-    .svg-overlay svg polygon:hover {
+    .leaflet-overlay-pane svg path:hover,
+    .leaflet-overlay-pane svg polygon:hover {
         fill-opacity: 0.8;
     }
 
@@ -107,10 +84,10 @@
         background: #2A2A2A;
         padding: 15px;
         border-radius: 4px;
-        margin-top: 10px;
+        margin-top: 0;
         color: #C7C4BF;
-        max-height: 30vh;
-        overflow-y: auto;
+        max-height: none;
+        overflow: visible;
     }
 
     .info-panel h3 {
@@ -134,8 +111,6 @@
             flex-grow: 1;
             height: calc(100vh - 200px);
         }
-
-        .info-panel { max-height: 200px; }
     }
 </style>
 {% endblock %}
@@ -163,11 +138,6 @@
     <section class="map-section">
         <div class="map-container">
             <div id="leaflet-map"></div>
-            <div class="map-overlays">
-                <!-- <div id="buildings-overlay" class="svg-overlay"></div> -->
-                <div id="spaces-overlay" class="svg-overlay"></div>
-                <!-- <div id="paths-overlay" class="svg-overlay"></div> -->
-            </div>
         </div>
 
         <div class="info-panel">
@@ -201,9 +171,66 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize Leaflet map
     const map = L.map('leaflet-map').setView(CONFIG.mapCenter, CONFIG.mapZoom);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
+
+    // Ensure trees render above SVG overlay
+    map.createPane('treesPane');
+    map.getPane('treesPane').style.zIndex = 560; // above overlayPane (400)
+    map.getPane('treesPane').style.pointerEvents = 'none'; // don't block greenspace clicks
+
+    // Trees layer (loaded from backend GeoJSON)
+    function getTreeIcon(speciesLatin = '', commonName = '') {
+        const s = speciesLatin.toLowerCase();
+        let icon = 'oak';
+        if (s.includes('acer')) icon = 'maple';
+        else if (s.includes('quercus')) icon = 'oak';
+        // Add more genus → icon mappings here as more icons are added
+        return L.icon({
+            iconUrl: `{{ url_for('static', filename='images/tree-markers') }}/${icon}.svg`,
+            iconSize: [24, 24],
+            iconAnchor: [12, 12]
+        });
+    }
+
+    const treesLayer = L.geoJSON(null, {
+        pane: 'treesPane',
+        pointToLayer: (feature, latlng) => {
+            const p = feature.properties || {};
+            return L.marker(latlng, { icon: getTreeIcon(p.latin_name, p.title) });
+        }
+        // No onEachFeature: markers are non-interactive by design
+    }); // not added by default; shown after a greenspace click
+    // Helper: show trees within geographic bounds (uses /api/trees/area)
+    function showTreesInBounds(bounds) {
+        const qs = new URLSearchParams({
+            north: bounds.getNorth(),
+            south: bounds.getSouth(),
+            east: bounds.getEast(),
+            west: bounds.getWest()
+        }).toString();
+        fetch(`/api/trees/area?${qs}`)
+            .then(r => r.json())
+            .then(list => {
+                const fc = {
+                    type: 'FeatureCollection',
+                    features: (list || []).map(t => ({
+                        type: 'Feature',
+                        geometry: { type: 'Point', coordinates: [t.longitude, t.latitude] },
+                        properties: {
+                            title: t.common_name || 'Tree',
+                            latin_name: t.latin_name || '',
+                            dbh: t.dbh || null
+                        }
+                    }))
+                };
+                treesLayer.clearLayers();
+                treesLayer.addData(fc);
+                if (!map.hasLayer(treesLayer)) treesLayer.addTo(map);
+            })
+            .catch(err => console.error('Failed to load trees in bounds', err));
+    }
 
     // Function to update info panel
     function updateInfoPanel(locationName) {
@@ -224,15 +251,14 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
     }
 
-// loadSVGOverlay function 
-async function loadSVGOverlay(url, containerId) {
+// loadSVGOverlay: fetch SVG and mount via Leaflet's overlay pane
+async function loadSVGOverlay(url) {
     try {
         const response = await fetch(url);
         const svgContent = await response.text();
-        const container = document.getElementById(containerId);
-        container.innerHTML = svgContent;
-
-        const svg = container.querySelector('svg');
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(svgContent, 'image/svg+xml');
+        const svg = doc.documentElement;
         if (svg) {
             // Get the SVG group with geographic coordinates
             const geoGroup = svg.querySelector('g');
@@ -254,11 +280,54 @@ async function loadSVGOverlay(url, containerId) {
                     bubblingMouseEvents: false
                 }).addTo(map);
 
+                // Utility to convert an SVG rect (in viewBox coords) to Leaflet LatLngBounds
+                function rectToLatLngBounds(rect) {
+                    const vb = svg.viewBox && svg.viewBox.baseVal
+                        ? svg.viewBox.baseVal
+                        : { x: 0, y: 0, width: svg.width.baseVal.value, height: svg.height.baseVal.value };
+
+                    const topLat = parseFloat(geoGroup.dataset.topLat);
+                    const bottomLat = parseFloat(geoGroup.dataset.bottomLat);
+                    const leftLon = parseFloat(geoGroup.dataset.leftLon);
+                    const rightLon = parseFloat(geoGroup.dataset.rightLon);
+
+                    const lonSpan = rightLon - leftLon;
+                    const latSpan = topLat - bottomLat; // positive
+
+                    const x0 = rect.x;                 // left
+                    const y0 = rect.y;                 // top (in SVG coords)
+                    const x1 = rect.x + rect.width;    // right
+                    const y1 = rect.y + rect.height;   // bottom
+
+                    // Map SVG x -> lon (linear)
+                    const lon0 = leftLon + (x0 - vb.x) / vb.width * lonSpan;
+                    const lon1 = leftLon + (x1 - vb.x) / vb.width * lonSpan;
+                    // Map SVG y -> lat (invert axis)
+                    const lat0 = topLat - (y0 - vb.y) / vb.height * latSpan; // top
+                    const lat1 = topLat - (y1 - vb.y) / vb.height * latSpan; // bottom
+
+                    return L.latLngBounds([lat1, lon0], [lat0, lon1]);
+                }
+
                 // Add click handlers to paths and polygons
                 svg.querySelectorAll('path, polygon').forEach(element => {
                     element.addEventListener('click', () => {
                         const name = element.getAttribute('id') || 'Unnamed Location';
                         updateInfoPanel(name);
+
+                        // Compute polygon bounding box in SVG coords and fit map to it
+                        const bbox = element.getBBox();
+                        const latLngBounds = rectToLatLngBounds(bbox);
+                        map.fitBounds(latLngBounds.pad(0.1)); // small padding
+
+                        // After the move finishes, show trees near the polygon center
+                        const once = () => {
+                            // Slightly pad bounds before querying
+                            const queryBounds = latLngBounds.pad(0.05);
+                            showTreesInBounds(queryBounds);
+                            map.off('moveend', once);
+                        };
+                        map.on('moveend', once);
                     });
                 });
             }
@@ -268,10 +337,8 @@ async function loadSVGOverlay(url, containerId) {
     }
 }
 
-    // Load all overlays
-    //loadSVGOverlay("{{ url_for('static', filename='images/map/Buildings.svg') }}", 'buildings-overlay');
-    loadSVGOverlay("{{ url_for('static', filename='images/map/GreenSpaces.svg') }}", 'spaces-overlay');
-    //loadSVGOverlay("{{ url_for('static', filename='images/map/Paths.svg') }}", 'paths-overlay');
+    // Load greenspaces overlay into Leaflet's overlay pane
+    loadSVGOverlay("{{ url_for('static', filename='images/map/GreenSpaces.svg') }}");
 
     // Fit map to bounds
     map.fitBounds([
@@ -286,6 +353,16 @@ async function loadSVGOverlay(url, containerId) {
             updateInfoPanel(location);
         });
     });
+
+    // Clicking the base map clears tree markers so only greenspaces are interactive
+    map.on('click', () => {
+        if (map.hasLayer(treesLayer)) {
+            treesLayer.clearLayers();
+            map.removeLayer(treesLayer);
+        }
+    });
+
+    // Trees are hidden by default and shown only after a greenspace click
 });
 </script>
 {% endblock %}
