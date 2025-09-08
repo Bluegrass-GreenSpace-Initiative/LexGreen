@@ -1,15 +1,20 @@
-from flask import Flask, jsonify, render_template, send_from_directory
+from flask import Flask, jsonify, render_template, send_from_directory, request, redirect, url_for
 from flask_cors import CORS
 from datetime import datetime
 import os
 from services.database import Database
 from services.uk_tree_service import UKTreeService
+from services.photo_service import PhotoService
+from services.tree_facts import get_tree_fact
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 CORS(app)
 
 # Development configuration
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+app.config['UPLOAD_FOLDER'] = os.path.join('instance', 'uploads')
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 # Campus data dictionary - main feature content
 CAMPUS_DATA = {
@@ -39,7 +44,24 @@ app.register_blueprint(tree_routes)
 def init_db_command():
     """Clear existing data and create new tables."""
     db = Database()
-    db.get_connection()
+    conn = db.get_connection()
+    with conn:
+        cur = conn.cursor()
+        # Ensure core trees table exists (compatible with CSV import)
+        cur.execute(
+            """
+            CREATE TABLE IF NOT EXISTS trees (
+                tree_id INTEGER PRIMARY KEY,
+                common_name TEXT,
+                latin_name TEXT,
+                dbh REAL,
+                latitude REAL,
+                longitude REAL
+            )
+            """
+        )
+    # Ensure photos table exists
+    PhotoService().ensure_tables()
     print('Initialized the database.')
 
 @app.cli.command('import-trees')
@@ -64,6 +86,57 @@ def wellness():
 @app.route('/about')
 def about():
     return render_template('about.html')
+
+# Greenspace deep-dive page
+@app.route('/greenspace')
+def greenspace():
+    name = request.args.get('name', 'Green Space')
+    # Required bounds from query params
+    try:
+        bounds = {
+            'north': float(request.args['north']),
+            'south': float(request.args['south']),
+            'east': float(request.args['east']),
+            'west': float(request.args['west'])
+        }
+    except Exception:
+        # If missing/invalid, just go home
+        return redirect(url_for('index'))
+    return render_template('greenspace.html', name=name, bounds=bounds)
+
+# Tree detail page with photo gallery/upload
+@app.route('/tree/<int:tree_id>')
+def tree_detail(tree_id: int):
+    tree = UKTreeService().get_tree_by_id(tree_id)
+    if not tree:
+        return render_template('tree_detail.html', tree=None, photos=[], fact=None, return_to=request.args.get('return_to')), 404
+    photos = PhotoService().get_photos_for_tree(tree_id)
+    fact = get_tree_fact(tree.get('common_name'), tree.get('latin_name'))
+    return render_template('tree_detail.html', tree=tree, photos=photos, fact=fact, return_to=request.args.get('return_to'))
+
+@app.route('/tree/<int:tree_id>/upload', methods=['POST'])
+def upload_tree_photo(tree_id: int):
+    # Basic validation that the tree exists
+    if not UKTreeService().get_tree_by_id(tree_id):
+        return redirect(url_for('index'))
+
+    file = request.files.get('photo')
+    if not file or file.filename == '':
+        return redirect(url_for('tree_detail', tree_id=tree_id, return_to=request.args.get('return_to')))
+
+    filename = secure_filename(file.filename)
+    saved_name = PhotoService().save_photo(tree_id, file.stream, filename)
+    # Record in DB
+    PhotoService().add_photo_record(tree_id, saved_name)
+    return_to = request.args.get('return_to')
+    if return_to:
+        return redirect(url_for('tree_detail', tree_id=tree_id, return_to=return_to))
+    return redirect(url_for('tree_detail', tree_id=tree_id))
+
+# Serve uploaded images
+@app.route('/uploads/<path:filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 # Template context processor for global variables
 @app.context_processor

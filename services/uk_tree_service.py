@@ -4,37 +4,35 @@ import pandas as pd
 from typing import List, Dict, Optional, Tuple
 
 class UKTreeService:
+    SELECT_COLS = "tree_id, common_name, latin_name, dbh, latitude, longitude"
+
     def __init__(self):
         self.db = Database()
 
     def get_all_trees(self) -> List[Dict]:
         """Get all trees with formatted output"""
-        query = """
-        SELECT tree_id, common_name, latin_name, dbh, 
-               latitude, longitude
-        FROM trees
-        """
+        query = f"SELECT {self.SELECT_COLS} FROM trees"
         trees = self.db.execute_query(query)
         return [self._format_tree(tree) for tree in trees]
 
     def get_tree_by_id(self, tree_id: int) -> Optional[Dict]:
         """Get single tree by ID"""
-        query = "SELECT * FROM trees WHERE tree_id = ?"
+        query = f"SELECT {self.SELECT_COLS} FROM trees WHERE tree_id = ?"
         result = self.db.execute_query(query, (tree_id,))
         return self._format_tree(result[0]) if result else None
 
     def get_trees_by_species(self, latin_name: str) -> List[Dict]:
         """Get all trees of a specific species"""
-        query = "SELECT * FROM trees WHERE latin_name LIKE ?"
+        query = f"SELECT {self.SELECT_COLS} FROM trees WHERE latin_name LIKE ?"
         trees = self.db.execute_query(query, (f"%{latin_name}%",))
         return [self._format_tree(tree) for tree in trees]
 
     def get_trees_in_area(self, bounds: Dict[str, float]) -> List[Dict]:
         """Get trees within map bounds"""
-        query = """
-        SELECT * FROM trees 
+        query = f"""
+        SELECT {self.SELECT_COLS} FROM trees
         WHERE latitude BETWEEN ? AND ?
-        AND longitude BETWEEN ? AND ?
+          AND longitude BETWEEN ? AND ?
         """
         params = (
             bounds['south'], bounds['north'],

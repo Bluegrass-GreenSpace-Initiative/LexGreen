@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}{{ name }} – CampusGreen{% endblock %}
+
+{% block extra_css %}
+<style>
+  .gs-container { padding: 16px; }
+  .gs-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .gs-actions a { margin-right: 10px; }
+  #gs-map { height: calc(100vh - 220px); border-radius: 8px; overflow: hidden; }
+  .tree-list { margin-top: 12px; background: #222; border-radius: 8px; padding: 12px; }
+  .tree-item { padding: 6px 8px; border-bottom: 1px solid #333; }
+  .tree-item:last-child { border-bottom: none; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="gs-container">
+  <div class="gs-header">
+    <div>
+      <h2 style="margin:0;color:#558B6E">{{ name }}</h2>
+      <small>Explore trees within this greenspace</small>
+    </div>
+    <div class="gs-actions">
+      <a href="{{ url_for('index') }}">← Back to Campus Map</a>
+    </div>
+  </div>
+  <div id="gs-map"></div>
+  <div class="tree-list">
+    <strong>Trees in this area</strong> <span id="tree-count"></span>
+    <div id="tree-list"><em>Loading…</em></div>
+  </div>
+  <!-- Hidden data from server -->
+  <template id="gs-data" data-north="{{ bounds.north }}" data-south="{{ bounds.south }}" data-east="{{ bounds.east }}" data-west="{{ bounds.west }}"></template>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const t = document.getElementById('gs-data');
+    const b = {
+      north: parseFloat(t.dataset.north),
+      south: parseFloat(t.dataset.south),
+      east: parseFloat(t.dataset.east),
+      west: parseFloat(t.dataset.west),
+    };
+
+    const map = L.map('gs-map');
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap contributors' }).addTo(map);
+    const bounds = L.latLngBounds([b.south, b.west], [b.north, b.east]);
+    map.fitBounds(bounds.pad(0.05));
+
+    const markers = L.layerGroup().addTo(map);
+    const list = document.getElementById('tree-list');
+    const countEl = document.getElementById('tree-count');
+
+    function getTreeIcon(speciesLatin = '', commonName = '') {
+      const s = (speciesLatin || '').toLowerCase();
+      const c = (commonName || '').toLowerCase();
+
+      // Dedicated icons first
+      if (s.includes('stump') || c.includes('stump')) return L.icon({ iconUrl: `{{ url_for('static', filename='images/tree-markers') }}/stump.svg`, iconSize: [24,24], iconAnchor:[12,12] });
+      if (s.includes('quercus') || c.includes('oak')) return L.icon({ iconUrl: `{{ url_for('static', filename='images/tree-markers') }}/oak.svg`, iconSize: [24,24], iconAnchor:[12,12] });
+      if (s.includes('acer') || c.includes('maple')) return L.icon({ iconUrl: `{{ url_for('static', filename='images/tree-markers') }}/maple.svg`, iconSize: [24,24], iconAnchor:[12,12] });
+      if (s.includes('ginkgo') || s.includes('gingko') || c.includes('ginkgo') || c.includes('gingko')) return L.icon({ iconUrl: `{{ url_for('static', filename='images/tree-markers') }}/gingko.svg`, iconSize: [24,24], iconAnchor:[12,12] });
+      if (s.includes('juglans') || c.includes('walnut')) return L.icon({ iconUrl: `{{ url_for('static', filename='images/tree-markers') }}/walnut.svg`, iconSize: [24,24], iconAnchor:[12,12] });
+      if (s.includes('ulmus') || c.includes('elm')) return L.icon({ iconUrl: `{{ url_for('static', filename='images/tree-markers') }}/elm.svg`, iconSize: [24,24], iconAnchor:[12,12] });
+      if (s.includes('carya') || c.includes('hickory') || c.includes('pecan')) return L.icon({ iconUrl: `{{ url_for('static', filename='images/tree-markers') }}/hickory.svg`, iconSize: [24,24], iconAnchor:[12,12] });
+
+      // Evergreen heuristics (conifers + common evergreen broadleaf)
+      const evergreenGenera = ['pinus','picea','abies','juniperus','thuja','cupressus','chamaecyparis','cedrus','taxus','ilex','tsuga','pseudotsuga'];
+      const evergreenNames = ['pine','spruce','fir','juniper','cedar','cypress','yew','hemlock','holly','evergreen'];
+      if (evergreenGenera.some(g => s.includes(g)) || evergreenNames.some(n => c.includes(n))) {
+        return L.icon({ iconUrl: `{{ url_for('static', filename='images/tree-markers') }}/evergreen.svg`, iconSize: [24,24], iconAnchor:[12,12] });
+      }
+
+      // Flowering heuristics (including Catalpa and Goldenrain Tree)
+      const floweringGenera = ['prunus','malus','magnolia','cercis','cornus','amelanchier','lagerstroemia','styrax','crataegus','pyrus','liriodendron','tilia','catalpa','koelreuteria'];
+      const floweringNames = ['cherry','apple','crabapple','magnolia','redbud','dogwood','serviceberry','hawthorn','pear','crape','tulip','flowering','catalpa','goldenrain','golden rain'];
+      if (floweringGenera.some(g => s.includes(g)) || floweringNames.some(n => c.includes(n))) {
+        return L.icon({ iconUrl: `{{ url_for('static', filename='images/tree-markers') }}/flowering.svg`, iconSize: [24,24], iconAnchor:[12,12] });
+      }
+
+      // Explicit deciduous catch (covers user‑mentioned species)
+      const deciduousGenera = ['liquidambar','carya','ulmus','fraxinus','fagus','platanus','celtis','zelkova','aesculus','gleditsia','styphnolobium','sophora']; // sweetgum, hickory/pecan, elm, ash, beech, sycamore, hackberry, zelkova, buckeye, honey locust, japanese pagoda (Styphnolobium/Sophora)
+      const deciduousNames = ['sweet gum','sweetgum','pecan','elm','hickory','ash','beech','sycamore','yellowwood','american yellowwood','yellow wood','hackberry','zelkova','sawleaf zelkova','buckeye','honey locust','locust','japanese pagoda','pagoda'];
+      if (deciduousGenera.some(g => s.includes(g)) || deciduousNames.some(n => c.includes(n))) {
+        return L.icon({ iconUrl: `{{ url_for('static', filename='images/tree-markers') }}/deciduous.svg`, iconSize: [24,24], iconAnchor:[12,12] });
+      }
+
+      // Default to deciduous
+      return L.icon({ iconUrl: `{{ url_for('static', filename='images/tree-markers') }}/deciduous.svg`, iconSize: [24,24], iconAnchor:[12,12] });
+    }
+
+    function renderTrees(trees) {
+      markers.clearLayers();
+      list.innerHTML = '';
+      trees.forEach(t => {
+        const m = L.marker([t.latitude, t.longitude], { icon: getTreeIcon(t.latin_name, t.common_name) }).addTo(markers);
+        const returnTo = encodeURIComponent(window.location.pathname + window.location.search);
+        const html = `
+          <div>
+            <strong>${t.common_name || 'Tree'}</strong><br/>
+            <em>${t.latin_name || ''}</em><br/>
+            ${t.dbh ? `DBH: ${t.dbh} cm<br/>` : ''}
+            <a href="/tree/${t.tree_id}?return_to=${returnTo}">View details</a>
+          </div>
+        `;
+        m.bindPopup(html);
+        m.on('click', () => {
+          window.location.href = `/tree/${t.tree_id}?return_to=${returnTo}`;
+        });
+
+        const row = document.createElement('div');
+        row.className = 'tree-item';
+        row.innerHTML = `${t.common_name || 'Tree'} ${t.latin_name ? '— <em>' + t.latin_name + '</em>' : ''}`;
+        row.addEventListener('click', () => {
+          map.setView([t.latitude, t.longitude], Math.max(map.getZoom(), 19));
+          m.openPopup();
+        });
+        list.appendChild(row);
+      });
+      countEl.textContent = `(${trees.length})`;
+      if (trees.length === 0) {
+        list.innerHTML = '<em>No trees found in this area.</em>';
+      }
+    }
+
+    const qs = new URLSearchParams({ north: b.north, south: b.south, east: b.east, west: b.west }).toString();
+    fetch(`/api/trees/area?${qs}`)
+      .then(r => r.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          renderTrees(data);
+        } else {
+          console.error('Unexpected response shape for trees/area', data);
+          list.innerHTML = '<em>Unable to load trees for this area.</em>';
+        }
+      })
+      .catch(e => {
+        console.error('Failed to load trees for greenspace', e);
+        list.innerHTML = '<em>Error loading trees.</em>';
+      });
+  });
+</script>
+{% endblock %}

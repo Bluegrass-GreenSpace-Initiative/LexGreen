@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <g fill="none" fill-rule="evenodd">
+    <circle cx="12" cy="12" r="10" fill="#5B4636"/>
+    <circle cx="12" cy="12" r="6" fill="#8B6B4A"/>
+    <path d="M7 16c2-1 3-2.5 5-2.5S15 15 17 16" stroke="#402E22" stroke-width="1.5" stroke-linecap="round"/>
+  </g>
+  <title>Tree stump</title>
+  <desc>Simple stump icon</desc>
+  <metadata>stump icon</metadata>
+  </svg>

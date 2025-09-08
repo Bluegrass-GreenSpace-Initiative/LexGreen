@@ -168,6 +168,8 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     const locationInfo = {{ location_info|tojson|safe }};
+    let lastBounds = null;
+    let lastLocationName = null;
 
     // Initialize Leaflet map
     const map = L.map('leaflet-map').setView(CONFIG.mapCenter, CONFIG.mapZoom);
@@ -182,16 +184,36 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Trees layer (loaded from backend GeoJSON)
     function getTreeIcon(speciesLatin = '', commonName = '') {
-        const s = speciesLatin.toLowerCase();
-        let icon = 'oak';
-        if (s.includes('acer')) icon = 'maple';
-        else if (s.includes('quercus')) icon = 'oak';
-        // Add more genus → icon mappings here as more icons are added
-        return L.icon({
-            iconUrl: `{{ url_for('static', filename='images/tree-markers') }}/${icon}.svg`,
-            iconSize: [24, 24],
-            iconAnchor: [12, 12]
-        });
+        const s = (speciesLatin || '').toLowerCase();
+        const c = (commonName || '').toLowerCase();
+        // Dedicated icons
+        if (s.includes('stump') || c.includes('stump')) return L.icon({ iconUrl: `{{ url_for('static', filename='images/tree-markers') }}/stump.svg`, iconSize:[24,24], iconAnchor:[12,12]});
+        if (s.includes('quercus') || c.includes('oak')) return L.icon({ iconUrl: `{{ url_for('static', filename='images/tree-markers') }}/oak.svg`, iconSize:[24,24], iconAnchor:[12,12]});
+        if (s.includes('acer') || c.includes('maple')) return L.icon({ iconUrl: `{{ url_for('static', filename='images/tree-markers') }}/maple.svg`, iconSize:[24,24], iconAnchor:[12,12]});
+        if (s.includes('ginkgo') || s.includes('gingko') || c.includes('ginkgo') || c.includes('gingko')) return L.icon({ iconUrl: `{{ url_for('static', filename='images/tree-markers') }}/gingko.svg`, iconSize:[24,24], iconAnchor:[12,12]});
+        if (s.includes('juglans') || c.includes('walnut')) return L.icon({ iconUrl: `{{ url_for('static', filename='images/tree-markers') }}/walnut.svg`, iconSize:[24,24], iconAnchor:[12,12]});
+        if (s.includes('ulmus') || c.includes('elm')) return L.icon({ iconUrl: `{{ url_for('static', filename='images/tree-markers') }}/elm.svg`, iconSize:[24,24], iconAnchor:[12,12]});
+        if (s.includes('carya') || c.includes('hickory') || c.includes('pecan')) return L.icon({ iconUrl: `{{ url_for('static', filename='images/tree-markers') }}/hickory.svg`, iconSize:[24,24], iconAnchor:[12,12]});
+        // Evergreen
+        const evergreenGenera = ['pinus','picea','abies','juniperus','thuja','cupressus','chamaecyparis','cedrus','taxus','ilex','tsuga','pseudotsuga'];
+        const evergreenNames = ['pine','spruce','fir','juniper','cedar','cypress','yew','hemlock','holly','evergreen'];
+        if (evergreenGenera.some(g => s.includes(g)) || evergreenNames.some(n => c.includes(n))) {
+            return L.icon({ iconUrl: `{{ url_for('static', filename='images/tree-markers') }}/evergreen.svg`, iconSize:[24,24], iconAnchor:[12,12]});
+        }
+        // Flowering
+        const floweringGenera = ['prunus','malus','magnolia','cercis','cornus','amelanchier','lagerstroemia','styrax','crataegus','pyrus','liriodendron','tilia','catalpa','koelreuteria'];
+        const floweringNames = ['cherry','apple','crabapple','magnolia','redbud','dogwood','serviceberry','hawthorn','pear','crape','tulip','flowering','catalpa','goldenrain','golden rain'];
+        if (floweringGenera.some(g => s.includes(g)) || floweringNames.some(n => c.includes(n))) {
+            return L.icon({ iconUrl: `{{ url_for('static', filename='images/tree-markers') }}/flowering.svg`, iconSize:[24,24], iconAnchor:[12,12]});
+        }
+        // Deciduous explicit
+        const deciduousGenera = ['liquidambar','carya','ulmus','fraxinus','fagus','platanus','celtis','zelkova','aesculus','gleditsia','styphnolobium','sophora'];
+        const deciduousNames = ['sweet gum','sweetgum','pecan','elm','hickory','ash','beech','sycamore','yellowwood','american yellowwood','yellow wood','hackberry','zelkova','sawleaf zelkova','buckeye','honey locust','locust','japanese pagoda','pagoda'];
+        if (deciduousGenera.some(g => s.includes(g)) || deciduousNames.some(n => c.includes(n))) {
+            return L.icon({ iconUrl: `{{ url_for('static', filename='images/tree-markers') }}/deciduous.svg`, iconSize:[24,24], iconAnchor:[12,12]});
+        }
+        // Default
+        return L.icon({ iconUrl: `{{ url_for('static', filename='images/tree-markers') }}/deciduous.svg`, iconSize:[24,24], iconAnchor:[12,12]});
     }
 
     const treesLayer = L.geoJSON(null, {
@@ -233,11 +255,23 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Function to update info panel
-    function updateInfoPanel(locationName) {
+    function updateInfoPanel(locationName, boundsForLink = null) {
         const info = locationInfo[locationName] || {
             description: 'A beautiful spot on campus.',
             features: ['Green Space']
         };
+
+        const learnMore = (() => {
+            if (!boundsForLink) return '';
+            const qs = new URLSearchParams({
+                name: locationName,
+                north: boundsForLink.getNorth(),
+                south: boundsForLink.getSouth(),
+                east: boundsForLink.getEast(),
+                west: boundsForLink.getWest()
+            }).toString();
+            return `<div style="margin-top:10px"><a class="button" href="/greenspace?${qs}">Learn more →</a></div>`;
+        })();
 
         elements.infoPanel.innerHTML = `
             <h3>${locationName}</h3>
@@ -248,6 +282,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     ${info.features.map(f => `<li>${f}</li>`).join('')}
                 </ul>
             ` : ''}
+            ${learnMore}
         `;
     }
 
@@ -313,11 +348,12 @@ async function loadSVGOverlay(url) {
                 svg.querySelectorAll('path, polygon').forEach(element => {
                     element.addEventListener('click', () => {
                         const name = element.getAttribute('id') || 'Unnamed Location';
-                        updateInfoPanel(name);
-
                         // Compute polygon bounding box in SVG coords and fit map to it
                         const bbox = element.getBBox();
                         const latLngBounds = rectToLatLngBounds(bbox);
+                        lastBounds = latLngBounds;
+                        lastLocationName = name;
+                        updateInfoPanel(name, latLngBounds);
                         map.fitBounds(latLngBounds.pad(0.1)); // small padding
 
                         // After the move finishes, show trees near the polygon center
