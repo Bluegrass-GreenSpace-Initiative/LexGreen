@@ -22,6 +22,19 @@
 
     .sidebar-content { padding: 15px; }
 
+    /* Dynamic info card (replaces Welcome when a greenspace is selected) */
+    .info-card {
+        background: #2A2A2A;
+        border: 1px solid #333;
+        border-radius: 8px;
+        padding: 14px;
+        color: #C7C4BF;
+    }
+
+    .info-card h3 { color: #558B6E; margin-bottom: 8px; }
+
+    /* CTA and secondary link styles are centralized in static/css/main.css */
+
     .green-space-list { margin-top: 15px; }
 
     .green-space-item {
@@ -79,21 +92,7 @@
         fill-opacity: 0.8;
     }
 
-    /* Info Panel */
-    .info-panel {
-        background: #2A2A2A;
-        padding: 15px;
-        border-radius: 4px;
-        margin-top: 0;
-        color: #C7C4BF;
-        max-height: none;
-        overflow: visible;
-    }
-
-    .info-panel h3 {
-        color: #558B6E;
-        margin-bottom: 10px;
-    }
+    /* Info panel moved into sidebar as .info-card */
 
     /* Desktop Responsive */
     @media (min-width: 768px) {
@@ -119,9 +118,9 @@
 <div class="main-container">
     <aside class="sidebar">
         <div class="sidebar-content">
-            <section id="welcome">
-                <h2>Welcome to CampusGreen</h2>
-                <p>Discover the natural beauty of UK campus.</p>
+            <section id="info-card" class="info-card">
+                <h3>Welcome to CampusGreen</h3>
+                <p>Discover the natural beauty of UK campus. Select any green space on the map to see details here.</p>
             </section>
 
             <section class="green-space-list">
@@ -138,10 +137,6 @@
     <section class="map-section">
         <div class="map-container">
             <div id="leaflet-map"></div>
-        </div>
-
-        <div class="info-panel">
-            <p>📍 Select any green space to learn more!</p>
         </div>
     </section>
 </div>
@@ -164,7 +159,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // DOM Elements
     const elements = {
-        infoPanel: document.querySelector('.info-panel')
+        infoCard: document.querySelector('#info-card')
     };
 
     const locationInfo = {{ location_info|tojson|safe }};
@@ -220,7 +215,8 @@ document.addEventListener('DOMContentLoaded', function() {
         pane: 'treesPane',
         pointToLayer: (feature, latlng) => {
             const p = feature.properties || {};
-            return L.marker(latlng, { icon: getTreeIcon(p.latin_name, p.title) });
+            const icon = window.treeIcons.getLeafletIcon(p.latin_name, p.title);
+            return L.marker(latlng, { icon });
         }
         // No onEachFeature: markers are non-interactive by design
     }); // not added by default; shown after a greenspace click
@@ -270,20 +266,34 @@ document.addEventListener('DOMContentLoaded', function() {
                 east: boundsForLink.getEast(),
                 west: boundsForLink.getWest()
             }).toString();
-            return `<div style="margin-top:10px"><a class="button" href="/greenspace?${qs}">Learn more →</a></div>`;
+            return `
+              <a class="cta-link" data-haptic="light" href="/greenspace?${qs}" aria-label="Explore ${locationName} greenspace">
+                <span class="emoji">🌿</span>
+                <span>Explore this greenspace</span>
+                <span>→</span>
+              </a>
+            `;
         })();
 
-        elements.infoPanel.innerHTML = `
-            <h3>${locationName}</h3>
-            <p>${info.description}</p>
-            ${info.features.length ? `
-                <h4 style="color: #558B6E; margin-top: 10px;">Features:</h4>
-                <ul style="list-style-position: inside; margin-top: 5px;">
-                    ${info.features.map(f => `<li>${f}</li>`).join('')}
-                </ul>
-            ` : ''}
-            ${learnMore}
-        `;
+        if (elements.infoCard) {
+          elements.infoCard.innerHTML = `
+              <h3>${locationName}</h3>
+              <p>${info.description}</p>
+              ${info.features.length ? `
+                  <h4 style="color: #558B6E; margin-top: 10px;">Features:</h4>
+                  <ul style="list-style-position: inside; margin-top: 5px;">
+                      ${info.features.map(f => `<li>${f}</li>`).join('')}
+                  </ul>
+              ` : ''}
+              <div class="actions-vertical">
+                ${learnMore}
+                <a href="#" class="subtle-link" data-haptic="soft" data-action="reset-view" aria-label="Back to full campus view">↺ Back to campus view</a>
+              </div>
+          `;
+          elements.infoCard.classList.remove('anim-card-in');
+          void elements.infoCard.offsetWidth; // restart animation
+          elements.infoCard.classList.add('anim-card-in');
+        }
     }
 
 // loadSVGOverlay: fetch SVG and mount via Leaflet's overlay pane
@@ -355,6 +365,9 @@ async function loadSVGOverlay(url) {
                         lastLocationName = name;
                         updateInfoPanel(name, latLngBounds);
                         map.fitBounds(latLngBounds.pad(0.1)); // small padding
+                        // Hide the highlighted greenspace list on selection
+                        const listSection = document.querySelector('.green-space-list');
+                        if (listSection) listSection.style.display = 'none';
 
                         // After the move finishes, show trees near the polygon center
                         const once = () => {
@@ -387,6 +400,8 @@ async function loadSVGOverlay(url) {
         item.addEventListener('click', () => {
             const location = item.dataset.location;
             updateInfoPanel(location);
+            const listSection = document.querySelector('.green-space-list');
+            if (listSection) listSection.style.display = 'none';
         });
     });
 
@@ -397,6 +412,34 @@ async function loadSVGOverlay(url) {
             map.removeLayer(treesLayer);
         }
     });
+
+    // Handle delegated click for reset view button
+    if (elements.infoCard) {
+      elements.infoCard.addEventListener('click', (e) => {
+        const a = e.target.closest('a[data-action="reset-view"]');
+        if (a) {
+          e.preventDefault();
+          // Reset map to initial campus bounds
+          map.fitBounds([
+            [CONFIG.bounds.south, CONFIG.bounds.west],
+            [CONFIG.bounds.north, CONFIG.bounds.east]
+          ]);
+          // Clear trees layer
+          if (map.hasLayer(treesLayer)) {
+            treesLayer.clearLayers();
+            map.removeLayer(treesLayer);
+          }
+          // Show the green space list again
+          const listSection = document.querySelector('.green-space-list');
+          if (listSection) listSection.style.display = '';
+          // Restore welcome message
+          elements.infoCard.innerHTML = `
+            <h3>Welcome to CampusGreen</h3>
+            <p>Discover the natural beauty of UK campus. Select any green space on the map to see details here.</p>
+          `;
+        }
+      });
+    }
 
     // Trees are hidden by default and shown only after a greenspace click
 });

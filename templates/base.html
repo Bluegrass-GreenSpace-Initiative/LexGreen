@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-osm/leaflet-osm.js"></script>
+    <script src="{{ url_for('static', filename='js/tree_icons.js') }}"></script>
     {% block extra_css %}{% endblock %}
 </head>
 <body>
@@ -29,11 +30,13 @@
         </div>
     </header>
 
-    <nav class="nav-bar">
+    <nav class="nav-bar" aria-label="Primary">
         <ul>
-            <li><a href="{{ url_for('index') }}" {% if request.endpoint == 'index' %}class="active"{% endif %}>Home</a></li>
-            <li><a href="{{ url_for('wellness') }}" {% if request.endpoint == 'wellness' %}class="active"{% endif %}>Benefits</a></li>
-            <li><a href="{{ url_for('about') }}" {% if request.endpoint == 'about' %}class="active"{% endif %}>About</a></li>
+            <li><a href="{{ url_for('index') }}" {% if request.endpoint == 'index' %}class="active"{% endif %}>🏠 Home</a></li>
+            {% if request.endpoint not in ['greenspace', 'tree_detail'] %}
+              <li><a href="{{ url_for('wellness') }}" {% if request.endpoint == 'wellness' %}class="active"{% endif %}>💚 Benefits</a></li>
+              <li><a href="{{ url_for('about') }}" {% if request.endpoint == 'about' %}class="active"{% endif %}>ℹ️ About</a></li>
+            {% endif %}
         </ul>
     </nav>
 
@@ -44,7 +47,24 @@
     <footer>
         <p>&copy; {{ current_year }} CampusGreen - University of Kentucky</p>
     </footer>
+    <script>
+      // Minimal page enter animation class
+      document.addEventListener('DOMContentLoaded', function(){
+        document.body.classList.add('page-enter');
+      });
 
+      // Haptic feedback (where supported)
+      document.addEventListener('click', function(e){
+        const el = e.target.closest('[data-haptic]');
+        if (!el) return;
+        const type = el.getAttribute('data-haptic');
+        if (navigator.vibrate) {
+          if (type === 'strong') navigator.vibrate(20);
+          else if (type === 'soft') navigator.vibrate(5);
+          else navigator.vibrate(10);
+        }
+      }, { passive: true });
+    </script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

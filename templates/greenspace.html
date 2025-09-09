@@ -20,6 +20,8 @@
   .ti-title { margin:0; color:#E5F2EA; font-weight:600; }
   .ti-sub { margin:0; color:#9BBCA7; font-style: italic; font-size:.9em; }
   .ti-arrow { color:#9BBCA7; }
+
+  /* CTA and secondary link styles are centralized in static/css/main.css */
 </style>
 {% endblock %}
 
@@ -31,7 +33,7 @@
       <small>Explore trees within this greenspace</small>
     </div>
     <div class="gs-actions">
-      <a href="{{ url_for('index') }}">← Back to Campus Map</a>
+      <a class="subtle-link" data-haptic="soft" href="{{ url_for('index') }}">← Back to Campus Map</a>
     </div>
   </div>
   <div class="card"><div id="gs-map"></div></div>
@@ -64,61 +66,22 @@
     const list = document.getElementById('tree-list');
     const countEl = document.getElementById('tree-count');
 
-    function getTreeIcon(speciesLatin = '', commonName = '') {
-      const s = (speciesLatin || '').toLowerCase();
-      const c = (commonName || '').toLowerCase();
-
-      // Dedicated icons first
-      if (s.includes('stump') || c.includes('stump')) return L.icon({ iconUrl: `{{ url_for('static', filename='images/tree-markers') }}/stump.svg`, iconSize: [24,24], iconAnchor:[12,12] });
-      if (s.includes('quercus') || c.includes('oak')) return L.icon({ iconUrl: `{{ url_for('static', filename='images/tree-markers') }}/oak.svg`, iconSize: [24,24], iconAnchor:[12,12] });
-      if (s.includes('acer') || c.includes('maple')) return L.icon({ iconUrl: `{{ url_for('static', filename='images/tree-markers') }}/maple.svg`, iconSize: [24,24], iconAnchor:[12,12] });
-      if (s.includes('ginkgo') || s.includes('gingko') || c.includes('ginkgo') || c.includes('gingko')) return L.icon({ iconUrl: `{{ url_for('static', filename='images/tree-markers') }}/gingko.svg`, iconSize: [24,24], iconAnchor:[12,12] });
-      if (s.includes('juglans') || c.includes('walnut')) return L.icon({ iconUrl: `{{ url_for('static', filename='images/tree-markers') }}/walnut.svg`, iconSize: [24,24], iconAnchor:[12,12] });
-      if (s.includes('ulmus') || c.includes('elm')) return L.icon({ iconUrl: `{{ url_for('static', filename='images/tree-markers') }}/elm.svg`, iconSize: [24,24], iconAnchor:[12,12] });
-      if (s.includes('carya') || c.includes('hickory') || c.includes('pecan')) return L.icon({ iconUrl: `{{ url_for('static', filename='images/tree-markers') }}/hickory.svg`, iconSize: [24,24], iconAnchor:[12,12] });
-
-      // Evergreen heuristics (conifers + common evergreen broadleaf)
-      const evergreenGenera = ['pinus','picea','abies','juniperus','thuja','cupressus','chamaecyparis','cedrus','taxus','ilex','tsuga','pseudotsuga'];
-      const evergreenNames = ['pine','spruce','fir','juniper','cedar','cypress','yew','hemlock','holly','evergreen'];
-      if (evergreenGenera.some(g => s.includes(g)) || evergreenNames.some(n => c.includes(n))) {
-        return L.icon({ iconUrl: `{{ url_for('static', filename='images/tree-markers') }}/evergreen.svg`, iconSize: [24,24], iconAnchor:[12,12] });
-      }
-
-      // Flowering heuristics (including Catalpa and Goldenrain Tree)
-      const floweringGenera = ['prunus','malus','magnolia','cercis','cornus','amelanchier','lagerstroemia','styrax','crataegus','pyrus','liriodendron','tilia','catalpa','koelreuteria'];
-      const floweringNames = ['cherry','apple','crabapple','magnolia','redbud','dogwood','serviceberry','hawthorn','pear','crape','tulip','flowering','catalpa','goldenrain','golden rain'];
-      if (floweringGenera.some(g => s.includes(g)) || floweringNames.some(n => c.includes(n))) {
-        return L.icon({ iconUrl: `{{ url_for('static', filename='images/tree-markers') }}/flowering.svg`, iconSize: [24,24], iconAnchor:[12,12] });
-      }
-
-      // Explicit deciduous catch (covers user‑mentioned species)
-      const deciduousGenera = ['liquidambar','carya','ulmus','fraxinus','fagus','platanus','celtis','zelkova','aesculus','gleditsia','styphnolobium','sophora']; // sweetgum, hickory/pecan, elm, ash, beech, sycamore, hackberry, zelkova, buckeye, honey locust, japanese pagoda (Styphnolobium/Sophora)
-      const deciduousNames = ['sweet gum','sweetgum','pecan','elm','hickory','ash','beech','sycamore','yellowwood','american yellowwood','yellow wood','hackberry','zelkova','sawleaf zelkova','buckeye','honey locust','locust','japanese pagoda','pagoda'];
-      if (deciduousGenera.some(g => s.includes(g)) || deciduousNames.some(n => c.includes(n))) {
-        return L.icon({ iconUrl: `{{ url_for('static', filename='images/tree-markers') }}/deciduous.svg`, iconSize: [24,24], iconAnchor:[12,12] });
-      }
-
-      // Default to deciduous
-      return L.icon({ iconUrl: `{{ url_for('static', filename='images/tree-markers') }}/deciduous.svg`, iconSize: [24,24], iconAnchor:[12,12] });
-    }
-
     function iconUrlForTree(t){
-      const icon = getTreeIcon(t.latin_name, t.common_name);
-      return icon.options.iconUrl;
+      return window.treeIcons.getIconUrl(t.latin_name, t.common_name);
     }
 
     function renderTrees(trees) {
       markers.clearLayers();
       list.innerHTML = '';
       trees.forEach(t => {
-        const m = L.marker([t.latitude, t.longitude], { icon: getTreeIcon(t.latin_name, t.common_name) }).addTo(markers);
+        const m = L.marker([t.latitude, t.longitude], { icon: window.treeIcons.getLeafletIcon(t.latin_name, t.common_name) }).addTo(markers);
         const returnTo = encodeURIComponent(window.location.pathname + window.location.search);
         const html = `
           <div>
             <strong>${t.common_name || 'Tree'}</strong><br/>
             <em>${t.latin_name || ''}</em><br/>
             ${t.dbh ? `DBH: ${t.dbh} cm<br/>` : ''}
-            <a href="/tree/${t.tree_id}?return_to=${returnTo}">View details</a>
+            <a class="cta-link cta-link--small" data-haptic="light" href="/tree/${t.tree_id}?return_to=${returnTo}">View details →</a>
           </div>
         `;
         m.bindPopup(html);

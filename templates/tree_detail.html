@@ -29,10 +29,13 @@
   .info-box .k { color:#9BBCA7; font-size:0.85em; }
   .info-box .v { color:#E5F2EA; font-weight:600; }
   .upload-box { background: repeating-linear-gradient(135deg, #232323, #232323 8px, #252525 8px, #252525 16px); border:1px dashed #3a3a3a; border-radius:12px; padding:12px; }
-  .upload-box input[type="file"] { display:block; margin-top:8px; }
+  .upload-box input[type="file"] { display:block; margin-top:8px; margin-bottom:12px; }
+  .back-links { display:flex; flex-wrap:wrap; gap:8px; }
   .actions { display:flex; gap:10px; flex-wrap:wrap; }
-  .button { display:inline-block; background:#558B6E; color:#0f1a15; padding:8px 12px; border-radius:10px; border:none; cursor:pointer; font-weight:600; box-shadow: 0 2px 0 #3a5e4c; }
+  .button { display:inline-block; background:#558B6E; color:#0f1a15; padding:8px 12px; border-radius:12px; border:none; cursor:pointer; font-weight:600; box-shadow: 0 2px 0 #3a5e4c; }
   .button:hover { filter: brightness(1.05); transform: translateY(-1px); }
+
+  /* CTA and secondary link styles are centralized in static/css/main.css */
 </style>
 {% endblock %}
 
@@ -40,15 +43,15 @@
 <div class="td-container">
   <div class="back-links">
     {% if return_to %}
-      <a href="{{ return_to }}">← Back to greenspace</a>
+      <a class="subtle-link" data-haptic="soft" href="{{ return_to }}">← Back to greenspace</a>
     {% endif %}
-    <a href="{{ url_for('index') }}">← Back to Campus Map</a>
+    <a class="subtle-link" data-haptic="soft" href="{{ url_for('index') }}">← Back to Campus Map</a>
   </div>
 
   {% if not tree %}
     <p>Tree not found.</p>
   {% else %}
-    <div class="td-grid">
+  <div class="td-grid">
       <div class="card">
         <div class="hero">
           <div class="icon-wrap"><img id="species-icon" alt="Tree icon"></div>
@@ -109,32 +112,9 @@
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap contributors' }).addTo(map);
     L.marker([lat, lng]).addTo(map);
 
-    // Icon + badges for a friendly, consistent UI
-    function getTreeIcon(speciesLatin = '', commonName = '') {
-      const s = (speciesLatin || '').toLowerCase();
-      const c = (commonName || '').toLowerCase();
-      const base = `{{ url_for('static', filename='images/tree-markers') }}`;
-      if (s.includes('stump') || c.includes('stump')) return `${base}/stump.svg`;
-      if (s.includes('quercus') || c.includes('oak')) return `${base}/oak.svg`;
-      if (s.includes('acer') || c.includes('maple')) return `${base}/maple.svg`;
-      if (s.includes('ginkgo') || s.includes('gingko') || c.includes('ginkgo') || c.includes('gingko')) return `${base}/gingko.svg`;
-      if (s.includes('juglans') || c.includes('walnut')) return `${base}/walnut.svg`;
-      if (s.includes('ulmus') || c.includes('elm')) return `${base}/elm.svg`;
-      if (s.includes('carya') || c.includes('hickory') || c.includes('pecan')) return `${base}/hickory.svg`;
-      const evergreenGenera = ['pinus','picea','abies','juniperus','thuja','cupressus','chamaecyparis','cedrus','taxus','ilex','tsuga','pseudotsuga'];
-      const evergreenNames = ['pine','spruce','fir','juniper','cedar','cypress','yew','hemlock','holly','evergreen'];
-      if (evergreenGenera.some(g => s.includes(g)) || evergreenNames.some(n => c.includes(n))) return `${base}/evergreen.svg`;
-      const floweringGenera = ['prunus','malus','magnolia','cercis','cornus','amelanchier','lagerstroemia','styrax','crataegus','pyrus','liriodendron','tilia','catalpa','koelreuteria'];
-      const floweringNames = ['cherry','apple','crabapple','magnolia','redbud','dogwood','serviceberry','hawthorn','pear','crape','tulip','flowering','catalpa','goldenrain','golden rain'];
-      if (floweringGenera.some(g => s.includes(g)) || floweringNames.some(n => c.includes(n))) return `${base}/flowering.svg`;
-      const deciduousGenera = ['liquidambar','carya','ulmus','fraxinus','fagus','platanus','celtis','zelkova','aesculus','gleditsia','styphnolobium','sophora'];
-      const deciduousNames = ['sweet gum','sweetgum','pecan','elm','hickory','ash','beech','sycamore','yellowwood','american yellowwood','yellow wood','hackberry','zelkova','sawleaf zelkova','buckeye','honey locust','locust','japanese pagoda','pagoda'];
-      if (deciduousGenera.some(g => s.includes(g)) || deciduousNames.some(n => c.includes(n))) return `${base}/deciduous.svg`;
-      return `${base}/deciduous.svg`;
-    }
-
+    // Use centralized icon helper for exact same SVG as markers
     const iconEl = document.getElementById('species-icon');
-    if (iconEl) iconEl.src = getTreeIcon(`{{ tree.latin_name or '' }}`, `{{ tree.common_name or '' }}`);
+    if (iconEl) iconEl.src = window.treeIcons.getIconUrl(`{{ tree.latin_name or '' }}`, `{{ tree.common_name or '' }}`);
 
     const pillbar = document.getElementById('pillbar');
     function addPill(text, accent=false){ if(!pillbar) return; const el=document.createElement('span'); el.className = 'pill' + (accent?' pill--accent':''); el.textContent=text; pillbar.appendChild(el); }

@@ -71,21 +71,36 @@ nav ul {
     list-style-type: none;
     display: flex;
     justify-content: center;
+    gap: 8px;
 }
 
 nav ul li {
-    margin: 0 10px;
+    margin: 0;
 }
 
 nav ul li a {
     color: #C7C4BF;
     text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #242424;
+    border: 1px solid #3a3a3a;
+    padding: 8px 14px;
+    border-radius: 999px;
+    transition: background .15s ease, border-color .15s ease, color .15s ease;
 }
 
 nav ul li a.active {
-    color: #558B6E;
-    font-weight: bold;
+    color: #0f1a15;
+    background: linear-gradient(135deg, #6aa786 0%, #4f8468 60%, #3c6b53 100%);
+    border-color: #3a5e4c;
+    box-shadow: 0 2px 0 #3a5e4c, 0 8px 18px rgba(0,0,0,0.25);
 }
+
+nav ul li a:hover { background:#2a2a2a; border-color:#4a4a4a; }
+nav ul li a:active { transform: translateY(1px); }
+nav ul li a:focus-visible { outline: 2px solid #6aa786; outline-offset: 2px; }
 
 /* Content Sections */
 .green-space-info {
@@ -187,4 +202,53 @@ footer {
     .site-subtitle {
         font-size: 0.9rem;
     }
+}
+
+/* Shared CTA and subtle actions */
+.cta-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    padding: 10px 14px;
+    background: linear-gradient(135deg, #6aa786 0%, #4f8468 60%, #3c6b53 100%);
+    color: #0f1a15;
+    border-radius: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: 0 2px 0 #3a5e4c, 0 8px 18px rgba(0,0,0,0.25);
+    transition: transform .15s ease, filter .15s ease;
+}
+.cta-link:hover { transform: translateY(-1px); filter: brightness(1.05); }
+.cta-link--small { padding: 8px 12px; font-weight: 600; border-radius: 10px; box-shadow: 0 2px 0 #3a5e4c, 0 4px 12px rgba(0,0,0,0.2); }
+.subtle-link { display:inline-flex; align-items:center; gap:6px; padding:8px 10px; border-radius:10px; color:#C7C4BF; background:#242424; border:1px solid #333; text-decoration:none; font-size:0.95em; transition: background .15s ease, border-color .15s ease; }
+.subtle-link:hover { background:#262626; border-color:#3a3a3a; }
+
+/* Vertical action stack for spacing between CTA and secondary links */
+.actions-vertical { display:flex; flex-direction: column; gap: 10px; }
+.cta-link .emoji { font-size: 1.05em; }
+.cta-link:active { transform: translateY(0); filter: brightness(0.98); box-shadow: 0 1px 0 #3a5e4c, 0 6px 12px rgba(0,0,0,0.2); }
+.cta-link:focus-visible { outline: 2px solid #bfe3cf; outline-offset: 2px; }
+.cta-link:hover span:last-child { transform: translateX(2px); transition: transform .15s ease; }
+.cta-link:hover span:nth-child(2) { letter-spacing: 0.2px; transition: letter-spacing .15s ease; }
+.subtle-link:active { transform: translateY(1px); }
+.subtle-link:focus-visible { outline: 2px solid #6aa786; outline-offset: 2px; }
+
+/* Card entrance animation for subtle spatial awareness */
+@keyframes animCardIn {
+  from { opacity: 0; transform: translateY(4px) scale(0.995); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.anim-card-in { animation: animCardIn 220ms ease both; }
+
+/* Page fade/slide-in */
+@keyframes pageFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+body.page-enter main { animation: pageFadeIn 260ms ease both; }
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
 }
