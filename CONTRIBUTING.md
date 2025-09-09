@@ -36,6 +36,6 @@ Please note that this project is released with a Contributor Code of Conduct. By
 
 ## Need Help?
 
-Feel free to contact the project team at [Charles.Key@uky.edu](mailto:Charles.Key@uky.edu) if you have any questions.
+Feel free to contact the project team at [thea.francis@uky.edu](mailto:thea.francis@uky.edu) if you have any questions.
 
 Thank you for contributing to CampusGreen!
