@@ -107,7 +107,7 @@ def greenspace():
 @app.route('/my-adoptions')
 def my_adoptions():
     # Render a page that fetches user-specific adoptions client-side
-    return render_template('my_adoptions.html')
+    return render_template('my_activity.html')
 
 # Tree detail page with photo gallery/upload
 @app.route('/tree/<int:tree_id>')

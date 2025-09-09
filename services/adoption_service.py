@@ -64,6 +64,15 @@ class AdoptionService:
                 cols = ['id','tree_id','user_id','adopter_name','adopted_at','health']
             # Ensure user_id set
             cur.execute("UPDATE tree_adoptions SET user_id = 'legacy' WHERE IFNULL(user_id,'') = ''")
+            # Deduplicate legacy rows keeping the latest per (tree_id, user_id)
+            try:
+                cur.execute(
+                    "DELETE FROM tree_adoptions WHERE id NOT IN ("
+                    "  SELECT MAX(id) FROM tree_adoptions GROUP BY tree_id, user_id"
+                    ")"
+                )
+            except Exception:
+                pass
             # Ensure uniqueness per (tree_id, user_id)
             cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_tree_user_unique ON tree_adoptions(tree_id, user_id)")
             conn.commit()
@@ -94,18 +103,25 @@ class AdoptionService:
         if not user_id:
             return False, 'Missing user id'
 
-        existing = self.get_for_tree(tree_id, user_id)
-        if existing:
-            q = "UPDATE tree_adoptions SET adopter_name = ?, health = ? WHERE tree_id = ? AND user_id = ?"
-            self.db.execute_write(q, (name, health, tree_id, user_id))
-            return True, 'Adoption updated'
-        else:
-            q = (
-                "INSERT INTO tree_adoptions (tree_id, user_id, adopter_name, adopted_at, health) "
-                "VALUES (?, ?, ?, datetime('now'), ?)"
+        # Robust upsert that does not depend on SQLite UPSERT syntax support.
+        # 1) Try update
+        with self.db.get_connection() as conn:
+            cur = conn.cursor()
+            cur.execute(
+                "UPDATE tree_adoptions SET adopter_name = ?, health = ? WHERE tree_id = ? AND user_id = ?",
+                (name, health, tree_id, user_id)
             )
-            self.db.execute_write(q, (tree_id, user_id, name, health))
-            return True, 'Tree adopted'
+            if cur.rowcount == 0:
+                # 2) Not existing, insert
+                cur.execute(
+                    "INSERT INTO tree_adoptions (tree_id, user_id, adopter_name, adopted_at, health) "
+                    "VALUES (?, ?, ?, datetime('now'), ?)",
+                    (tree_id, user_id, name, health)
+                )
+                conn.commit()
+                return True, 'Adoption created'
+            conn.commit()
+        return True, 'Adoption updated'
 
     def unadopt(self, tree_id: int, user_id: str) -> Tuple[bool, str]:
         self.ensure_tables()

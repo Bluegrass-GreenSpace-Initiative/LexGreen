@@ -99,9 +99,9 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 - Urban Forest Initiative
 
 ## Contact
-- ambe303@uky.edu
-- neha230@uky.edu
-- jtbr281@uky.edu 
-- Thea.Francis@uky.edu
+- [ambe303@uky.edu](mailto:ambe303@uky.edu)
+- [neha230@uky.edu](mailto:neha230@uky.edu)
+- [jtbr281@uky.edu](mailto:jtbr281@uky.edu)
+- [Thea.Francis@uky.edu](mailto:thea.francis@uky.edu)
 
 Project Link: [https://github.com/Niveusgh/Campus-greenspace-explorer](https://github.com/Niveusgh/Campus-greenspace-explorer)

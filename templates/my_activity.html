@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block title %}My Activity – CampusGreen{% endblock %}
+
+{% block extra_css %}
+<style>
+  .ma-container { padding: 18px; }
+  .card { background: linear-gradient(180deg, #262626 0%, #202020 100%); border-radius: 16px; padding: 16px; border: 1px solid #2e2e2e; box-shadow: 0 6px 14px rgba(0,0,0,0.25); }
+  .list { display:flex; flex-direction:column; gap:10px; margin-top:10px; }
+  .row { display:grid; grid-template-columns: 36px 1fr auto; gap:10px; align-items:center; background:#2a2a2a; border:1px solid #3a3a3a; border-radius:12px; padding:10px; }
+  .small { color:#9BBCA7; font-size: .9em; }
+  .btn-inline { display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:10px; background:#242424; border:1px solid #3a3a3a; color:#C7C4BF; text-decoration:none; }
+  .btn-inline:hover { background:#262626; }
+  .empty { color:#9BBCA7; font-style: italic; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ma-container">
+  <div class="card" style="margin-bottom:14px;">
+    <h2 style="margin:0;color:#558B6E">My Adopted Trees</h2>
+    <div id="count" class="small"></div>
+    <div id="list" class="list"><div class="empty">Loading…</div></div>
+  </div>
+  <div class="card">
+    <h2 style="margin:0;color:#558B6E">My Reports</h2>
+    <div id="r-count" class="small"></div>
+    <div id="r-list" class="list"><div class="empty">Loading…</div></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    function getOrCreateUserId() {
+      try {
+        let id = localStorage.getItem('cg_uid');
+        if (!id) {
+          id = 'u-' + ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+            (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+          );
+          localStorage.setItem('cg_uid', id);
+          document.cookie = `cg_uid=${id}; path=/; max-age=31536000`;
+        }
+        return id;
+      } catch (e) { return 'u-fallback'; }
+    }
+    const userId = getOrCreateUserId();
+
+    const list = document.getElementById('list');
+    const count = document.getElementById('count');
+    const rList = document.getElementById('r-list');
+    const rCount = document.getElementById('r-count');
+
+    fetch(`/api/adoptions?user_id=${encodeURIComponent(userId)}`)
+      .then(r => r.json())
+      .then(rows => {
+        // Best-effort client dedupe: keep latest adoption per tree_id
+        const uniq = new Map();
+        if (Array.isArray(rows)) {
+          rows.forEach(r => {
+            const key = String(r.tree_id);
+            const prev = uniq.get(key);
+            if (!prev || (r.adopted_at||'') > (prev.adopted_at||'')) uniq.set(key, r);
+          });
+        }
+        const listRows = Array.from(uniq.values());
+        if (listRows.length === 0) {
+          list.innerHTML = '<div class="empty">No adopted trees yet.</div>';
+          count.textContent = '';
+          return;
+        }
+        count.textContent = `${listRows.length} adopted`;
+        list.innerHTML = '';
+        listRows.forEach(r => {
+          const row = document.createElement('div');
+          row.className = 'row';
+          const iconUrl = window.treeIcons?.getIconUrl(r.latin_name, r.common_name) || '';
+          row.innerHTML = `
+            <div><img src="${iconUrl}" alt="icon" width="24" height="24" style="display:block"></div>
+            <div>
+              <div><strong>${r.common_name || 'Tree'}</strong>${r.latin_name ? ` <span class="small"><em>${r.latin_name}</em></span>` : ''}</div>
+              <div class="small">Adopted: ${r.adopted_at || '—'} • Health: ${'●'.repeat(r.health||0)}${'○'.repeat(4-(r.health||0))}</div>
+            </div>
+            <div>
+              <a class="btn-inline" href="/tree/${r.tree_id}">View →</a>
+            </div>
+          `;
+          list.appendChild(row);
+        });
+      })
+      .catch(() => { list.innerHTML = '<div class="empty">Failed to load.</div>'; });
+
+    // Load my reports
+    fetch(`/api/reports/user?user_id=${encodeURIComponent(userId)}`)
+      .then(r => r.json())
+      .then(rows => {
+        // Client-side dedupe: collapse identical reports submitted at same second
+        const uniq = new Map();
+        if (Array.isArray(rows)) {
+          rows.forEach(r => {
+            const key = [r.tree_id, r.issue_type||'', r.severity||1, r.description||'', r.reported_at||''].join('|');
+            if (!uniq.has(key)) uniq.set(key, r);
+          });
+        }
+        const listRows = Array.from(uniq.values());
+        if (listRows.length === 0) {
+          rList.innerHTML = '<div class="empty">No reports yet.</div>';
+          rCount.textContent = '';
+          return;
+        }
+        rCount.textContent = `${listRows.length} submitted`;
+        rList.innerHTML = '';
+        listRows.forEach(r => {
+          const iconUrl = window.treeIcons?.getIconUrl(r.latin_name, r.common_name) || '';
+          const dots = '●'.repeat(Math.max(1, Math.min(4, r.severity||1))) + '○'.repeat(4-Math.max(1, Math.min(4, r.severity||1)));
+          const row = document.createElement('div');
+          row.className = 'row';
+          row.innerHTML = `
+            <div><img src="${iconUrl}" alt="icon" width="24" height="24" style="display:block"></div>
+            <div>
+              <div><strong>${r.common_name || 'Tree'}</strong> <span class=\"small\">• ${new Date(r.reported_at).toLocaleString()}</span></div>
+              <div class=\"small\">${(r.issue_type||'issue').toString().replace(/^./, c=>c.toUpperCase())} • Severity: ${dots}${r.description ? ` • ${r.description}` : ''}</div>
+            </div>
+            <div>
+              <a class="btn-inline" href="/tree/${r.tree_id}">View →</a>
+              <button class="btn-inline" data-del="${r.report_id}">Delete</button>
+            </div>
+          `;
+          rList.appendChild(row);
+        });
+        // Wire delete buttons
+        rList.querySelectorAll('button[data-del]')?.forEach(btn => {
+          btn.addEventListener('click', () => {
+            const id = btn.getAttribute('data-del');
+            if (!confirm('Delete this report?')) return;
+            fetch(`/api/reports/${id}?user_id=${encodeURIComponent(userId)}`, { method: 'DELETE' })
+              .then(r => r.json())
+              .then(resp => {
+                if (!resp.error) {
+                  const row = btn.closest('.row');
+                  row?.remove();
+                  const remaining = rList.querySelectorAll('.row').length;
+                  rCount.textContent = remaining ? `${remaining} submitted` : '';
+                  if (!remaining) rList.innerHTML = '<div class="empty">No reports yet.</div>';
+                } else {
+                  alert(resp.error);
+                }
+              })
+              .catch(() => alert('Failed to delete report'));
+          });
+        });
+      })
+      .catch(() => { rList.innerHTML = '<div class="empty">Failed to load.</div>'; });
+  });
+</script>
+{% endblock %}
+

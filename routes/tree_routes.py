@@ -185,6 +185,23 @@ def submit_report():
 def list_reports_for_tree(tree_id: int):
     return jsonify(damage_service.list_for_tree(tree_id))
 
+@tree_routes.route('/api/reports/user', methods=['GET'])
+def list_reports_for_user():
+    user_id = (request.args.get('user_id') or '').strip()
+    if not user_id:
+        return jsonify([])
+    return jsonify(damage_service.list_for_user(user_id))
+
+@tree_routes.route('/api/reports/<int:report_id>', methods=['DELETE'])
+def delete_report(report_id: int):
+    user_id = (request.args.get('user_id') or '').strip()
+    if not user_id:
+        return jsonify({'error': 'Missing user id'}), 400
+    ok, msg = damage_service.delete_report(report_id, user_id)
+    if ok:
+        return jsonify({'message': msg})
+    return jsonify({'error': msg}), 404
+
 @tree_routes.route('/admin/reports/export.csv', methods=['GET'])
 def export_reports_csv():
     since = request.args.get('since')  # optional ISO-8601 string yyyy-mm-dd or full datetime

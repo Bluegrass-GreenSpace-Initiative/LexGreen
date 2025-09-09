@@ -33,8 +33,8 @@
     <nav class="nav-bar" aria-label="Primary">
         <ul>
             <li><a href="{{ url_for('index') }}" {% if request.endpoint == 'index' %}class="active"{% endif %}>🏠 Home</a></li>
-            <li><a href="{{ url_for('my_adoptions') }}" {% if request.endpoint == 'my_adoptions' %}class="active"{% endif %}>🌳 My Trees</a></li>
-            {% if request.endpoint not in ['greenspace', 'tree_detail'] %}
+            <li><a href="{{ url_for('my_adoptions') }}" {% if request.endpoint == 'my_adoptions' %}class="active"{% endif %}>🌿 My Activity</a></li>
+            {% if request.endpoint not in ['greenspace', 'tree_detail', 'my_adoptions'] %}
               <li><a href="{{ url_for('wellness') }}" {% if request.endpoint == 'wellness' %}class="active"{% endif %}>💚 Benefits</a></li>
               <li><a href="{{ url_for('about') }}" {% if request.endpoint == 'about' %}class="active"{% endif %}>ℹ️ About</a></li>
             {% endif %}
