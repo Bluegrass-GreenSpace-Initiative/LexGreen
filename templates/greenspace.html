@@ -4,13 +4,22 @@
 
 {% block extra_css %}
 <style>
-  .gs-container { padding: 16px; }
-  .gs-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .gs-container { padding: 18px; }
+  .gs-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
   .gs-actions a { margin-right: 10px; }
-  #gs-map { height: calc(100vh - 220px); border-radius: 8px; overflow: hidden; }
-  .tree-list { margin-top: 12px; background: #222; border-radius: 8px; padding: 12px; }
-  .tree-item { padding: 6px 8px; border-bottom: 1px solid #333; }
-  .tree-item:last-child { border-bottom: none; }
+  .card { background: linear-gradient(180deg, #262626 0%, #202020 100%); border-radius: 16px; padding: 14px; border: 1px solid #2e2e2e; box-shadow: 0 6px 14px rgba(0,0,0,0.25); }
+  #gs-map { height: calc(60vh); border-radius: 12px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.25); }
+  .tree-list { margin-top: 12px; }
+  .list-head { display:flex; align-items:center; gap:8px; color:#E5F2EA; }
+  .list { margin-top: 10px; display:flex; flex-direction: column; gap:8px; }
+  .tree-item { display:flex; align-items:center; gap:10px; padding:10px; border-radius:12px; background:#2a2a2a; border:1px solid #3a3a3a; cursor:pointer; transition: transform .15s ease, background .15s ease; }
+  .tree-item:hover { background:#2d2d2d; transform: translateY(-1px); }
+  .ti-icon { width:28px; height:28px; border-radius:8px; background: radial-gradient(85% 85% at 50% 20%, #6aa786 0%, #4f8468 60%, #3c6b53 100%); display:flex; align-items:center; justify-content:center; }
+  .ti-icon img { width:18px; height:18px; filter: drop-shadow(0 2px 2px rgba(0,0,0,.3)); }
+  .ti-main { flex:1; }
+  .ti-title { margin:0; color:#E5F2EA; font-weight:600; }
+  .ti-sub { margin:0; color:#9BBCA7; font-style: italic; font-size:.9em; }
+  .ti-arrow { color:#9BBCA7; }
 </style>
 {% endblock %}
 
@@ -25,10 +34,10 @@
       <a href="{{ url_for('index') }}">← Back to Campus Map</a>
     </div>
   </div>
-  <div id="gs-map"></div>
-  <div class="tree-list">
-    <strong>Trees in this area</strong> <span id="tree-count"></span>
-    <div id="tree-list"><em>Loading…</em></div>
+  <div class="card"><div id="gs-map"></div></div>
+  <div class="tree-list card">
+    <div class="list-head"><strong>Trees in this area</strong> <span id="tree-count"></span></div>
+    <div id="tree-list" class="list"><em>Loading…</em></div>
   </div>
   <!-- Hidden data from server -->
   <template id="gs-data" data-north="{{ bounds.north }}" data-south="{{ bounds.south }}" data-east="{{ bounds.east }}" data-west="{{ bounds.west }}"></template>
@@ -93,6 +102,11 @@
       return L.icon({ iconUrl: `{{ url_for('static', filename='images/tree-markers') }}/deciduous.svg`, iconSize: [24,24], iconAnchor:[12,12] });
     }
 
+    function iconUrlForTree(t){
+      const icon = getTreeIcon(t.latin_name, t.common_name);
+      return icon.options.iconUrl;
+    }
+
     function renderTrees(trees) {
       markers.clearLayers();
       list.innerHTML = '';
@@ -114,10 +128,16 @@
 
         const row = document.createElement('div');
         row.className = 'tree-item';
-        row.innerHTML = `${t.common_name || 'Tree'} ${t.latin_name ? '— <em>' + t.latin_name + '</em>' : ''}`;
+        row.innerHTML = `
+          <div class="ti-icon"><img src="${iconUrlForTree(t)}" alt="icon"></div>
+          <div class="ti-main">
+            <p class="ti-title">${t.common_name || 'Tree'}</p>
+            ${t.latin_name ? `<p class="ti-sub">${t.latin_name}</p>` : ''}
+          </div>
+          <div class="ti-arrow">›</div>
+        `;
         row.addEventListener('click', () => {
-          map.setView([t.latitude, t.longitude], Math.max(map.getZoom(), 19));
-          m.openPopup();
+          window.location.href = `/tree/${t.tree_id}?return_to=${returnTo}`;
         });
         list.appendChild(row);
       });
