@@ -104,6 +104,11 @@ def greenspace():
         return redirect(url_for('index'))
     return render_template('greenspace.html', name=name, bounds=bounds)
 
+@app.route('/my-adoptions')
+def my_adoptions():
+    # Render a page that fetches user-specific adoptions client-side
+    return render_template('my_adoptions.html')
+
 # Tree detail page with photo gallery/upload
 @app.route('/tree/<int:tree_id>')
 def tree_detail(tree_id: int):

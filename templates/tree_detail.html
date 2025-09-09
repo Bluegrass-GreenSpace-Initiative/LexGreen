@@ -7,7 +7,7 @@
   .td-container { padding: 18px; }
   .td-grid { display: grid; grid-template-columns: 1fr; gap: 18px; }
   @media(min-width: 1000px){ .td-grid { grid-template-columns: 1.3fr 1fr; } }
-  #td-map { height: 360px; border-radius: 14px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.25); }
+  /* removed map on detail page per new UX */
   .card { background: linear-gradient(180deg, #262626 0%, #202020 100%); border-radius: 16px; padding: 16px; border: 1px solid #2e2e2e; box-shadow: 0 6px 14px rgba(0,0,0,0.25); }
   .photos { display:grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap:12px; }
   .photos img { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 12px; transition: transform 0.2s ease, box-shadow 0.2s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
@@ -22,8 +22,13 @@
   .pillbar { display:flex; flex-wrap: wrap; gap:8px; margin-top:8px; }
   .pill { background:#2a2a2a; border:1px solid #3a3a3a; color:#C7C4BF; padding:6px 10px; border-radius:999px; font-size:0.85em; }
   .pill--accent { background:#2b3d34; border-color:#3e5a4c; color:#bfe3cf; }
-  .fact { margin:10px 0 14px 0; padding:12px; background:#1f1f1f; border-left:6px solid #558B6E; border-radius:10px; display:flex; gap:10px; align-items:flex-start; }
+  /* Fact reveal with branch-like grow-in */
+  .fact { margin:10px 0 14px 0; padding:12px; background:#1f1f1f; border-left:6px solid #558B6E; border-radius:10px; display:flex; gap:10px; align-items:flex-start; position:relative; overflow:hidden; }
   .fact .emoji { font-size:22px; }
+  .fact .fact-text { opacity:0; transform: translateY(6px) scale(0.99); animation: factGrow 420ms ease forwards; animation-delay: 140ms; }
+  .fact::before { content:""; position:absolute; left:0; top:0; bottom:0; width:0; background:linear-gradient(180deg,#2b3d34,#1f2a24); opacity:0.6; border-top-right-radius:10px; border-bottom-right-radius:10px; animation: branchSweep 420ms ease forwards; }
+  @keyframes branchSweep { from { width:0; } to { width:6px; } }
+  @keyframes factGrow { from { opacity:0; transform: translateY(6px) scale(0.99);} to { opacity:1; transform: translateY(0) scale(1);} }
   .info-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:10px; margin: 8px 0 12px 0; }
   .info-box { background:#2a2a2a; border:1px solid #3a3a3a; border-radius:12px; padding:10px; }
   .info-box .k { color:#9BBCA7; font-size:0.85em; }
@@ -36,6 +41,31 @@
   .button:hover { filter: brightness(1.05); transform: translateY(-1px); }
 
   /* CTA and secondary link styles are centralized in static/css/main.css */
+
+  /* Photos fade-in */
+  .photo-fade { opacity: 0; transform: translateY(4px); }
+  .photo-fade.is-in { animation: photoIn 360ms ease both; }
+  @keyframes photoIn { from { opacity:0; transform: translateY(4px);} to { opacity:1; transform: translateY(0);} }
+
+  /* Adoption card */
+  .adopt-card { background: linear-gradient(180deg, #262626 0%, #202020 100%); border: 1px solid #2e2e2e; border-radius: 16px; padding: 14px; box-shadow: 0 6px 14px rgba(0,0,0,0.25); overflow: hidden; }
+  .adopt-header { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .heart-btn { appearance:none; border:none; background:#242424; border:1px solid #3a3a3a; color:#C7C4BF; padding:10px 14px; border-radius:999px; cursor:pointer; display:inline-flex; align-items:center; gap:8px; font-weight:700; }
+  .heart-btn:hover { background:#262626; }
+  .heart { display:inline-block; font-size:18px; transform-origin:center; }
+  .heart.pop { animation: heartPop 420ms cubic-bezier(.2,.8,.2,1); }
+  @keyframes heartPop { 0%{ transform: scale(1);} 45%{ transform: scale(1.45);} 70%{ transform: scale(0.92);} 100%{ transform: scale(1);} }
+  .adopt-body { grid-template-columns: 1fr; display:grid; gap:10px; margin-top:10px; }
+  .adopt-row { display:grid; grid-template-columns: 34px 1fr; align-items:center; gap:8px; }
+  .adopt-k { text-align:center; }
+  .sap { position:relative; height: 10px; border-radius: 999px; background:#2a2a2a; border:1px solid #3a3a3a; overflow:hidden; }
+  .sap .fill { position:absolute; left:0; top:0; bottom:0; width:0%; background: linear-gradient(90deg,#6aa786 0%, #4f8468 60%, #3c6b53 100%); box-shadow: inset 0 0 6px rgba(0,0,0,0.35); }
+  .sap.anim .fill { animation: sapRise 600ms ease forwards; }
+  @keyframes sapRise { from { width:0%; } to { width: var(--to, 0%); } }
+  .dots { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+  .quick-adopt { margin-top:10px; display:none; gap:8px; align-items:center; }
+  .qa-input { width: min(280px, 100%); background:#242424; border:1px solid #3a3a3a; color:#E5F2EA; border-radius:10px; padding:8px; }
+  .qa-actions { display:flex; gap:6px; }
 </style>
 {% endblock %}
 
@@ -62,7 +92,7 @@
           </div>
         </div>
         {% if fact %}
-          <div class="fact"><div class="emoji">💡</div><div><strong>Fun fact</strong><br>{{ fact }}</div></div>
+          <div class="fact"><div class="emoji">💡</div><div class="fact-text"><strong>Fun fact</strong><br>{{ fact }}</div></div>
         {% endif %}
         <div class="info-grid">
           {% if tree.dbh %}
@@ -71,7 +101,7 @@
           <div class="info-box"><div class="k">Latitude</div><div class="v">{{ '%.6f'|format(tree.latitude) }}</div></div>
           <div class="info-box"><div class="k">Longitude</div><div class="v">{{ '%.6f'|format(tree.longitude) }}</div></div>
         </div>
-        <div id="td-map"></div>
+        <!-- map removed for cleaner detail view -->
       </div>
 
       <div class="card">
@@ -79,7 +109,7 @@
         <div class="photos">
           {% if photos %}
             {% for p in photos %}
-              <img src="{{ p.url }}" alt="Tree photo uploaded {{ p.uploaded_at }}">
+              <img class="photo-fade" src="{{ p.url }}" alt="Tree photo uploaded {{ p.uploaded_at }}">
             {% endfor %}
           {% else %}
             <p>No photos yet. Be the first to add one!</p>
@@ -94,6 +124,66 @@
           </form>
         </div>
       </div>
+
+      <div class="adopt-card">
+        <div class="adopt-header">
+          <h3 style="margin:0">Adopt this tree</h3>
+          <button id="adopt-heart" class="heart-btn" data-haptic="light"><span id="heart-emoji" class="heart">🤍</span><span id="adopt-text">Adopt</span></button>
+        </div>
+        <div class="quick-adopt" id="quick-adopt">
+          <input id="qa-name" class="qa-input" type="text" placeholder="Give this tree a name (e.g., My Oakley)">
+          <div class="qa-actions">
+            <button id="qa-confirm" class="button" type="button">Confirm</button>
+            <button id="qa-cancel" class="subtle-link" type="button">Cancel</button>
+          </div>
+        </div>
+        <div id="adopt-body" class="adopt-body" hidden>
+          <div class="adopt-row"><div class="adopt-k">🏷️</div><div><label for="adopter-name" style="display:block; font-size:.9em; color:#9BBCA7">Name</label><input id="adopter-name" type="text" placeholder="My Oakley" style="width:100%; background:#242424; border:1px solid #3a3a3a; color:#E5F2EA; border-radius:10px; padding:8px;"></div></div>
+          <div class="adopt-row"><div class="adopt-k">📅</div><div><label style="display:block; font-size:.9em; color:#9BBCA7">Adopted</label><div id="adopted-at">—</div></div></div>
+          <div class="adopt-row"><div class="adopt-k">🍃</div><div>
+              <label style="display:block; font-size:.9em; color:#9BBCA7">Health Status</label>
+              <div class="sap" id="sap"><div class="fill" id="sap-fill"></div></div>
+              <div class="dots" id="health-dots" style="margin-top:6px;">○○○○</div>
+              <div style="margin-top:6px; display:flex; gap:6px; flex-wrap: wrap;">
+                <button class="button" type="button" data-health="1">●○○○</button>
+                <button class="button" type="button" data-health="2">●●○○</button>
+                <button class="button" type="button" data-health="3">●●●○</button>
+                <button class="button" type="button" data-health="4">●●●●</button>
+              </div>
+          </div></div>
+          <div class="adopt-row"><div class="adopt-k">📊</div><div>Growth Tracker <small style="color:#9BBCA7">(coming soon)</small></div></div>
+          <div class="adopt-row"><div class="adopt-k">🚨</div><div>
+            <a href="#" class="subtle-link" id="report-issue" data-haptic="soft">Report Issue</a>
+            <div id="report-form" style="display:none; margin-top:8px;">
+              <label class="small" style="display:block; color:#9BBCA7;">Issue</label>
+              <select id="rf-type" style="width:100%; background:#242424; border:1px solid #3a3a3a; color:#E5F2EA; border-radius:10px; padding:8px; margin-bottom:6px;">
+                <option value="damage">Damage</option>
+                <option value="disease">Disease</option>
+                <option value="hazard">Hazard</option>
+                <option value="other">Other</option>
+              </select>
+              <label class="small" style="display:block; color:#9BBCA7;">Severity</label>
+              <div style="display:flex; gap:6px; margin:6px 0;">
+                <button class="button" type="button" data-rsev="1">●○○○</button>
+                <button class="button" type="button" data-rsev="2">●●○○</button>
+                <button class="button" type="button" data-rsev="3">●●●○</button>
+                <button class="button" type="button" data-rsev="4">●●●●</button>
+              </div>
+              <textarea id="rf-desc" rows="3" placeholder="Describe the issue…" style="width:100%; background:#242424; border:1px solid #3a3a3a; color:#E5F2EA; border-radius:10px; padding:8px; resize:vertical;"></textarea>
+              <div style="display:flex; gap:8px; margin-top:8px;">
+                <button id="rf-submit" class="button" type="button">Submit</button>
+                <button id="rf-cancel" class="subtle-link" type="button">Cancel</button>
+              </div>
+              <div id="rf-note" class="small" style="margin-top:6px; color:#9BBCA7;"></div>
+            </div>
+          </div></div>
+          <div class="adopt-row"><div class="adopt-k">📸</div><div>My Photos ({{ photos|length }})</div></div>
+          <div style="display:flex; gap:8px; margin-top:6px; flex-wrap: wrap;">
+            <button id="save-adoption" class="button" type="button">Save</button>
+            <button id="cancel-adoption" class="subtle-link" type="button">Unadopt</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <template id="td-data" data-lat="{{ tree.latitude }}" data-lng="{{ tree.longitude }}"></template>
@@ -105,12 +195,7 @@
 {% if tree %}
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    const t = document.getElementById('td-data');
-    const lat = parseFloat(t.dataset.lat);
-    const lng = parseFloat(t.dataset.lng);
-    const map = L.map('td-map').setView([lat, lng], 19);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap contributors' }).addTo(map);
-    L.marker([lat, lng]).addTo(map);
+    // map removed on detail page
 
     // Use centralized icon helper for exact same SVG as markers
     const iconEl = document.getElementById('species-icon');
@@ -127,7 +212,172 @@
     if (common.includes('oak') || latin.includes('quercus')) addPill('Oak');
     if (common.includes('maple') || latin.includes('acer')) addPill('Maple');
     if (common.includes('walnut') || latin.includes('juglans')) addPill('Nut tree');
+
+    // Photos gentle fade-in
+    const imgs = document.querySelectorAll('.photo-fade');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('is-in'); });
+    }, { rootMargin: '0px 0px -10% 0px' });
+    imgs.forEach(i => io.observe(i));
+
+    // Adoption card interactions
+    const treeId = {{ tree.tree_id }};
+    const heartBtn = document.getElementById('adopt-heart');
+    const heartEmoji = document.getElementById('heart-emoji');
+    const adoptText = document.getElementById('adopt-text');
+    const body = document.getElementById('adopt-body');
+    const nameInput = document.getElementById('adopter-name');
+    const qa = document.getElementById('quick-adopt');
+    const qaName = document.getElementById('qa-name');
+    const qaConfirm = document.getElementById('qa-confirm');
+    const qaCancel = document.getElementById('qa-cancel');
+    const adoptedAt = document.getElementById('adopted-at');
+    const sap = document.getElementById('sap');
+    const dots = document.getElementById('health-dots');
+    let healthVal = 0;
+
+    function setHeart(adopted) {
+      heartEmoji.textContent = adopted ? '❤️' : '🤍';
+      heartEmoji.classList.remove('pop');
+      void heartEmoji.offsetWidth; heartEmoji.classList.add('pop');
+      adoptText.textContent = adopted ? 'Adopted' : 'Adopt';
+      body.hidden = !adopted;
+    }
+
+    function renderHealth(h) {
+      const clamped = Math.max(0, Math.min(4, h|0));
+      dots.textContent = '●'.repeat(clamped) + '○'.repeat(4 - clamped);
+      const pct = (clamped / 4) * 100;
+      sap.style.setProperty('--to', pct + '%');
+      sap.classList.remove('anim'); void sap.offsetWidth; sap.classList.add('anim');
+    }
+
+    document.querySelectorAll('[data-health]')?.forEach(btn => {
+      btn.addEventListener('click', () => { healthVal = parseInt(btn.getAttribute('data-health')) || 0; renderHealth(healthVal); });
+    });
+
+    // Anonymous user tracking: persistent, lightweight user id
+    function getOrCreateUserId() {
+      try {
+        let id = localStorage.getItem('cg_uid');
+        if (!id) {
+          id = 'u-' + ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+            (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+          );
+          localStorage.setItem('cg_uid', id);
+          document.cookie = `cg_uid=${id}; path=/; max-age=31536000`;
+        }
+        return id;
+      } catch (e) { return 'u-fallback'; }
+    }
+    const userId = getOrCreateUserId();
+
+    function loadAdoption(){
+      fetch(`/api/adoption/${treeId}?user_id=${encodeURIComponent(userId)}`)
+        .then(r => r.json())
+        .then(data => {
+          if (data && data.tree_id) {
+            setHeart(true);
+            nameInput.value = data.adopter_name || '';
+            adoptedAt.textContent = data.adopted_at || '—';
+            healthVal = parseInt(data.health || 0);
+            renderHealth(healthVal);
+          } else {
+            setHeart(false);
+            adoptedAt.textContent = '—';
+            healthVal = 0; renderHealth(healthVal);
+          }
+        })
+        .catch(() => { /* ignore */ });
+    }
+
+    function showQuickAdopt(show) { qa.style.display = show ? 'flex' : 'none'; if (show) { qaName.focus(); qaName.select(); } }
+    heartBtn.addEventListener('click', () => {
+      if (body.hidden) {
+        showQuickAdopt(true);
+      } else {
+        body.hidden = !body.hidden;
+      }
+    });
+    qaCancel.addEventListener('click', () => showQuickAdopt(false));
+    qaConfirm.addEventListener('click', () => {
+      const proposed = (qaName.value || nameInput.value || '').trim();
+      if (!proposed) { qaName.focus(); return; }
+      const payload = { adopter_name: proposed, health: Math.max(1, healthVal||0), user_id: userId };
+      fetch(`/api/adoption/${treeId}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+        .then(r => r.json())
+        .then(data => {
+          if (data && !data.error) {
+            nameInput.value = data.adoption?.adopter_name || proposed;
+            adoptedAt.textContent = data.adoption?.adopted_at || '—';
+            setHeart(true);
+            renderHealth(data.adoption?.health ?? payload.health);
+            showQuickAdopt(false);
+          } else {
+            alert(data.error || 'Failed to adopt');
+          }
+        })
+        .catch(() => alert('Failed to adopt'));
+    });
+
+    document.getElementById('save-adoption').addEventListener('click', () => {
+      const adopter_name = nameInput.value.trim();
+      fetch(`/api/adoption/${treeId}`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ adopter_name, health: healthVal, user_id: userId })
+      }).then(r => r.json()).then(data => {
+        if (data && !data.error) {
+          setHeart(true);
+          adoptedAt.textContent = (data.adoption && data.adoption.adopted_at) || adoptedAt.textContent;
+        } else {
+          alert(data.error || 'Failed to save adoption');
+        }
+      }).catch(() => alert('Failed to save adoption'));
+    });
+
+    document.getElementById('cancel-adoption').addEventListener('click', () => {
+      if (!confirm('Unadopt this tree?')) return;
+      fetch(`/api/adoption/${treeId}?user_id=${encodeURIComponent(userId)}`, { method: 'DELETE' })
+        .then(r => r.json())
+        .then(() => { setHeart(false); nameInput.value=''; adoptedAt.textContent='—'; renderHealth(0); })
+        .catch(() => {});
+    });
+
+    renderHealth(0);
+    loadAdoption();
+
+    // Report Issue form
+    const reportLink = document.getElementById('report-issue');
+    const rf = document.getElementById('report-form');
+    const rfType = document.getElementById('rf-type');
+    const rfDesc = document.getElementById('rf-desc');
+    const rfSubmit = document.getElementById('rf-submit');
+    const rfCancel = document.getElementById('rf-cancel');
+    const rfNote = document.getElementById('rf-note');
+    let rSeverity = 2;
+    function setRsev(v){ rSeverity = v; rfNote.textContent = `Severity set to ${'●'.repeat(v)}${'○'.repeat(4-v)}`; }
+    document.querySelectorAll('[data-rsev]')?.forEach(b=>b.addEventListener('click',()=>setRsev(parseInt(b.getAttribute('data-rsev')))));
+    reportLink?.addEventListener('click', (e)=>{ e.preventDefault(); rf.style.display = rf.style.display==='none'?'block':'none'; });
+    rfCancel?.addEventListener('click', ()=>{ rf.style.display='none'; rfNote.textContent=''; rfDesc.value=''; });
+    rfSubmit?.addEventListener('click', ()=>{
+      const payload = {
+        tree_id: {{ tree.tree_id }},
+        user_id: userId,
+        issue_type: rfType.value,
+        severity: rSeverity,
+        description: rfDesc.value||''
+      };
+      rfSubmit.disabled = true;
+      fetch('/api/reports', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) })
+        .then(r=>r.json())
+        .then(data=>{
+          if(!data.error){ rfNote.textContent='Thanks! Your report was submitted.'; rfDesc.value=''; }
+          else { rfNote.textContent = data.error; }
+        })
+        .catch(()=>{ rfNote.textContent='Failed to submit report.'; })
+        .finally(()=>{ rfSubmit.disabled=false; });
+    });
   });
-}</script>
+</script>
 {% endif %}
 {% endblock %}
