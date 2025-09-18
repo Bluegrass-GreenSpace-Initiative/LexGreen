@@ -8,6 +8,7 @@
     <title>{% block title %}CampusGreen{% endblock %}</title>
     
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -74,6 +75,15 @@
         menuBtn.addEventListener('click', () => {
           const open = document.body.classList.toggle('nav-open');
           menuBtn.setAttribute('aria-expanded', String(open));
+        });
+      }
+    </script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('{{ url_for('static', filename='sw.js') }}').catch(function(err){
+            console.debug('SW registration failed:', err);
+          });
         });
       }
     </script>

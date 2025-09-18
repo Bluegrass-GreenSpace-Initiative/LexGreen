@@ -1,5 +1,8 @@
 # CampusGreen: Interactive Green Space Explorer
 
+## Live Site
+- https://campus-greenspace-explorer.fly.dev
+
 ## Overview
 CampusGreen is a mobile-friendly web application to explore, learn about, and care for green spaces on campus. It provides an interactive map, official UK tree data, community features (adoptions, reports), and an admin portal.
 
@@ -10,6 +13,7 @@ CampusGreen is a mobile-friendly web application to explore, learn about, and ca
 - Tree detail pages with photo gallery and uploads
 - Adoptions, damage reports, and work orders APIs
 - Admin portal (login, amenities, volunteers, CSV exports)
+- PWA scaffold (installable; basic offline caching)
 
 ## Technology Stack
 - Backend: Python 3 + Flask
@@ -74,9 +78,9 @@ Open http://localhost:5000
 - Slack notifications for high-priority reports (P≥3):
   - Set `SLACK_WEBHOOK_URL` in your environment before starting the app
 
-## Deployment (Fly.io)
+## Deployment (for self‑hosting)
 
-This repo includes a Dockerfile and Fly configuration. The app uses a persistent volume mounted at `/app/instance` for the SQLite DB and uploaded photos.
+This app is already deployed at the Live Site above. The steps below are only needed if you want to host your own copy (e.g., a fork or private instance). The repo includes a Dockerfile and Fly configuration. The app uses a persistent volume mounted at `/app/instance` for the SQLite DB and uploaded photos.
 
 1) Install and log in to Fly
 ```bash
@@ -136,7 +140,8 @@ fly ssh console -C "python - <<'PY'\nimport sqlite3\nconn=sqlite3.connect('insta
 Notes
 - Dockerfile runs Gunicorn on port 8080 in production.
 - Flask-Compress is enabled for faster responses.
-- Health checks: adding `/healthz` and referencing it in `fly.toml` checks is recommended.
+- Health checks: `/healthz` is implemented and referenced in `fly.toml` checks.
+- Warm instance: `min_machines_running = 1` is set to avoid cold starts.
 
 
 ## Mobile (PWA, Android, iOS)
@@ -157,4 +162,3 @@ Apache License 2.0 — see [LICENSE](LICENSE)
 - [Thea.Francis@uky.edu](mailto:Thea.Francis@uky.edu)
 
 Project Link: https://github.com/Niveusgh/Campus-greenspace-explorer
-

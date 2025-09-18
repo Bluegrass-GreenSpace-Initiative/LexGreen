@@ -101,6 +101,10 @@ def export_work_orders_command():
     print(f'Wrote {out}')
 
 # Main routes
+@app.route('/healthz')
+def healthz():
+    return 'ok', 200
+
 @app.route('/')
 def index():
     return render_template('index.html',
