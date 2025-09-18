@@ -60,6 +60,10 @@ header {
     font-size: 0.95rem;
 }
 
+/* Mobile header menu button */
+.menu-toggle { display:none; margin-left:auto; background:#2a5f46; border:1px solid #2a4d3b; color:#e7efe9; padding:8px 12px; border-radius:10px; }
+.menu-toggle:focus-visible { outline: 2px solid #bfe3cf; outline-offset: 2px; }
+
 /* Navigation */
 nav {
     background-color: #333;
@@ -182,26 +186,30 @@ footer {
 
 /* Media Queries */
 @media (max-width: 600px) {
-    nav ul {
-        flex-direction: column;
-    }
-    
-    nav ul li {
-        margin: 5px 0;
-    }
-    
-    .logo {
-        width: 40px;
-        height: 40px;
-    }
-    
-    .site-title {
-        font-size: 1.5rem;
-    }
-    
-    .site-subtitle {
-        font-size: 0.9rem;
-    }
+    /* Compact header */
+    header { padding: .5rem; }
+    .header-content { gap: 10px; }
+    .logo { width: 36px; height: 36px; }
+    .site-title { font-size: 1.2rem; }
+    .site-subtitle { font-size: 0.8rem; display:none; }
+    .menu-toggle { display:inline-flex; }
+
+    /* Collapse nav by default; overlay when open */
+    nav { display: none; position: fixed; top: 56px; left: 0; right: 0; z-index: 1000; padding: .5rem .75rem; }
+    body.nav-open nav { display: block; }
+    nav ul { flex-direction: column; align-items: stretch; gap: 6px; }
+    nav ul li { margin: 0; }
+    nav ul li a { width: 100%; justify-content: center; }
+
+    /* Reduce main padding so content starts higher on phones */
+    main { padding: 8px; }
+    /* Footer should not cover content on phones */
+    footer { font-size: .9rem; position: static; }
+}
+
+/* Hide floating map CTA on larger screens */
+@media (min-width: 768px) {
+  #map-cta { display: none !important; }
 }
 
 /* Shared CTA and subtle actions */

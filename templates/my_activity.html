@@ -12,6 +12,14 @@
   .btn-inline { display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:10px; background:#242424; border:1px solid #3a3a3a; color:#C7C4BF; text-decoration:none; }
   .btn-inline:hover { background:#262626; }
   .empty { color:#9BBCA7; font-style: italic; }
+
+  @media (max-width: 600px) {
+    .ma-container { padding: 10px 8px; }
+    .card { border-radius: 12px; padding: 12px; }
+    .list { gap:8px; margin-top:8px; }
+    .row { grid-template-columns: 28px 1fr auto; gap:8px; padding:8px; border-radius:10px; }
+    .btn-inline { padding:6px 8px; }
+  }
 </style>
 {% endblock %}
 
@@ -92,21 +100,13 @@
       })
       .catch(() => { list.innerHTML = '<div class="empty">Failed to load.</div>'; });
 
-    // Load my reports
-    fetch(`/api/reports/user?user_id=${encodeURIComponent(userId)}`)
+    // Load my unified requests (work orders)
+    fetch(`/api/work-orders/user?user_id=${encodeURIComponent(userId)}`)
       .then(r => r.json())
       .then(rows => {
-        // Client-side dedupe: collapse identical reports submitted at same second
-        const uniq = new Map();
-        if (Array.isArray(rows)) {
-          rows.forEach(r => {
-            const key = [r.tree_id, r.issue_type||'', r.severity||1, r.description||'', r.reported_at||''].join('|');
-            if (!uniq.has(key)) uniq.set(key, r);
-          });
-        }
-        const listRows = Array.from(uniq.values());
+        const listRows = Array.isArray(rows) ? rows : [];
         if (listRows.length === 0) {
-          rList.innerHTML = '<div class="empty">No reports yet.</div>';
+          rList.innerHTML = '<div class="empty">No requests yet.</div>';
           rCount.textContent = '';
           return;
         }
@@ -114,46 +114,22 @@
         rList.innerHTML = '';
         listRows.forEach(r => {
           const iconUrl = window.treeIcons?.getIconUrl(r.latin_name, r.common_name) || '';
-          const dots = '●'.repeat(Math.max(1, Math.min(4, r.severity||1))) + '○'.repeat(4-Math.max(1, Math.min(4, r.severity||1)));
           const row = document.createElement('div');
           row.className = 'row';
           row.innerHTML = `
             <div><img src="${iconUrl}" alt="icon" width="24" height="24" style="display:block"></div>
             <div>
-              <div><strong>${r.common_name || 'Tree'}</strong> <span class=\"small\">• ${new Date(r.reported_at).toLocaleString()}</span></div>
-              <div class=\"small\">${(r.issue_type||'issue').toString().replace(/^./, c=>c.toUpperCase())} • Severity: ${dots}${r.description ? ` • ${r.description}` : ''}</div>
+              <div><strong>${r.common_name || r.title || 'Request'}</strong> <span class="small">• ${new Date(r.created_at).toLocaleString()}</span></div>
+              <div class="small">${(r.type||'issue').toString().replace(/^./, c=>c.toUpperCase())} • Status: ${(r.status||'open')} • P${r.priority}${r.description ? ` • ${r.description}` : ''}${r.resolved_at ? ` • Resolved: ${new Date(r.resolved_at).toLocaleString()}` : ''}</div>
             </div>
             <div>
               <a class="btn-inline" href="/tree/${r.tree_id}">View →</a>
-              <button class="btn-inline" data-del="${r.report_id}">Delete</button>
             </div>
           `;
           rList.appendChild(row);
-        });
-        // Wire delete buttons
-        rList.querySelectorAll('button[data-del]')?.forEach(btn => {
-          btn.addEventListener('click', () => {
-            const id = btn.getAttribute('data-del');
-            if (!confirm('Delete this report?')) return;
-            fetch(`/api/reports/${id}?user_id=${encodeURIComponent(userId)}`, { method: 'DELETE' })
-              .then(r => r.json())
-              .then(resp => {
-                if (!resp.error) {
-                  const row = btn.closest('.row');
-                  row?.remove();
-                  const remaining = rList.querySelectorAll('.row').length;
-                  rCount.textContent = remaining ? `${remaining} submitted` : '';
-                  if (!remaining) rList.innerHTML = '<div class="empty">No reports yet.</div>';
-                } else {
-                  alert(resp.error);
-                }
-              })
-              .catch(() => alert('Failed to delete report'));
-          });
         });
       })
       .catch(() => { rList.innerHTML = '<div class="empty">Failed to load.</div>'; });
   });
 </script>
 {% endblock %}
-

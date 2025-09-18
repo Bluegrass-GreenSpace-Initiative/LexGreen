@@ -4,6 +4,7 @@ from services.uk_tree_service import UKTreeService
 from services.custom_tree_service import CustomTreeService
 from services.adoption_service import AdoptionService
 from services.damage_report_service import DamageReportService
+from services.work_order_service import WorkOrderService
 import os
 
 tree_routes = Blueprint('tree_routes', __name__)
@@ -13,6 +14,7 @@ uk_service = UKTreeService()
 custom_service = CustomTreeService()
 adoption_service = AdoptionService()
 damage_service = DamageReportService()
+work_order_service = WorkOrderService()
 
 # GET routes for retrieving tree data
 @tree_routes.route('/api/trees', methods=['GET'])
@@ -211,3 +213,11 @@ def export_reports_csv():
         'Content-Disposition': 'attachment; filename="tree_damage_reports.csv"'
     }
     return csv_text, 200, headers
+
+# Work Orders endpoints (public read-only subset)
+@tree_routes.route('/api/work-orders/user', methods=['GET'])
+def list_work_orders_for_user():
+    user_id = (request.args.get('user_id') or '').strip()
+    if not user_id:
+        return jsonify([])
+    return jsonify(work_order_service.list_for_user(user_id))

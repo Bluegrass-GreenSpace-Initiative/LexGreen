@@ -71,6 +71,28 @@
   .adoption-heart { animation: heartbeat 1.2s ease-in-out infinite; }
   /* tiny list row style for reports timeline */
   .row { display:grid; grid-template-columns: 36px 1fr; gap:10px; align-items:center; background:#2a2a2a; border:1px solid #3a3a3a; border-radius:12px; padding:10px; }
+
+  /* Tighten spacing on narrow screens */
+  @media (max-width: 600px) {
+    .td-container { padding: 10px 8px; }
+    .td-grid { gap: 12px; }
+    .card { border-radius: 12px; padding: 12px; }
+    .hero { gap: 12px; }
+    .hero .icon-wrap { width: 52px; height: 52px; border-radius: 12px; }
+    .hero .icon-wrap img { width: 28px; height: 28px; }
+    .pillbar { gap:6px; margin-top:6px; }
+    .pill { padding:4px 8px; border-radius: 999px; font-size: 0.8em; }
+    .fact { margin:8px 0 10px 0; padding:10px; }
+    .info-grid { gap:8px; }
+    .info-box { padding:8px; border-radius:10px; }
+    .upload-box { padding:10px; border-radius:10px; }
+    .adopt-card { border-radius: 12px; padding: 12px; }
+    .heart-btn { padding:8px 12px; }
+    .button { padding:6px 10px; border-radius:10px; }
+    #report-form textarea { padding:6px; }
+    #report-form .button { padding:6px 10px; }
+    .row { grid-template-columns: 28px 1fr; gap:8px; padding:8px; border-radius:10px; }
+  }
   @keyframes gentle-pulse {
     0% { opacity: 0.9; transform: scale(1); }
     50% { opacity: 1; transform: scale(1.02); }

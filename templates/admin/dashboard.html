@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Admin – Work Orders{% endblock %}
+{% block extra_css %}
+<style>
+  .table { width: 100%; border-collapse: collapse; }
+  .table th, .table td { border-bottom: 1px solid #333; padding: 8px; }
+  .pill { display:inline-block; padding:2px 8px; border-radius:12px; background:#2a2a2a; border:1px solid #3a3a3a; }
+  .controls { display:flex; gap:6px; align-items:center; }
+  .card { background:#202020; border:1px solid #2e2e2e; border-radius:12px; padding:12px; }
+  input, select, textarea { background:#111; color:#ddd; border:1px solid #444; border-radius:8px; padding:6px; }
+  .btn { padding:6px 10px; border-radius:10px; background:#2d4b3a; color:#e7efe9; border:1px solid #3c5f4c; }
+  .toolbar { display:flex; gap:8px; align-items:center; margin-bottom:10px; }
+  .small { color:#9BBCA7; }
+  .nowrap { white-space: nowrap; }
+  .right { text-align:right; }
+</style>
+{% endblock %}
+{% block content %}
+  <div class="card" style="margin-bottom: 12px;">
+    <div class="toolbar">
+      <div style="flex:1"><strong style="color:#9BBCA7">Work Orders</strong></div>
+      <a href="{{ url_for('admin.amenities') }}" class="btn" style="background:#26414a;border-color:#355965;">Amenities</a>
+      <a href="{{ url_for('admin.volunteers') }}" class="btn" style="background:#2d3a4b;border-color:#3c5068;">Volunteers</a>
+      <a href="{{ url_for('admin.export_work_orders_csv') }}" class="btn">Export CSV</a>
+      <a href="{{ url_for('admin.logout') }}" class="btn" style="background:#3a2d2d;border-color:#5f3c3c;">Logout</a>
+    </div>
+    <form method="get" class="controls" style="margin-bottom:8px;">
+      <label>Status
+        <select name="status">
+          <option value="">All</option>
+          {% for s in ['open','triaged','in_progress','blocked','resolved','cancelled'] %}
+          <option value="{{s}}" {% if status==s %}selected{% endif %}>{{ s }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Type
+        <select name="type">
+          <option value="">All</option>
+          {% for t in ['damage','maintenance','volunteer','amenity'] %}
+          <option value="{{t}}" {% if type_==t %}selected{% endif %}>{{ t }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <button type="submit" class="btn">Filter</button>
+    </form>
+    <div class="small">{{ orders|length }} results</div>
+  </div>
+  <div class="card">
+    <table class="table">
+      <thead>
+        <tr>
+          <th class="nowrap">ID</th>
+          <th>Type</th>
+          <th>Status</th>
+          <th>Priority</th>
+          <th>Asset</th>
+          <th>Title & Description</th>
+          <th class="nowrap">Created</th>
+          <th>Assign/Resolve</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for o in orders %}
+        <tr>
+          <td class="nowrap">#{{ o.id }}</td>
+          <td><span class="pill">{{ o.type }}</span></td>
+          <td>{{ o.status }}</td>
+          <td>{{ o.priority }}</td>
+          <td>{{ o.asset_type or '—' }}{% if o.tree_id %} #{{ o.tree_id }}{% endif %}</td>
+          <td>
+            <div><strong>{{ o.title or '(no title)' }}</strong></div>
+            <div class="small">{{ o.description }}</div>
+          </td>
+          <td class="nowrap small">{{ o.created_at }}</td>
+          <td class="right">
+            <form method="post" action="{{ url_for('admin.update_work_order', wo_id=o.id) }}" class="controls" style="justify-content:flex-end;">
+              <select name="status">
+                {% for s in ['open','triaged','in_progress','blocked','resolved','cancelled'] %}
+                <option value="{{s}}" {% if o.status==s %}selected{% endif %}>{{ s }}</option>
+                {% endfor %}
+              </select>
+              <select name="priority">
+                {% for p in [1,2,3,4] %}
+                <option value="{{p}}" {% if o.priority==p %}selected{% endif %}>P{{ p }}</option>
+                {% endfor %}
+              </select>
+              <input name="assigned_to" value="{{ o.assigned_to or '' }}" placeholder="Assignee" style="width:120px;">
+              <input name="resolution_note" value="{{ o.resolution_note or '' }}" placeholder="Note" style="width:180px;">
+              <button class="btn" type="submit">Update</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

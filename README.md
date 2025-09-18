@@ -80,6 +80,19 @@ For detailed installation instructions, see [INSTALLATION.md](INSTALLATION.md)
 
 6. Open a web browser and navigate to `http://localhost:5000`
 
+### Admin & Slack (optional)
+
+- Create a staff user (for the internal admin portal):
+  - Interactive: `flask --app app create-staff` (you will be prompted for Email/Password)
+  - Or via env vars: `EMAIL=admin@example.com NAME="Admin" PASSWORD='yourpass' flask --app app create-staff`
+  - Login at `/admin/login` (also linked in the site footer as “Staff Login”).
+
+- Slack notifications for high-priority reports (P≥3):
+  - Set `SLACK_WEBHOOK_URL` in your environment (before starting the app):
+    - macOS/Linux: `export SLACK_WEBHOOK_URL='https://hooks.slack.com/services/XXX/YYY/ZZZ'`
+    - Windows (PowerShell): `$Env:SLACK_WEBHOOK_URL='https://hooks.slack.com/services/XXX/YYY/ZZZ'`
+  - When a high-priority public damage report is submitted, a work order is created and a Slack message is sent to the configured channel.
+
 ## Usage
 - Open the app on your mobile device or desktop browser.
 - Explore the interactive map to find green spaces on campus.

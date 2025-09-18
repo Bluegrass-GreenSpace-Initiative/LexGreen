@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Admin – Volunteers{% endblock %}
+{% block extra_css %}
+<style>
+  .card { background:#202020; border:1px solid #2e2e2e; border-radius:12px; padding:12px; }
+  table { width:100%; border-collapse: collapse; }
+  th, td { border-bottom:1px solid #333; padding:8px; vertical-align: top; }
+  input, select { background:#111; color:#ddd; border:1px solid #444; border-radius:8px; padding:6px; }
+  .btn { padding:6px 10px; border-radius:10px; background:#2d4b3a; color:#e7efe9; border:1px solid #3c5f4c; }
+  .row-form { display:flex; gap:6px; flex-wrap:wrap; }
+  .small { color:#9BBCA7; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="card">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+    <strong style="color:#9BBCA7">Volunteer Requests</strong>
+    <a href="{{ url_for('admin.dashboard') }}" class="btn">Back</a>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th><th>User</th><th>Task</th><th>Location</th><th>Note</th><th>Status</th><th>Permit</th><th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for v in items %}
+      <tr>
+        <td>#{{ v.id }}</td>
+        <td class="small">{{ v.user_id }}</td>
+        <td>{{ v.task }}</td>
+        <td class="small">{{ v.latitude }}, {{ v.longitude }}</td>
+        <td class="small">{{ v.note or '' }}</td>
+        <td>{{ v.status }}</td>
+        <td class="small">{{ v.permit_valid_from or '—' }} → {{ v.permit_valid_to or '—' }}</td>
+        <td>
+          <form method="post" action="{{ url_for('admin.volunteers_update', vid=v.id) }}" class="row-form">
+            <select name="status">
+              {% for s in ['pending','approved','denied','completed'] %}
+              <option value="{{s}}" {% if v.status==s %}selected{% endif %}>{{ s }}</option>
+              {% endfor %}
+            </select>
+            <input name="permit_valid_from" placeholder="YYYY-MM-DD" value="{{ v.permit_valid_from or '' }}" style="width:130px;">
+            <input name="permit_valid_to" placeholder="YYYY-MM-DD" value="{{ v.permit_valid_to or '' }}" style="width:130px;">
+            <button class="btn" type="submit">Update</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
+

@@ -7,11 +7,14 @@ from services.uk_tree_service import UKTreeService
 from services.photo_service import PhotoService
 from services.tree_facts import get_tree_fact
 from werkzeug.utils import secure_filename
+from services.staff_service import StaffService
+from services.work_order_service import WorkOrderService
 
 app = Flask(__name__)
 CORS(app)
 
 # Development configuration
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev')
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 app.config['UPLOAD_FOLDER'] = os.path.join('instance', 'uploads')
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
@@ -37,7 +40,9 @@ CAMPUS_DATA = {
 
 # Register blueprints
 from routes.tree_routes import tree_routes
+from routes.admin_routes import admin_bp
 app.register_blueprint(tree_routes)
+app.register_blueprint(admin_bp)
 
 # Initialize database
 @app.cli.command('init-db')
@@ -71,6 +76,27 @@ def import_trees_command():
     csv_path = os.path.join('data', 'UKTrees.csv')
     success, message = uk_service.import_uk_trees(csv_path)
     print(message)
+
+@app.cli.command('create-staff')
+def create_staff_command():
+    """Create a staff user: supply EMAIL and PASSWORD env vars or be prompted."""
+    import getpass
+    email = os.environ.get('EMAIL') or input('Email: ').strip()
+    name = os.environ.get('NAME') or ''
+    password = os.environ.get('PASSWORD') or getpass.getpass('Password: ')
+    ok, msg, sid = StaffService().create_staff(email, password, name=name)
+    print(msg)
+
+@app.cli.command('export-work-orders')
+def export_work_orders_command():
+    """Export work orders to CSV. Use SINCE (YYYY-MM-DD) and OUT path via env vars."""
+    since = os.environ.get('SINCE')
+    out = os.environ.get('OUT') or os.path.join('instance', 'exports', 'work_orders.csv')
+    os.makedirs(os.path.dirname(out), exist_ok=True)
+    csv_text = WorkOrderService().export_csv(since)
+    with open(out, 'w', encoding='utf-8') as f:
+        f.write(csv_text)
+    print(f'Wrote {out}')
 
 # Main routes
 @app.route('/')

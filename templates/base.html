@@ -16,6 +16,7 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body>
+    <a href="#leaflet-map" class="skip-link" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;">Skip to map</a>
     <header>
         <div class="header-content">
             <img src="{{ url_for('static', filename='images/logo.png') }}"
@@ -27,10 +28,11 @@
                 <h1 class="site-title">CampusGreen</h1>
                 <p class="site-subtitle">Explore the green spaces on our campus</p>
             </div>
+            <button id="menu-toggle" class="menu-toggle" aria-controls="primary-nav" aria-expanded="false" title="Menu" data-haptic="soft">☰</button>
         </div>
     </header>
 
-    <nav class="nav-bar" aria-label="Primary">
+    <nav id="primary-nav" class="nav-bar" aria-label="Primary">
         <ul>
             <li><a href="{{ url_for('index') }}" {% if request.endpoint == 'index' %}class="active"{% endif %}>🏠 Home</a></li>
             <li><a href="{{ url_for('my_adoptions') }}" {% if request.endpoint == 'my_adoptions' %}class="active"{% endif %}>🌿 My Activity</a></li>
@@ -46,7 +48,7 @@
     </main>
 
     <footer>
-        <p>&copy; {{ current_year }} CampusGreen - University of Kentucky</p>
+        <p>&copy; {{ current_year }} CampusGreen - University of Kentucky · <a href="/admin/login" style="color:#9BBCA7; text-decoration:none;">Staff Login</a></p>
     </footer>
     <script>
       // Minimal page enter animation class
@@ -65,6 +67,15 @@
           else navigator.vibrate(10);
         }
       }, { passive: true });
+
+      // Mobile nav toggle
+      const menuBtn = document.getElementById('menu-toggle');
+      if (menuBtn) {
+        menuBtn.addEventListener('click', () => {
+          const open = document.body.classList.toggle('nav-open');
+          menuBtn.setAttribute('aria-expanded', String(open));
+        });
+      }
     </script>
     {% block extra_js %}{% endblock %}
 </body>

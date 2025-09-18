@@ -94,6 +94,18 @@
 
     /* Info panel moved into sidebar as .info-card */
 
+    /* Mobile improvements */
+    @media (max-width: 767px) {
+        /* Show the map first on phones */
+        .map-section { order: -1; height: calc(100vh - 180px); }
+        .sidebar { order: 0; }
+        /* Tighten header/nav space via global CSS overrides */
+        header { padding: .6rem; }
+        .site-title { font-size: 1.25rem; }
+        .site-subtitle { font-size: .85rem; }
+        nav ul { flex-wrap: wrap; }
+    }
+
     /* Desktop Responsive */
     @media (min-width: 768px) {
         .main-container {
@@ -137,6 +149,14 @@
     <section class="map-section">
         <div class="map-container">
             <div id="leaflet-map"></div>
+            <!-- Mobile-friendly floating CTA for selected greenspace -->
+            <div id="map-cta" style="display:none; position:absolute; left:0; right:0; bottom:12px; z-index: 1000; display:flex; justify-content:center;">
+              <a id="map-cta-link" class="cta-link cta-link--small" href="#" aria-label="Explore selected greenspace" style="box-shadow: 0 6px 16px rgba(0,0,0,.35);">
+                <span class="emoji">🌿</span>
+                <span>Explore this greenspace</span>
+                <span>→</span>
+              </a>
+            </div>
         </div>
     </section>
 </div>
@@ -294,6 +314,26 @@ document.addEventListener('DOMContentLoaded', function() {
           void elements.infoCard.offsetWidth; // restart animation
           elements.infoCard.classList.add('anim-card-in');
         }
+
+        // Update floating CTA for phones so users can explore without scrolling
+        const ctaWrap = document.getElementById('map-cta');
+        const ctaLink = document.getElementById('map-cta-link');
+        if (ctaWrap && ctaLink) {
+          const isMobile = window.matchMedia('(max-width: 767px)').matches;
+          if (boundsForLink && isMobile) {
+            const qs = new URLSearchParams({
+              name: locationName,
+              north: boundsForLink.getNorth(),
+              south: boundsForLink.getSouth(),
+              east: boundsForLink.getEast(),
+              west: boundsForLink.getWest()
+            }).toString();
+            ctaLink.href = `/greenspace?${qs}`;
+            ctaWrap.style.display = 'flex';
+          } else {
+            ctaWrap.style.display = 'none';
+          }
+        }
     }
 
 // loadSVGOverlay: fetch SVG and mount via Leaflet's overlay pane
@@ -437,6 +477,9 @@ async function loadSVGOverlay(url) {
             <h3>Welcome to CampusGreen</h3>
             <p>Discover the natural beauty of UK campus. Select any green space on the map to see details here.</p>
           `;
+          // Hide floating CTA when resetting view
+          const ctaWrap = document.getElementById('map-cta');
+          if (ctaWrap) ctaWrap.style.display = 'none';
         }
       });
     }

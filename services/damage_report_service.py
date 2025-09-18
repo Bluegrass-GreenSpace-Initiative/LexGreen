@@ -4,6 +4,7 @@ from typing import Optional, Dict, List, Tuple
 from io import StringIO
 import csv
 from .database import Database
+from .work_order_service import WorkOrderService
 
 
 class DamageReportService:
@@ -85,6 +86,12 @@ class DamageReportService:
             )
             rid = cur.lastrowid
             conn.commit()
+            # Also create a corresponding work order for internal management
+            try:
+                WorkOrderService().create_from_damage_report(tree_id, user_id, severity, description)
+            except Exception:
+                # Non-fatal: keep report even if work order creation fails
+                pass
             return True, 'Report submitted', int(rid)
 
     def list_for_tree(self, tree_id: int) -> List[Dict]:
