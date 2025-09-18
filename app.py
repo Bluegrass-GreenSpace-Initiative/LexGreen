@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, render_template, send_from_directory, request, redirect, url_for
 from flask_cors import CORS
+from flask_compress import Compress
 from datetime import datetime
 import os
 from services.database import Database
@@ -12,6 +13,7 @@ from services.work_order_service import WorkOrderService
 
 app = Flask(__name__)
 CORS(app)
+Compress(app)
 
 # Development configuration
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev')

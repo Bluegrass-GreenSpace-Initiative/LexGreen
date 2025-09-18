@@ -1,120 +1,163 @@
 # CampusGreen: Interactive Green Space Explorer
 
 ## Overview
-CampusGreen is a mobile-friendly web application designed to help university students and staff discover and learn about green spaces on campus. It provides an interactive map, detailed plant information, and interesting historical facts about the campus environment.
+CampusGreen is a mobile-friendly web application to explore, learn about, and care for green spaces on campus. It provides an interactive map, official UK tree data, community features (adoptions, reports), and an admin portal.
 
 ## Features
-- **Homepage**: A welcoming entry point to improve user experience.
-- **Interactive Campus Map**: Explore green spaces with a touch-friendly interface.
-- **Green Space Details**: Learn about different types of green areas (gardens, groves, lawns).
-- **Plant Species Information**: Discover native and notable plants in each green space.
-- **Historical and Fun Facts**: Engage with interesting stories about plants and spaces.
-- **Basic Care Tips**: Access simple plant care instructions (optional feature).
-- **UK Tree Integration**: Access official University of Kentucky tree inventory data
-- **Custom Tree Submissions**: Add and track user-identified trees on campus
+- Interactive map with campus greenspace overlay (Leaflet)
+- Official UK tree inventory (CSV import → SQLite)
+- Tree APIs: list, GeoJSON, by area/species, nearby
+- Tree detail pages with photo gallery and uploads
+- Adoptions, damage reports, and work orders APIs
+- Admin portal (login, amenities, volunteers, CSV exports)
 
 ## Technology Stack
-* Backend: Python with Flask
-* Frontend: React, HTML5, CSS3, JavaScript
-* Database:
-  - SQLite for user submissions
-  - CSV integration for UK tree inventory
-* Mapping: Leaflet.js, React-Leaflet
-* Additional Libraries:
-  - Flask-SQLAlchemy for database management
-  - Pandas for data processing
-  - Vite for frontend build tooling
+- Backend: Python 3 + Flask
+- Templates/UI: Jinja2 + HTML/CSS + Vanilla JS
+- Mapping: Leaflet.js
+- Database: SQLite (instance/UKTrees.db) via a light wrapper
+- Data import: Pandas (from data/UKTrees.csv)
+- Production server: Gunicorn
+- Compression: Flask-Compress
 
 ## Data Sources
-The application uses two main data sources:
-1. **UK Tree Inventory**: Official tree data from the University of Kentucky's Urban Forest Initiative
-2. **User Submissions**: Custom tree identifications submitted by users
+1) Official UK tree inventory (Urban Forest Initiative)
+2) User-submitted content (adoptions, reports, photos)
 
 ### Resource Links
-- [ExploreUK](https://exploreuk.uky.edu/) - Historical campus data
-- [UKY UFI](https://ufi.ca.uky.edu/) - Urban Forest Initiative
-- [PG Cloud UKY](https://pg-cloud.com/UKY/) - Additional campus resources
+- ExploreUK: https://exploreuk.uky.edu/
+- UKY UFI: https://ufi.ca.uky.edu/
+- PG Cloud UKY: https://pg-cloud.com/UKY/
 
 ## Getting Started
+
 ### Prerequisites
-- Python 3.7+
-- Node.js 18+
+- Python 3.10+
 - pip (Python package installer)
 
-### Installation
-You can access Campus Greenspace Explorer in two ways:
+### Local setup
+1) Clone and create virtualenv
+```bash
+git clone https://github.com/niveusgh/campus-greenspace-explorer.git
+cd campus-greenspace-explorer
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+```
 
-#### 1. Online Version
-Visit [campusGreen.pythonanywhere.com](http://campusGreen.pythonanywhere.com) to use the application directly in your browser.
+2) Install dependencies
+```bash
+pip install -r requirements.txt
+```
 
-#### 2. Local Installation
-For detailed installation instructions, see [INSTALLATION.md](INSTALLATION.md)
+3) Initialize the database and import official trees (one-time)
+```bash
+# Option A: Flask CLI
+flask --app app init-db
+flask --app app import-trees
 
+# Option B: One-shot script
+python init_db.py
+```
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/niveusgh/campus-greenspace-explorer.git
-   cd campus-greenspace-explorer
-   ```
+4) Run the app (development)
+```bash
+python app.py
+```
 
-2. Set up a virtual environment:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows use `venv\Scripts\activate`
-   ```
-
-3. Install required packages:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. Set up the database:
-   ```bash
-   python init_db.py     # Init database and import UKTrees.csv (one-time setup)
-   ```
-
-5. Build frontend and run the application:
-   ```bash
-   python app.py
-   ```
-
-6. Open a web browser and navigate to `http://localhost:5000`
+Open http://localhost:5000
 
 ### Admin & Slack (optional)
-
 - Create a staff user (for the internal admin portal):
-  - Interactive: `flask --app app create-staff` (you will be prompted for Email/Password)
+  - Interactive: `flask --app app create-staff`
   - Or via env vars: `EMAIL=admin@example.com NAME="Admin" PASSWORD='yourpass' flask --app app create-staff`
-  - Login at `/admin/login` (also linked in the site footer as “Staff Login”).
-
+  - Login at `/admin/login` (linked in the site footer)
 - Slack notifications for high-priority reports (P≥3):
-  - Set `SLACK_WEBHOOK_URL` in your environment (before starting the app):
-    - macOS/Linux: `export SLACK_WEBHOOK_URL='https://hooks.slack.com/services/XXX/YYY/ZZZ'`
-    - Windows (PowerShell): `$Env:SLACK_WEBHOOK_URL='https://hooks.slack.com/services/XXX/YYY/ZZZ'`
-  - When a high-priority public damage report is submitted, a work order is created and a Slack message is sent to the configured channel.
+  - Set `SLACK_WEBHOOK_URL` in your environment before starting the app
 
-## Usage
-- Open the app on your mobile device or desktop browser.
-- Explore the interactive map to find green spaces on campus.
-- Tap on map markers to view information about each space.
-- Browse plant species information and historical facts.
-- Access care tips for plants by tapping the designated icon.
-- If available, explore the history of specific green spaces by tapping the designated icon.
+## Deployment (Fly.io)
+
+This repo includes a Dockerfile and Fly configuration. The app uses a persistent volume mounted at `/app/instance` for the SQLite DB and uploaded photos.
+
+1) Install and log in to Fly
+```bash
+brew install flyctl  # or see https://fly.io/docs/hands-on/install-flyctl/
+fly auth login
+```
+
+2) Initialize (no deploy yet)
+```bash
+fly launch --no-deploy
+# Choose a region close to users (e.g., ord for Chicago)
+```
+
+3) Create a volume for SQLite + uploads
+```bash
+fly volumes create instance --region ord --size 3
+# Use a region code (ord for Chicago). Do not use an IP.
+```
+
+4) Mount the volume (fly.toml)
+Ensure this section exists (already added):
+```
+[[mounts]]
+  source = "instance"
+  destination = "/app/instance"
+```
+
+5) Set secrets (Flask session key)
+```bash
+fly secrets set SECRET_KEY="$(openssl rand -hex 32)"
+# Alternatively generate first, then paste:
+# python -c "import secrets; print(secrets.token_hex(32))"
+```
+
+6) Deploy
+```bash
+fly deploy
+```
+
+7) Initialize the database on the live machine (one-time)
+```bash
+fly ssh console -C 'export FLASK_APP=app; flask init-db; flask import-trees'
+```
+
+8) Keep exactly one machine for SQLite
+```bash
+fly scale count 1
+# Optional to avoid cold starts: set in fly.toml under [http_service]
+# min_machines_running = 1  (then `fly deploy`)
+```
+
+9) Optional performance indexes (SQLite)
+```bash
+fly ssh console -C "python - <<'PY'\nimport sqlite3\nconn=sqlite3.connect('instance/UKTrees.db'); c=conn.cursor()\nc.execute('CREATE INDEX IF NOT EXISTS idx_trees_lat_lon ON trees(latitude, longitude)')\nc.execute('CREATE INDEX IF NOT EXISTS idx_trees_latin_name ON trees(latin_name)')\nconn.commit(); print('indexes added')\nPY"
+```
+
+Notes
+- Dockerfile runs Gunicorn on port 8080 in production.
+- Flask-Compress is enabled for faster responses.
+- Health checks: adding `/healthz` and referencing it in `fly.toml` checks is recommended.
+- Do not run multiple machines with SQLite. For HA, migrate to a networked DB later.
+
+## Hosting Options
+- GitHub Pages is static-only and cannot host this app’s API/database. You can later split the static frontend to Pages and keep the API on Fly if desired.
+
+## Mobile (PWA, Android, iOS)
+- Progressive Web App (planned): add `manifest.json` + `service worker` to enable installability and offline caching.
+- Android: Trusted Web Activity (Bubblewrap) to publish the PWA to Play Store.
+- iOS: Capacitor wrapper (WKWebView) to publish to App Store.
 
 ## Contributing
-We welcome contributions to CampusGreen! Please read our [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+See [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## License
-This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
-
-## Acknowledgments
-- University of Kentucky for providing data on campus green spaces.
-- Urban Forest Initiative
+Apache License 2.0 — see [LICENSE](LICENSE)
 
 ## Contact
 - [ambe303@uky.edu](mailto:ambe303@uky.edu)
 - [neha230@uky.edu](mailto:neha230@uky.edu)
 - [jtbr281@uky.edu](mailto:jtbr281@uky.edu)
-- [Thea.Francis@uky.edu](mailto:thea.francis@uky.edu)
+- [Thea.Francis@uky.edu](mailto:Thea.Francis@uky.edu)
 
-Project Link: [https://github.com/Niveusgh/Campus-greenspace-explorer](https://github.com/Niveusgh/Campus-greenspace-explorer)
+Project Link: https://github.com/Niveusgh/Campus-greenspace-explorer
+
