@@ -80,7 +80,7 @@ This repo includes a Dockerfile and Fly configuration. The app uses a persistent
 
 1) Install and log in to Fly
 ```bash
-brew install flyctl  # or see https://fly.io/docs/hands-on/install-flyctl/
+brew install flyctl  
 fly auth login
 ```
 
@@ -137,10 +137,7 @@ Notes
 - Dockerfile runs Gunicorn on port 8080 in production.
 - Flask-Compress is enabled for faster responses.
 - Health checks: adding `/healthz` and referencing it in `fly.toml` checks is recommended.
-- Do not run multiple machines with SQLite. For HA, migrate to a networked DB later.
 
-## Hosting Options
-- GitHub Pages is static-only and cannot host this app’s API/database. You can later split the static frontend to Pages and keep the API on Fly if desired.
 
 ## Mobile (PWA, Android, iOS)
 - Progressive Web App (planned): add `manifest.json` + `service worker` to enable installability and offline caching.
