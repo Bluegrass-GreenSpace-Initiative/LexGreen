@@ -4,7 +4,7 @@
 - https://campus-greenspace-explorer.fly.dev
 
 ## Overview
-CCampusGreen is a mobile-friendly web application designed to help university students and staff discover and learn about green spaces on campus. It provides an interactive map, official UK tree data, community features (adoptions, reports), and an admin portal.
+CampusGreen is a mobile-friendly web application designed to help university students and staff discover and learn about green spaces on campus. It provides an interactive map, official UK tree data, community features (adoptions, reports), and an admin portal.
 
 ## Features
 - **Interactive Campus Map**: Explore green spaces with a touch-friendly interface.
