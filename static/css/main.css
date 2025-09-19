@@ -30,10 +30,14 @@ header {
 .header-content {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 18px;
     margin: 0 auto;
     padding: 0 20px;
 }
+
+.brand-link { display:flex; align-items:center; gap: 12px; text-decoration: none; color: inherit; }
+.brand-link:hover .site-title { text-decoration: none; }
+.brand-link:hover .site-title { filter: brightness(1.05); }
 
 .logo {
     width: 50px;
@@ -44,7 +48,7 @@ header {
 .header-text {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
 }
 
 .site-title {
@@ -52,12 +56,51 @@ header {
     font-size: 1.75rem;
     margin: 0;
     line-height: 1.2;
+    position: relative;
+    display: inline-block;
 }
 
 .site-subtitle {
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(255, 255, 255, 0.95);
     margin: 0;
     font-size: 0.95rem;
+    transition: letter-spacing .18s ease, opacity .18s ease;
+    position: relative;
+    z-index: 1; /* ensure it renders above any decorative elements */
+}
+
+/* Animated underline for title (driven by CSS var --u-title) */
+/* Disable straight underline now that we use a wavy divider */
+.site-title::after { display: none; }
+
+.brand-link:hover .site-title::after { animation: titlePulse 1.1s ease; }
+.brand-link:hover .site-subtitle { letter-spacing: .2px; opacity: 1; }
+
+@keyframes titlePulse {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Wavy divider under brand */
+.title-wave { color: rgba(229,242,234,0.9); opacity: .9; margin-top: 6px; position: relative; z-index: 0; pointer-events: none; }
+.title-wave path { /* continuous stroke, no gaps */ }
+
+/* Header flowers banner (desktop only) */
+.header-flowers { display:none; width: clamp(160px, 22vw, 280px); height: clamp(80px, 10vw, 120px); pointer-events: none; opacity: .9; }
+@media (min-width: 768px) { 
+  .header-flowers { display:block; margin-left: -10px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .title-wave path { animation: none !important; }
+}
+
+/* Ensure subtitle is visible after intro overlay clears */
+body.page-enter .site-subtitle,
+body:not(.intro-active) .site-subtitle {
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 
 /* Mobile header menu button */
@@ -94,6 +137,15 @@ nav ul li a {
     border-radius: 999px;
     transition: background .15s ease, border-color .15s ease, color .15s ease;
 }
+
+/* Icon-only span using CSS mask for crisp vector icons */
+.nav-icon { width: 18px; height: 18px; display: inline-block; background-color: currentColor; }
+.nav-home { -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M12 3l9 8h-3v9h-5v-6H11v6H6v-9H3z'/%3E%3C/svg%3E") no-repeat center / contain; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M12 3l9 8h-3v9h-5v-6H11v6H6v-9H3z'/%3E%3C/svg%3E") no-repeat center / contain; }
+.nav-activity { -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M12 2l3 5h-2l2 4h-2l2 4h-4v3H9v-3H5l2-4H5l2-4H5l3-5z'/%3E%3C/svg%3E") no-repeat center / contain; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M12 2l3 5h-2l2 4h-2l2 4h-4v3H9v-3H5l2-4H5l2-4H5l3-5z'/%3E%3C/svg%3E") no-repeat center / contain; }
+.nav-benefits { -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M12 21s-7-4.35-9.5-8.5C.5 9.57 2.42 6 6 6c2 0 3.54 1.2 4 2 .46-.8 2-2 4-2 3.58 0 5.5 3.57 3.5 6.5C19 16.65 12 21 12 21z'/%3E%3C/svg%3E") no-repeat center / contain; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M12 21s-7-4.35-9.5-8.5C.5 9.57 2.42 6 6 6c2 0 3.54 1.2 4 2 .46-.8 2-2 4-2 3.58 0 5.5 3.57 3.5 6.5C19 16.65 12 21 12 21z'/%3E%3C/svg%3E") no-repeat center / contain; }
+.nav-about { -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M12 22c-5.52 0-10-4.48-10-10S6.48 2 12 2s10 4.48 10 10-4.48 10-10 10zm-1-7h2V9h-2v6zm0-8h2V5h-2v2z'/%3E%3C/svg%3E") no-repeat center / contain; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M12 22c-5.52 0-10-4.48-10-10S6.48 2 12 2s10 4.48 10 10-4.48 10-10 10zm-1-7h2V9h-2v6zm0-8h2V5h-2v2z'/%3E%3C/svg%3E") no-repeat center / contain; }
+
+nav ul li a:hover .nav-icon { transform: translateY(-1px); transition: transform .15s ease; }
 
 nav ul li a.active {
     color: #0f1a15;
@@ -179,9 +231,7 @@ footer {
     color: #C7C4BF;
     text-align: center;
     padding: 1rem;
-    position: fixed;
-    bottom: 0;
-    width: 100%;
+    position: static;
 }
 
 /* Media Queries */
@@ -191,7 +241,8 @@ footer {
     .header-content { gap: 10px; }
     .logo { width: 36px; height: 36px; }
     .site-title { font-size: 1.2rem; }
-    .site-subtitle { font-size: 0.8rem; display:none; }
+    /* Hide subtitle on phones */
+    .site-subtitle { font-size: 0.8rem; display: none; line-height: 1.2; }
     .menu-toggle { display:inline-flex; }
 
     /* Collapse nav by default; overlay when open */
@@ -203,8 +254,8 @@ footer {
 
     /* Reduce main padding so content starts higher on phones */
     main { padding: 8px; }
-    /* Footer should not cover content on phones */
-    footer { font-size: .9rem; position: static; }
+    /* Footer sizing on phones */
+    footer { font-size: .9rem; }
 }
 
 /* Hide floating map CTA on larger screens */
@@ -260,3 +311,33 @@ body.page-enter main { animation: pageFadeIn 260ms ease both; }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
+
+/* Tree click pulse animation */
+@keyframes treePulse {
+  0% { transform: translateY(0) scale(1); filter: drop-shadow(0 0 0 rgba(0,0,0,0.2)); }
+  40% { transform: translateY(-2px) scale(1.08); filter: drop-shadow(0 6px 10px rgba(0,0,0,0.35)); }
+  100% { transform: translateY(0) scale(1); filter: drop-shadow(0 0 0 rgba(0,0,0,0.2)); }
+}
+.tree-pulse { animation: treePulse 420ms ease; }
+
+/* Opening overlay */
+#opening-overlay {
+  position: fixed;
+  inset: 0;
+  /* Fully opaque background so the page isn't visible underneath */
+  background: radial-gradient(120% 100% at 50% 0%, #2b3d34 0%, #1c1f22 60%, #191A1C 100%);
+  display: none; /* toggled via JS */
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+.opening-inner { display:flex; flex-direction: column; align-items:center; gap: 8px; padding: 20px; }
+.opening-arch { filter: drop-shadow(0 2px 6px rgba(0,0,0,0.35)); }
+.opening-lottie { width: 280px; height: 280px; }
+
+@media (max-width: 480px) {
+  .opening-lottie { width: 220px; height: 220px; }
+}
+
+/* Hide main content while intro is active */
+body.intro-active main { opacity: 0; }

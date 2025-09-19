@@ -73,6 +73,11 @@
     function renderTrees(trees) {
       markers.clearLayers();
       list.innerHTML = '';
+      function navigateWithSound(url){
+        try { window.cgAudio && window.cgAudio.play('explore'); } catch(e) {}
+        // Allow more time so sound is audible before navigation
+        setTimeout(() => { window.location.href = url; }, 360);
+      }
       trees.forEach(t => {
         const m = L.marker([t.latitude, t.longitude], { icon: window.treeIcons.getLeafletIcon(t.latin_name, t.common_name) }).addTo(markers);
         const returnTo = encodeURIComponent(window.location.pathname + window.location.search);
@@ -85,8 +90,13 @@
           </div>
         `;
         m.bindPopup(html);
-        m.on('click', () => {
-          window.location.href = `/tree/${t.tree_id}?return_to=${returnTo}`;
+        // Sound on press, pulse, then navigate on click
+        m.on('pointerdown', (e) => { try { window.cgAudio && window.cgAudio.play('explore'); } catch(err) {} try { e.originalEvent && e.originalEvent.stopPropagation && e.originalEvent.stopPropagation(); } catch(_) {} });
+        m.on('mousedown', (e) => { try { window.cgAudio && window.cgAudio.play('explore'); } catch(err) {} try { e.originalEvent.stopPropagation(); } catch(_) {} });
+        m.on('touchstart', (e) => { try { window.cgAudio && window.cgAudio.play('explore'); } catch(err) {} try { e.originalEvent.stopPropagation(); } catch(_) {} });
+        m.on('click', (e) => {
+          try { if (m._icon) { m._icon.classList.remove('tree-pulse'); void m._icon.offsetWidth; m._icon.classList.add('tree-pulse'); } } catch(_) {}
+          navigateWithSound(`/tree/${t.tree_id}?return_to=${returnTo}`);
         });
 
         const row = document.createElement('div');
@@ -99,9 +109,11 @@
           </div>
           <div class="ti-arrow">›</div>
         `;
-        row.addEventListener('click', () => {
-          window.location.href = `/tree/${t.tree_id}?return_to=${returnTo}`;
+        row.addEventListener('pointerdown', () => {
+          try { window.cgAudio && window.cgAudio.play('explore'); } catch(e) {}
+          try { const img = row.querySelector('.ti-icon img'); if (img) { img.classList.remove('tree-pulse'); void img.offsetWidth; img.classList.add('tree-pulse'); } } catch(_) {}
         });
+        row.addEventListener('click', () => { navigateWithSound(`/tree/${t.tree_id}?return_to=${returnTo}`); });
         list.appendChild(row);
       });
       countEl.textContent = `(${trees.length})`;
@@ -126,5 +138,18 @@
         list.innerHTML = '<em>Error loading trees.</em>';
       });
   });
+</script>
+<script>
+  // Delegate clicks inside Leaflet popups: play rustling then navigate
+  document.addEventListener('click', function(e){
+    const a = e.target.closest && e.target.closest('a[href^="/tree/"]');
+    if (!a) return;
+    // Respect new tab/middle click
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1 || a.target === '_blank') return;
+    e.preventDefault();
+    try { window.cgAudio && window.cgAudio.play('explore'); } catch(err) {}
+    const href = a.getAttribute('href');
+    setTimeout(() => { window.location.href = href; }, 360);
+  }, { passive: false });
 </script>
 {% endblock %}

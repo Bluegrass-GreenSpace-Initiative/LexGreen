@@ -2,6 +2,8 @@
 
 {% block extra_css %}
 <style>
+    #wellness-lottie { width: min(96vw, 800px); height: min(96vw, 800px); }
+    @media (max-width: 480px){ #wellness-lottie { width: min(96vw, 640px); height: min(96vw, 640px); } }
     .wellness-container {
         padding: 20px;
         margin-bottom: 60px;
@@ -123,6 +125,9 @@
 
 {% block content %}
 <div class="wellness-container">
+    <div style="display:flex; justify-content:center; margin-bottom: 16px;">
+        <div id="wellness-lottie"></div>
+    </div>
     <h2>Green Space Benefits</h2>
     <p>Discover how campus green spaces enhance your wellbeing and academic success</p>
 
@@ -196,4 +201,25 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Benefits page Lottie (reading_autumn.json). Ensure the file exists under static/lottie.
+  document.addEventListener('DOMContentLoaded', function(){
+    // Play chirp on opening the Benefits page (best-effort; may be blocked by autoplay policy)
+    try {
+      const a = new Audio('{{ url_for('static', filename='audio/open-chirp.mp3') }}');
+      a.volume = 0.9;
+      a.play().catch(()=>{});
+    } catch (e) {}
+    try {
+      lottie.loadAnimation({
+        container: document.getElementById('wellness-lottie'),
+        renderer: 'svg', loop: true, autoplay: true,
+        path: '{{ url_for('static', filename='lottie/reading_autumn.json') }}'
+      });
+    } catch (e) { /* ignore */ }
+  });
+</script>
 {% endblock %}

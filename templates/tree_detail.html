@@ -381,6 +381,7 @@
           if (data && !data.error) {
             setHeart(true);
             adoptedAt.textContent = (data.adoption && data.adoption.adopted_at) || adoptedAt.textContent;
+            try { window.cgAudio && window.cgAudio.play('adopt'); } catch(e) {}
           } else {
             alert(data.error || 'Failed to save adoption');
           }

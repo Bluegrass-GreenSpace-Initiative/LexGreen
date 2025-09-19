@@ -14,32 +14,104 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-osm/leaflet-osm.js"></script>
     <script src="{{ url_for('static', filename='js/tree_icons.js') }}"></script>
+    <!-- Lottie and GSAP for opening animation -->
+    <script src="https://unpkg.com/lottie-web@5.12.2/build/player/lottie.min.js"></script>
+    <script src="https://unpkg.com/gsap@3.12.5/dist/gsap.min.js"></script>
     {% block extra_css %}{% endblock %}
 </head>
 <body>
+    <!-- First-time opening overlay (~4s) -->
+    <div id="opening-overlay" aria-hidden="true" style="display:none">
+      <div class="opening-inner">
+        <!-- Arched title using SVG textPath -->
+        <svg class="opening-arch" viewBox="0 0 400 160" width="320" height="128" role="img" aria-label="CampusGreen">
+          <defs>
+            <path id="arc-path" d="M 40 120 C 140 10, 260 10, 360 120" />
+          </defs>
+          <text fill="#E5F2EA" font-size="28" font-weight="700" letter-spacing="1">
+            <textPath href="#arc-path" startOffset="50%" text-anchor="middle">
+              <tspan class="opening-letter">C</tspan>
+              <tspan class="opening-letter">a</tspan>
+              <tspan class="opening-letter">m</tspan>
+              <tspan class="opening-letter">p</tspan>
+              <tspan class="opening-letter">u</tspan>
+              <tspan class="opening-letter">s</tspan>
+              <tspan class="opening-letter" xml:space="preserve"> </tspan>
+              <tspan class="opening-letter">G</tspan>
+              <tspan class="opening-letter">r</tspan>
+              <tspan class="opening-letter">e</tspan>
+              <tspan class="opening-letter">e</tspan>
+              <tspan class="opening-letter">n</tspan>
+            </textPath>
+          </text>
+        </svg>
+        <!-- Lottie container -->
+        <div id="opening-lottie" class="opening-lottie" aria-hidden="true"></div>
+        <!-- Preloaded audio for the chirp -->
+        <audio id="opening-audio" src="{{ url_for('static', filename='audio/open-chirp.mp3') }}" preload="auto"></audio>
+      </div>
+    </div>
     <a href="#leaflet-map" class="skip-link" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;">Skip to map</a>
     <header>
         <div class="header-content">
-            <img src="{{ url_for('static', filename='images/logo.png') }}"
-                 alt="CampusGreen Logo"
-                 class="logo"
-                 width="50"
-                 height="50">
-            <div class="header-text">
-                <h1 class="site-title">CampusGreen</h1>
-                <p class="site-subtitle">Explore the green spaces on our campus</p>
-            </div>
+            <a href="{{ url_for('index') }}" class="brand-link" aria-label="CampusGreen Home">
+              <img src="{{ url_for('static', filename='images/logo.png') }}"
+                   alt="CampusGreen Logo"
+                   class="logo"
+                   width="50"
+                   height="50">
+              <div class="header-text">
+                  <h1 class="site-title">CampusGreen</h1>
+                  <p class="site-subtitle">Explore the green spaces on our campus</p>
+                  <!-- Subtle wavy divider under brand -->
+                  <svg class="title-wave" viewBox="0 0 300 24" width="260" height="20" aria-hidden="true">
+                    <defs>
+                      <linearGradient id="title-wave-grad" x1="0" y1="0" x2="600" y2="0" gradientUnits="userSpaceOnUse">
+                        <stop offset="0%" stop-color="#E5F2EA"/>
+                        <stop offset="20%" stop-color="#A9D7BE"/>
+                        <stop offset="40%" stop-color="#6AA786"/>
+                        <stop offset="60%" stop-color="#3C6B53"/>
+                        <stop offset="80%" stop-color="#6AA786"/>
+                        <stop offset="100%" stop-color="#E5F2EA"/>
+                      </linearGradient>
+                    </defs>
+                    <path d="M0,12 C40,2 80,22 120,12 S200,2 240,12 300,12 300,12" fill="none" stroke="url(#title-wave-grad)" stroke-width="4" stroke-linecap="round"/>
+                  </svg>
+                </div>
+              </a>
+            <!-- Decorative flowers banner on desktop -->
+            <div class="header-flowers" id="header-flowers" aria-hidden="true"></div>
             <button id="menu-toggle" class="menu-toggle" aria-controls="primary-nav" aria-expanded="false" title="Menu" data-haptic="soft">☰</button>
         </div>
     </header>
 
     <nav id="primary-nav" class="nav-bar" aria-label="Primary">
         <ul>
-            <li><a href="{{ url_for('index') }}" {% if request.endpoint == 'index' %}class="active"{% endif %}>🏠 Home</a></li>
-            <li><a href="{{ url_for('my_adoptions') }}" {% if request.endpoint == 'my_adoptions' %}class="active"{% endif %}>🌿 My Activity</a></li>
+            <li>
+              <a href="{{ url_for('index') }}" {% if request.endpoint == 'index' %}class="active" aria-current="page"{% endif %}>
+                <span class="nav-icon nav-home" aria-hidden="true"></span>
+                <span>Home</span>
+              </a>
+            </li>
+            <li>
+              <a href="{{ url_for('my_adoptions') }}" {% if request.endpoint == 'my_adoptions' %}class="active" aria-current="page"{% endif %}>
+                <span class="nav-icon nav-activity" aria-hidden="true"></span>
+                <span>My Activity</span>
+              </a>
+            </li>
             {% if request.endpoint not in ['greenspace', 'tree_detail', 'my_adoptions'] %}
-              <li><a href="{{ url_for('wellness') }}" {% if request.endpoint == 'wellness' %}class="active"{% endif %}>💚 Benefits</a></li>
-              <li><a href="{{ url_for('about') }}" {% if request.endpoint == 'about' %}class="active"{% endif %}>ℹ️ About</a></li>
+              <li>
+                <a href="{{ url_for('wellness') }}" {% if request.endpoint == 'wellness' %}class="active" aria-current="page"{% endif %}>
+                  <span class="nav-icon nav-benefits" aria-hidden="true"></span>
+                  <span>Benefits</span>
+                </a>
+              </li>
+              <li>
+                <a href="{{ url_for('about') }}" {% if request.endpoint == 'about' %}class="active" aria-current="page"{% endif %}>
+                  <span class="nav-icon nav-about" aria-hidden="true"></span>
+                  <span>About</span>
+                </a>
+              </li>
             {% endif %}
         </ul>
     </nav>
@@ -52,9 +124,18 @@
         <p>&copy; {{ current_year }} CampusGreen - University of Kentucky · <a href="/admin/login" style="color:#9BBCA7; text-decoration:none;">Staff Login</a></p>
     </footer>
     <script>
-      // Minimal page enter animation class
+      // Page enter: defer if opening intro will run
       document.addEventListener('DOMContentLoaded', function(){
-        document.body.classList.add('page-enter');
+        try {
+          const seen = localStorage.getItem('cg_opening_seen_v1') === '1';
+          if (!seen) {
+            document.body.classList.add('intro-active');
+          } else {
+            document.body.classList.add('page-enter');
+          }
+        } catch (e) {
+          document.body.classList.add('page-enter');
+        }
       });
 
       // Haptic feedback (where supported)
@@ -79,6 +160,51 @@
       }
     </script>
     <script>
+      // Subtle header title/subtitle animation on load using GSAP + CSS variable
+      (function(){
+        const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const titleEl = document.querySelector('.site-title');
+        if (!titleEl) return;
+        // Ensure CSS variable-driven underline works
+        try {
+          const style = document.createElement('style');
+          style.textContent = '.site-title::after{ transform: scaleX(var(--u-title, 0)); }';
+          document.head.appendChild(style);
+        } catch (e) {}
+        if (reduce || typeof gsap === 'undefined') {
+          titleEl.style.setProperty('--u-title', '1');
+          return;
+        }
+        try {
+          titleEl.style.setProperty('--u-title', '0');
+          const tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
+          tl.from('.site-title', { opacity: 0, y: 4, duration: 0.45 })
+            .from('.site-subtitle', { opacity: 0, y: 4, duration: 0.45 }, '-=0.25');
+          const prog = { v: 0 };
+          gsap.to(prog, { v: 1, duration: 0.6, ease: 'power2.out', onUpdate(){
+            try { titleEl.style.setProperty('--u-title', String(prog.v)); } catch(e) {}
+          }});
+        } catch (e) { /* ignore */ }
+      })();
+    </script>
+    <script>
+      // Play rustling on click to a tree detail link (/tree/<id>) with slight delay before navigation
+      document.addEventListener('click', function(e){
+        const a = e.target.closest && e.target.closest('a[href]');
+        if (!a) return;
+        try {
+          const url = new URL(a.href, window.location.origin);
+          if (/^\/tree\/(\d+)/.test(url.pathname)) {
+            // Respect new tab/middle click
+            if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1 || a.target === '_blank') return;
+            e.preventDefault();
+            try { window.cgAudio && window.cgAudio.play('explore'); } catch(err) {}
+            setTimeout(() => { window.location.href = a.href; }, 220);
+          }
+        } catch (err) {}
+      }, { passive: false });
+    </script>
+    <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', function() {
           navigator.serviceWorker.register('{{ url_for('static', filename='sw.js') }}').catch(function(err){
@@ -87,6 +213,180 @@
         });
       }
     </script>
+    <script>
+      // Lightweight audio manager for UI sounds (includes chirp)
+      (function(){
+        const sounds = {
+          explore: '{{ url_for('static', filename='audio/explore-rustling.mp3') }}',
+          adopt: '{{ url_for('static', filename='audio/adopt-drop.mp3') }}',
+          chirp: '{{ url_for('static', filename='audio/open-chirp.mp3') }}'
+        };
+        const defaults = { explore: 0.7, adopt: 0.9, chirp: 0.9 };
+        const pool = new Map();
+        function get(name){
+          if (!pool.has(name)) {
+            try {
+              const a = new Audio(sounds[name] || '');
+              try { a.preload = 'auto'; } catch(_) {}
+              pool.set(name, a);
+            } catch(e) { pool.set(name, null); }
+          }
+          return pool.get(name);
+        }
+        function play(name){
+          const a = get(name);
+          if (!a) return;
+          try {
+            a.currentTime = 0;
+            a.volume = defaults[name] ?? 0.9;
+            a.play().catch(()=>{});
+          } catch(e) {}
+        }
+        window.cgAudio = { play };
+        // Warm up audio objects so they are ready to play quickly
+        try { ['explore','adopt','chirp'].forEach(get); } catch(_) {}
+        // Unlock on first user interaction (support pointer/mouse/touch/keyboard)
+        function unlock(){
+          ['explore','adopt','chirp'].forEach(n => {
+            try {
+              const a = get(n);
+              if (a && a.play) {
+                const prevVol = a.volume;
+                const prevMuted = a.muted;
+                a.muted = true; // some browsers require muted during first programmatic play
+                a.volume = 0.0;
+                a.play().then(()=>{ a.pause(); a.muted = prevMuted; a.volume = prevVol; }).catch(()=>{ a.muted = prevMuted; a.volume = prevVol; });
+              }
+            } catch(e){}
+          });
+          try {
+            ['pointerdown','mousedown','touchstart','keydown'].forEach(type => {
+              window.removeEventListener(type, unlock, true);
+            });
+          } catch(_) {}
+        }
+        try {
+          ['pointerdown','mousedown','touchstart','keydown'].forEach(type => {
+            window.addEventListener(type, unlock, { capture:true });
+          });
+        } catch(_) {}
+      })();
+    </script>
+    <script>
+      // Play chirp when navigating to My Activity (/my-adoptions)
+      document.addEventListener('click', function(e){
+        const a = e.target.closest && e.target.closest('a[href]');
+        if (!a) return;
+        try {
+          const url = new URL(a.href, window.location.origin);
+          if (url.pathname === '/my-adoptions') {
+            // Respect new tab/middle click
+            if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1 || a.target === '_blank') return;
+            e.preventDefault();
+            try { window.cgAudio && window.cgAudio.play('chirp'); } catch(err) {}
+            setTimeout(() => { window.location.href = a.href; }, 220);
+          }
+        } catch (err) {}
+      }, { passive: false });
+    </script>
     {% block extra_js %}{% endblock %}
+    <script>
+      // Opening overlay logic: shows only once per user for ~4s
+      (function(){
+        const KEY = 'cg_opening_seen_v1';
+        const prefersReduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const seen = (function(){ try { return localStorage.getItem(KEY) === '1'; } catch(e){ return true; } })();
+        const overlay = document.getElementById('opening-overlay');
+        if (!overlay || seen) return; // already seen
+
+        // Show overlay immediately
+        overlay.style.display = 'flex';
+        // Lock scroll behind overlay
+        const prevOverflow = document.documentElement.style.overflow;
+        document.documentElement.style.overflow = 'hidden';
+
+        // Init Lottie
+        let anim;
+        try {
+          anim = lottie.loadAnimation({
+            container: document.getElementById('opening-lottie'),
+            renderer: 'svg', loop: true, autoplay: true,
+            path: '{{ url_for('static', filename='lottie/field_loading.json') }}'
+          });
+        } catch (e) { /* ignore */ }
+
+        // Try to play chirp (may be blocked by autoplay policy)
+        const audio = document.getElementById('opening-audio');
+        if (audio && audio.play) { audio.volume = 0.9; audio.play().catch(() => {}); }
+
+        // Build GSAP timeline (total ~4s)
+        const tl = gsap && gsap.timeline ? gsap.timeline({ defaults: { ease: 'power2.out' } }) : null;
+        const durIn = prefersReduce ? 0.01 : 1.2;
+        const durHold = prefersReduce ? 0.2 : 1.6;
+        const durOut = prefersReduce ? 0.01 : 1.2;
+
+        if (tl) {
+          tl.set('#opening-overlay', { opacity: 1 })
+            .from('.opening-arch', { opacity: 0, y: 12, duration: durIn })
+            .from('.opening-letter', { opacity: 0, y: 6, duration: durIn * 0.6, stagger: 0.04 }, '<0.05')
+            .from('.opening-lottie', { opacity: 0, scale: 0.96, duration: durIn * 0.8 }, '<0.10')
+            .to({}, { duration: durHold })
+            .to('#opening-overlay', { opacity: 0, duration: durOut, onComplete: cleanup });
+        } else {
+          // Fallback: simple timeout then cleanup
+          setTimeout(cleanup, 4000);
+        }
+
+        function cleanup(){
+          try { localStorage.setItem(KEY, '1'); } catch (e) {}
+          overlay.style.display = 'none';
+          document.documentElement.style.overflow = prevOverflow || '';
+          try { if (anim && anim.destroy) anim.destroy(); } catch(e) {}
+          try { if (audio && !audio.paused) audio.pause(); } catch(e) {}
+          try { document.body.classList.remove('intro-active'); } catch(e) {}
+          try { document.body.classList.add('page-enter'); } catch(e) {}
+          // Safety: ensure the brand subtitle is visible post-intro
+          try {
+            const sub = document.querySelector('.site-subtitle');
+            if (sub) { sub.style.opacity = '1'; sub.style.visibility = 'visible'; }
+          } catch(e) {}
+        }
+      })();
+    </script>
+    <script>
+      // Header decorative Lottie (flowers) — desktop only, soft speed
+      document.addEventListener('DOMContentLoaded', function(){
+        try {
+          const el = document.getElementById('header-flowers');
+          if (!el || window.matchMedia('(max-width: 767px)').matches) return;
+          const anim = lottie.loadAnimation({
+            container: el, renderer: 'svg', loop: true, autoplay: true,
+            path: '{{ url_for('static', filename='lottie/banner-flowers.json') }}'
+          });
+          try { anim.setSpeed(0.6); } catch(e) {}
+        } catch(e) { /* ignore */ }
+      });
+    </script>
+    <script>
+      // Animate title wave gradient (continuous motion) + gentle vertical bob
+      document.addEventListener('DOMContentLoaded', function(){
+        try {
+          const grad = document.getElementById('title-wave-grad');
+          const wavePath = document.querySelector('.title-wave path');
+          const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          if (reduce || typeof gsap === 'undefined') return;
+          if (wavePath) {
+            gsap.to(wavePath, { y: 4, duration: 2.8, ease: 'sine.inOut', yoyo: true, repeat: -1 });
+          }
+          if (!grad) return;
+          const width = 600; // matches gradient x2 (userSpaceOnUse)
+          const state = { x: 0 };
+          gsap.to(state, {
+            x: width, duration: 5.5, ease: 'none', repeat: -1,
+            onUpdate() { grad.setAttribute('gradientTransform', `translate(${state.x % width} 0)`); }
+          });
+        } catch (e) { /* ignore */ }
+      });
+    </script>
 </body>
 </html>

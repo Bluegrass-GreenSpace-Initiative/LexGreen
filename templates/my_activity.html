@@ -41,6 +41,17 @@
 {% block extra_js %}
 <script>
   document.addEventListener('DOMContentLoaded', () => {
+    // Play a soft chirp when arriving on My Activity
+    try {
+      if (window.cgAudio) {
+        window.cgAudio.play('chirp');
+      } else {
+        const a = new Audio('{{ url_for('static', filename='audio/open-chirp.mp3') }}');
+        a.volume = 0.9;
+        a.play().catch(()=>{});
+      }
+    } catch (e) {}
+
     function getOrCreateUserId() {
       try {
         let id = localStorage.getItem('cg_uid');

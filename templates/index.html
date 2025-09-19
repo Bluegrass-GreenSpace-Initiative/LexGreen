@@ -123,6 +123,11 @@
             height: calc(100vh - 200px);
         }
     }
+
+    /* Discover toggle styling */
+    .discovery-toggle { display:inline-flex; align-items:center; gap:8px; }
+    .discovery-toggle .chev { transition: transform .18s ease; }
+    .discovery-toggle[aria-expanded="true"] .chev { transform: rotate(90deg); }
 </style>
 {% endblock %}
 
@@ -134,8 +139,14 @@
                 <h3>Welcome to CampusGreen</h3>
                 <p>Discover the natural beauty of UK campus. Select any green space on the map to see details here.</p>
             </section>
+            <div style="margin-top:10px;">
+              <button id="toggle-recommended" class="subtle-link discovery-toggle" type="button" aria-controls="recommended-list" aria-expanded="false">
+                <span class="chev" aria-hidden="true">▸</span>
+                <span class="label">Discover campus gems</span>
+              </button>
+            </div>
 
-            <section class="green-space-list">
+            <section id="recommended-list" class="green-space-list" style="display:none;" aria-live="polite">
                 {% for location, info in location_info.items() %}
                 <div class="green-space-item" data-location="{{ location }}">
                     <h3>{{ location }}</h3>
@@ -195,7 +206,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Ensure trees render above SVG overlay
     map.createPane('treesPane');
     map.getPane('treesPane').style.zIndex = 560; // above overlayPane (400)
-    map.getPane('treesPane').style.pointerEvents = 'none'; // don't block greenspace clicks
+    // Allow pointer events so tree markers are clickable
+    map.getPane('treesPane').style.pointerEvents = 'auto';
 
     // Trees layer (loaded from backend GeoJSON)
     function getTreeIcon(speciesLatin = '', commonName = '') {
@@ -236,10 +248,18 @@ document.addEventListener('DOMContentLoaded', function() {
         pointToLayer: (feature, latlng) => {
             const p = feature.properties || {};
             const icon = window.treeIcons.getLeafletIcon(p.latin_name, p.title);
-            return L.marker(latlng, { icon });
+            const m = L.marker(latlng, { icon, riseOnHover: true });
+            // Play rustling as soon as user presses on marker; stop map click from clearing
+            m.on('mousedown', (e) => { try { window.cgAudio && window.cgAudio.play('explore'); } catch(err) {} try { e.originalEvent.stopPropagation(); } catch(_) {} });
+            m.on('touchstart', (e) => { try { window.cgAudio && window.cgAudio.play('explore'); } catch(err) {} try { e.originalEvent.stopPropagation(); } catch(_) {} });
+            // Add a quick pulse animation to the marker icon
+            m.on('click', (e) => {
+              try { if (m._icon) { m._icon.classList.remove('tree-pulse'); void m._icon.offsetWidth; m._icon.classList.add('tree-pulse'); } } catch(_) {}
+              try { e.originalEvent.stopPropagation(); } catch(_) {}
+            });
+            return m;
         }
-        // No onEachFeature: markers are non-interactive by design
-    }); // not added by default; shown after a greenspace click
+    }); // added after a greenspace click
     // Helper: show trees within geographic bounds (uses /api/trees/area)
     function showTreesInBounds(bounds) {
         const qs = new URLSearchParams({
@@ -397,6 +417,8 @@ async function loadSVGOverlay(url) {
                 // Add click handlers to paths and polygons
                 svg.querySelectorAll('path, polygon').forEach(element => {
                     element.addEventListener('click', () => {
+                        // Sound: exploring greenspace
+                        try { window.cgAudio && window.cgAudio.play('explore'); } catch(e) {}
                         const name = element.getAttribute('id') || 'Unnamed Location';
                         // Compute polygon bounding box in SVG coords and fit map to it
                         const bbox = element.getBBox();
@@ -438,9 +460,10 @@ async function loadSVGOverlay(url) {
     // Handle green space item clicks
     document.querySelectorAll('.green-space-item').forEach(item => {
         item.addEventListener('click', () => {
+            try { window.cgAudio && window.cgAudio.play('explore'); } catch(e) {}
             const location = item.dataset.location;
             updateInfoPanel(location);
-            const listSection = document.querySelector('.green-space-list');
+            const listSection = document.querySelector('#recommended-list');
             if (listSection) listSection.style.display = 'none';
         });
     });
@@ -469,9 +492,15 @@ async function loadSVGOverlay(url) {
             treesLayer.clearLayers();
             map.removeLayer(treesLayer);
           }
-          // Show the green space list again
-          const listSection = document.querySelector('.green-space-list');
-          if (listSection) listSection.style.display = '';
+          // Keep recommended list hidden by default on reset
+          const listSection = document.querySelector('#recommended-list');
+          if (listSection) listSection.style.display = 'none';
+          const tbtn = document.getElementById('toggle-recommended');
+          if (tbtn) {
+            tbtn.setAttribute('aria-expanded','false');
+            const lbl = tbtn.querySelector('.label');
+            if (lbl) lbl.textContent = 'Discover campus gems';
+          }
           // Restore welcome message
           elements.infoCard.innerHTML = `
             <h3>Welcome to CampusGreen</h3>
@@ -485,6 +514,24 @@ async function loadSVGOverlay(url) {
     }
 
     // Trees are hidden by default and shown only after a greenspace click
+    // Play sound when user taps the floating CTA to explore the area
+    const cta = document.getElementById('map-cta-link');
+    if (cta) {
+      cta.addEventListener('click', () => { try { window.cgAudio && window.cgAudio.play('explore'); } catch(e) {} });
+    }
+
+    // Toggle recommended/highlighted greenspaces list
+    const toggleBtn = document.getElementById('toggle-recommended');
+    const recList = document.getElementById('recommended-list');
+    if (toggleBtn && recList) {
+      const lbl = toggleBtn.querySelector('.label');
+      toggleBtn.addEventListener('click', () => {
+        const isHidden = recList.style.display === 'none';
+        recList.style.display = isHidden ? '' : 'none';
+        toggleBtn.setAttribute('aria-expanded', String(isHidden));
+        if (lbl) lbl.textContent = isHidden ? 'Hide campus gems' : 'Discover campus gems';
+      });
+    }
 });
 </script>
 {% endblock %}

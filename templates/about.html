@@ -1,38 +1,104 @@
 {% extends "base.html" %}
 
+{% block extra_css %}
+<style>
+  /* Layout + hero */
+  .about-hero { position: relative; overflow: hidden; border-radius: 18px; padding: 24px; margin-bottom: 22px; background: radial-gradient(120% 100% at 50% 0%, #223329 0%, #1b1d20 60%, #191A1C 100%); box-shadow: 0 10px 30px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.04); }
+  .about-hero .blob { position: absolute; inset: -20% -10% auto -10%; height: 320px; background: radial-gradient(60% 60% at 50% 40%, rgba(99, 158, 126, 0.45) 0%, rgba(85, 139, 110, 0.28) 40%, rgba(85, 139, 110, 0) 70%); filter: blur(18px); transform: translateY(-10px) scale(1.1); }
+  .about-hero h1 { position: relative; margin: 0; font-size: clamp(1.6rem, 3vw, 2.2rem); color: #E5F2EA; letter-spacing: .3px; }
+  .about-hero .underline { position: relative; display: inline-block; }
+  .about-hero .underline::after { content: ""; position: absolute; left: 0; right: 0; bottom: -6px; height: 6px; border-radius: 999px; background: linear-gradient(90deg,#6aa786,#8cc5a2,#4f8468,#3c6b53); background-size: 200% 100%; opacity: .9; transform: scaleX(0); transform-origin: left; }
+  .about-hero .underline:hover::after { animation: underlinePulse 1.1s ease; }
+  @keyframes underlinePulse { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+  /* Lottie container centered, responsive */
+  #about-lottie { width: min(96vw, 800px); height: min(96vw, 800px); }
+  @media (max-width: 480px){ #about-lottie { width: min(96vw, 640px); height: min(96vw, 640px); } }
+
+  /* Fun chip cloud */
+  .chip-cloud { display:flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .chip { background: #26332c; color:#cfe6d8; border:1px solid #395749; padding: 6px 10px; border-radius: 999px; font-weight: 600; font-size: .9rem; box-shadow: 0 2px 0 #2a4d3b, 0 6px 14px rgba(0,0,0,.25); }
+
+  /* Cards with gentle tilt hover */
+  .ag-card { position: relative; background: linear-gradient(180deg, #262626 0%, #202020 100%); border: 1px solid #2e2e2e; border-radius: 16px; padding: 16px; box-shadow: 0 6px 18px rgba(0,0,0,.25); transform-style: preserve-3d; transition: transform .18s ease, box-shadow .18s ease; }
+  .ag-card::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 4px; border-top-left-radius: 16px; border-top-right-radius: 16px; background: linear-gradient(90deg, #6aa786, #4f8468, #3c6b53); opacity: .95; }
+  .ag-card:hover { transform: translateY(-2px) rotateX(1deg) rotateY(-1deg); box-shadow: 0 10px 28px rgba(0,0,0,.35); }
+  .ag-card:hover::after { content: ""; position: absolute; top: 0; bottom: 0; left: -40%; width: 40%; background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.08), rgba(255,255,255,0)); transform: skewX(-15deg); animation: sheen 0.9s ease; pointer-events: none; }
+  @keyframes sheen { to { left: 120%; } }
+  .ag-card:hover { transform: translateY(-2px) rotateX(1deg) rotateY(-1deg); box-shadow: 0 10px 28px rgba(0,0,0,.35); }
+
+  /* Section reveal default state (for GSAP) */
+  .about-section { opacity: 0; transform: translateY(12px); }
+
+  /* Leafy wave divider */
+  .leafy-divider { position: relative; height: 80px; margin: 6px 0 18px 0; }
+  .leafy-divider svg { width: 100%; height: 100%; display: block; }
+
+  /* Respect prefers-reduced-motion */
+  @media (prefers-reduced-motion: reduce) {
+    .about-section { opacity: 1 !important; transform: none !important; }
+    .about-hero .underline::after { transform: scaleX(1) !important; }
+  }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-6">About CampusGreen</h1>
+    <div class="about-hero">
+      <div class="blob" aria-hidden="true"></div>
+      <div style="display:flex; justify-content:center;">
+        <div id="about-lottie"></div>
+      </div>
+      <h1 class="text-3xl font-bold mb-2"><span class="underline"><span class="title-text">About CampusGreen</span></span></h1>
+      <div class="chip-cloud">
+        <span class="chip">Nature</span>
+        <span class="chip">Community</span>
+        <span class="chip">Exploration</span>
+        <span class="chip">Wellbeing</span>
+      </div>
+    </div>
+    <div class="leafy-divider" aria-hidden="true">
+      <svg viewBox="0 0 1440 120" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="leafyGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#3c6b53"/>
+            <stop offset="50%" stop-color="#4f8468"/>
+            <stop offset="100%" stop-color="#6aa786"/>
+          </linearGradient>
+        </defs>
+        <path class="leafy-wave" d="M0,48 C192,80 384,0 576,24 C768,48 960,120 1152,84 C1296,60 1440,84 1440,84 L1440,120 L0,120 Z" fill="url(#leafyGrad)"></path>
+      </svg>
+    </div>
     
-    <section class="mb-8">
+    <section class="mb-8 about-section">
         <h2 class="text-2xl font-semibold mb-4">Our Mission</h2>
-        <p class="text-gray-700">
+        <p class="text-gray-700 ag-card">
             CampusGreen helps University of Kentucky students and staff discover and connect with campus green spaces. 
             By making information about our campus environment more accessible, we aim to enhance appreciation for UK's natural spaces.
         </p>
     </section>
 
-    <section class="mb-8">
+    <section class="mb-8 about-section">
         <h2 class="text-2xl font-semibold mb-4">The Project</h2>
-        <p class="text-gray-700">
+        <p class="text-gray-700 ag-card">
             This project is part of the University of Kentucky's initiative to promote environmental awareness and 
             appreciation of campus green spaces. We integrate official tree inventory data with custom-designed 
             interactive maps to create an engaging exploration experience.
         </p>
     </section>
 
-    <section class="mb-8">
+    <section class="mb-8 about-section">
         <h2 class="text-2xl font-semibold mb-4">Our Data</h2>
-        <p class="text-gray-700">
+        <p class="text-gray-700 ag-card">
             We use official tree inventory data from the University of Kentucky's Urban Forest Initiative, 
             combined with carefully curated information about campus green spaces.
         </p>
     </section>
 
-    <section class="mb-8">
+    <section class="mb-8 about-section">
         <h2 class="text-2xl font-semibold mb-4">Team</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="p-4 bg-green-50 rounded">
+            <div class="p-4 ag-card">
                 <h3 class="font-semibold">Development Team</h3>
                 <ul class="list-disc list-inside text-gray-700">
                     <li>Aiden Beach</li>
@@ -44,11 +110,83 @@
         </div>
     </section>
 
-    <section>
+    <section class="about-section">
         <h2 class="text-2xl font-semibold mb-4">Contact</h2>
-        <p class="text-gray-700">
+        <p class="text-gray-700 ag-card">
             Have questions or suggestions? Contact us at our GitHub repository or reach out to any team member.
         </p>
     </section>
-</div>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function(){
+    try {
+      lottie.loadAnimation({
+        container: document.getElementById('about-lottie'),
+        renderer: 'svg', loop: true, autoplay: true,
+        path: '{{ url_for('static', filename='lottie/cycling_autumn.json') }}'
+      });
+    } catch (e) { /* ignore */ }
+    // GSAP animations
+    try {
+      const tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
+      // Underline grows, lottie scales in, chips float
+      tl.from('.about-hero .blob', { opacity: 0, y: -10, duration: 0.6 })
+        .from('#about-lottie', { opacity: 0, scale: 0.92, duration: 0.7 }, '-=0.25')
+        .to('.about-hero .underline::after', { // cannot target pseudo with GSAP; use CSS variable trick
+          duration: 0.001
+        })
+        .from('.about-hero .underline', { '--u': 0, duration: 0.6, onUpdate(){
+            const el = document.querySelector('.about-hero .underline');
+            if (el) el.style.setProperty('--u', this.progress());
+          }
+        }, '-=0.4')
+        .from('.chip', { opacity: 0, y: 10, stagger: 0.08, duration: 0.35 }, '-=0.2');
+
+      // Animate underline scale via CSS variable
+      const u = document.querySelector('.about-hero .underline');
+      if (u) u.style.setProperty('--u', 0);
+      const style = document.createElement('style');
+      style.textContent = '.about-hero .underline::after{ transform: scaleX(var(--u, 0)); }';
+      document.head.appendChild(style);
+
+      // Gentle floating chips loop (synchronized wave via stagger)
+      gsap.to('.chip', { y: 6, repeat: -1, yoyo: true, duration: 2.6, ease: 'sine.inOut', stagger: { each: 0.12, from: 'start' } });
+
+      // Leafy wave subtle motion
+      gsap.to('.leafy-wave', { y: 4, repeat: -1, yoyo: true, duration: 3.2, ease: 'sine.inOut' });
+
+      // Section reveals when entering viewport
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            const el = e.target;
+            gsap.to(el, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' });
+            io.unobserve(el);
+          }
+        });
+      }, { rootMargin: '0px 0px -10% 0px', threshold: 0.15 });
+      document.querySelectorAll('.about-section').forEach(el => io.observe(el));
+
+      // Subtle parallax for hero blob on mouse move
+      try {
+        const prefersReduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const hero = document.querySelector('.about-hero');
+        const blob = document.querySelector('.about-hero .blob');
+        if (!prefersReduce && hero && blob) {
+          hero.addEventListener('mousemove', (ev) => {
+            const r = hero.getBoundingClientRect();
+            const nx = (ev.clientX - r.left) / r.width;   // 0..1
+            const ny = (ev.clientY - r.top) / r.height;  // 0..1
+            const dx = (nx - 0.5) * 2; // -1..1
+            const dy = (ny - 0.5) * 2; // -1..1
+            gsap.to(blob, { x: dx * 8, y: -10 + dy * 6, duration: 0.4, ease: 'sine.out', overwrite: 'auto' });
+          }, { passive: true });
+        }
+      } catch (e) { /* ignore */ }
+    } catch (e) { /* ignore */ }
+  });
+  </script>
 {% endblock %}
