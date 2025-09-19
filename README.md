@@ -4,13 +4,13 @@
 - https://campus-greenspace-explorer.fly.dev
 
 ## Overview
-CampusGreen is a mobile-friendly web application to explore, learn about, and care for green spaces on campus. It provides an interactive map, official UK tree data, community features (adoptions, reports), and an admin portal.
+CCampusGreen is a mobile-friendly web application designed to help university students and staff discover and learn about green spaces on campus. It provides an interactive map, official UK tree data, community features (adoptions, reports), and an admin portal.
 
 ## Features
-- Interactive map with campus greenspace overlay (Leaflet)
-- Official UK tree inventory (CSV import → SQLite)
+- **Interactive Campus Map**: Explore green spaces with a touch-friendly interface.
+- **Green Space Details**: Learn about different types of green areas (gardens, groves, lawns).
+- **Tree detail pages**: with photo gallery and uploads
 - Tree APIs: list, GeoJSON, by area/species, nearby
-- Tree detail pages with photo gallery and uploads
 - Adoptions, damage reports, and work orders APIs
 - Admin portal (login, amenities, volunteers, CSV exports)
 - PWA scaffold (installable; basic offline caching)
@@ -25,13 +25,14 @@ CampusGreen is a mobile-friendly web application to explore, learn about, and ca
 - Compression: Flask-Compress
 
 ## Data Sources
-1) Official UK tree inventory (Urban Forest Initiative)
-2) User-submitted content (adoptions, reports, photos)
+The application uses two main data sources:
+1. **UK Tree Inventory**: Official tree data from the University of Kentucky's Urban Forest Initiative
+2. **User Submissions**: Custom tree identifications submitted by users
 
 ### Resource Links
-- ExploreUK: https://exploreuk.uky.edu/
-- UKY UFI: https://ufi.ca.uky.edu/
-- PG Cloud UKY: https://pg-cloud.com/UKY/
+- [ExploreUK](https://exploreuk.uky.edu/) - Historical campus data
+- [UKY UFI](https://ufi.ca.uky.edu/) - Urban Forest Initiative
+- [PG Cloud UKY](https://pg-cloud.com/UKY/) - Additional campus resources
 
 ## Getting Started
 
@@ -150,10 +151,14 @@ Notes
 - iOS: Capacitor wrapper (WKWebView) to publish to App Store.
 
 ## Contributing
-See [CONTRIBUTING.md](CONTRIBUTING.md)
+We welcome contributions to CampusGreen! Please read our [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
 
 ## License
-Apache License 2.0 — see [LICENSE](LICENSE)
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+- University of Kentucky for providing data on campus green spaces.
+- Urban Forest Initiative
 
 ## Contact
 - [ambe303@uky.edu](mailto:ambe303@uky.edu)
