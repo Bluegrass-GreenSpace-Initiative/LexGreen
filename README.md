@@ -1,14 +1,15 @@
-# CampusGreen: Interactive Green Space Explorer
+# LexGreen: Interactive Green Space & Urban Forest Explorer
 
 ## Live Site
-- https://campus-greenspace-explorer.fly.dev
+- Current demo (legacy app name): https://campus-greenspace-explorer.fly.dev
+- LexGreen URL: TBD (update once deployed)
 
 ## Overview
-CampusGreen is a mobile-friendly web application designed to help university students and staff discover and learn about green spaces on campus. It provides an interactive map, official UK tree data, community features (adoptions, reports), and an admin portal.
+LexGreen is a mobile-friendly web application for Lexington, KY and the broader Bluegrass region. It helps residents discover parks, trails, trees, and nearby nature. The app includes an interactive map, tree data and details, community features (adoptions, reports), and an admin portal. It is intended to be available on the web, Android, and iOS.
 
 ## Features
-- **Interactive Campus Map**: Explore green spaces with a touch-friendly interface.
-- **Green Space Details**: Learn about different types of green areas (gardens, groves, lawns).
+- **Interactive Regional Map**: Explore parks and green spaces across Lexington and the Bluegrass with a touch-friendly interface.
+- **Green Space & Park Details**: Learn about different types of areas (parks, gardens, groves, lawns).
 - **Tree detail pages**: with photo gallery and uploads
 - Tree APIs: list, GeoJSON, by area/species, nearby
 - Adoptions, damage reports, and work orders APIs
@@ -26,8 +27,10 @@ CampusGreen is a mobile-friendly web application designed to help university stu
 
 ## Data Sources
 The application uses two main data sources:
-1. **UK Tree Inventory**: Official tree data from the University of Kentucky's Urban Forest Initiative
+1. **UK Tree Inventory (seed data)**: Official tree data from the University of Kentucky's Urban Forest Initiative, currently used as a starting dataset
 2. **User Submissions**: Custom tree identifications submitted by users
+
+Planned expansions include inclusion of municipal parks and urban forestry datasets for the wider Lexington/Bluegrass region.
 
 ### Resource Links
 - [ExploreUK](https://exploreuk.uky.edu/) - Historical campus data
@@ -43,8 +46,8 @@ The application uses two main data sources:
 ### Local setup
 1) Clone and create virtualenv
 ```bash
-git clone https://github.com/niveusgh/campus-greenspace-explorer.git
-cd campus-greenspace-explorer
+git clone https://github.com/Bluegrass-GreenSpace-Initiative/LexGreen.git
+cd LexGreen
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 ```
@@ -151,14 +154,13 @@ Notes
 - iOS: Capacitor wrapper (WKWebView) to publish to App Store.
 
 ## Contributing
-We welcome contributions to CampusGreen! Please read our [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+We welcome contributions to LexGreen! Please read our [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
 
 ## License
 This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
 
 ## Acknowledgments
-- University of Kentucky for providing data on campus green spaces.
-- Urban Forest Initiative
+- University of Kentucky and the Urban Forest Initiative for providing foundational tree data.
 
 ## Contact
 - [ambe303@uky.edu](mailto:ambe303@uky.edu)
@@ -166,4 +168,4 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 - [jtbr281@uky.edu](mailto:jtbr281@uky.edu)
 - [Thea.Francis@uky.edu](mailto:Thea.Francis@uky.edu)
 
-Project Link: https://github.com/Niveusgh/Campus-greenspace-explorer
+Project Link: https://github.com/Bluegrass-GreenSpace-Initiative/LexGreen
