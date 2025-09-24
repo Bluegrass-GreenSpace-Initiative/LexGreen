@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Explore University of Kentucky's campus green spaces">
+    <meta name="description" content="Explore Lexington’s green spaces and urban forest">
     <meta name="theme-color" content="#558B6E">
-    <title>{% block title %}CampusGreen{% endblock %}</title>
+    <title>{% block title %}LexGreen{% endblock %}</title>
     
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
@@ -24,18 +24,15 @@
     <div id="opening-overlay" aria-hidden="true" style="display:none">
       <div class="opening-inner">
         <!-- Arched title using SVG textPath -->
-        <svg class="opening-arch" viewBox="0 0 400 160" width="320" height="128" role="img" aria-label="CampusGreen">
+        <svg class="opening-arch" viewBox="0 0 400 160" width="320" height="128" role="img" aria-label="LexGreen">
           <defs>
             <path id="arc-path" d="M 40 120 C 140 10, 260 10, 360 120" />
           </defs>
           <text fill="#E5F2EA" font-size="28" font-weight="700" letter-spacing="1">
             <textPath href="#arc-path" startOffset="50%" text-anchor="middle">
-              <tspan class="opening-letter">C</tspan>
-              <tspan class="opening-letter">a</tspan>
-              <tspan class="opening-letter">m</tspan>
-              <tspan class="opening-letter">p</tspan>
-              <tspan class="opening-letter">u</tspan>
-              <tspan class="opening-letter">s</tspan>
+              <tspan class="opening-letter">L</tspan>
+              <tspan class="opening-letter">e</tspan>
+              <tspan class="opening-letter">x</tspan>
               <tspan class="opening-letter" xml:space="preserve"> </tspan>
               <tspan class="opening-letter">G</tspan>
               <tspan class="opening-letter">r</tspan>
@@ -54,14 +51,14 @@
     <a href="#leaflet-map" class="skip-link" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;">Skip to map</a>
     <header>
         <div class="header-content">
-            <a href="{{ url_for('index') }}" class="brand-link" aria-label="CampusGreen Home">
+            <a href="{{ url_for('index') }}" class="brand-link" aria-label="LexGreen Home">
               <img src="{{ url_for('static', filename='images/logo.png') }}"
-                   alt="CampusGreen Logo"
+                   alt="LexGreen Logo"
                    class="logo"
                    width="50"
                    height="50">
               <div class="header-text">
-                  <h1 class="site-title">CampusGreen</h1>
+                  <h1 class="site-title">LexGreen</h1>
                   <p class="site-subtitle">Explore the green spaces on our campus</p>
                   <!-- Subtle wavy divider under brand -->
                   <svg class="title-wave" viewBox="0 0 300 24" width="260" height="20" aria-hidden="true">
@@ -121,7 +118,7 @@
     </main>
 
     <footer>
-        <p>&copy; {{ current_year }} CampusGreen - University of Kentucky · <a href="/admin/login" style="color:#9BBCA7; text-decoration:none;">Staff Login</a></p>
+        <p>&copy; {{ current_year }} LexGreen - University of Kentucky · <a href="/admin/login" style="color:#9BBCA7; text-decoration:none;">Staff Login</a></p>
     </footer>
     <script>
       // Page enter: defer if opening intro will run
