@@ -1,8 +1,7 @@
 # LexGreen: Interactive Green Space & Urban Forest Explorer
 
 ## Live Site
-- Current demo (legacy app name): https://campus-greenspace-explorer.fly.dev
-- LexGreen URL: TBD (update once deployed)
+- LexGreen URL: https://lexgreen.fly.dev
 
 ## Overview
 LexGreen is a mobile-friendly web application for Lexington, KY and the broader Bluegrass region. It helps residents discover parks, trails, trees, and nearby nature. The app includes an interactive map, tree data and details, community features (adoptions, reports), and an admin portal. It is intended to be available on the web, Android, and iOS.
