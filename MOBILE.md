@@ -1,6 +1,6 @@
-# Mobile Packaging — CampusGreen
+# Mobile Packaging — LexGreen
 
-This guide explains how to ship CampusGreen to the Google Play Store (Android) and Apple App Store (iOS) while keeping a single web codebase.
+This guide explains how to ship LexGreen to the Google Play Store (Android) and Apple App Store (iOS) while keeping a single web codebase.
 
 ## Prerequisites
 - Live HTTPS site: `https://campus-greenspace-explorer.fly.dev` (or your custom domain)
@@ -27,7 +27,7 @@ TWA wraps your PWA into a Play‑store app that runs in Chrome.
   - `npm i -g @bubblewrap/cli`
 - Initialize from your live manifest
   - `bubblewrap init --manifest=https://campus-greenspace-explorer.fly.dev/static/manifest.json`
-  - Set `applicationId` (e.g., `edu.uky.campusgreen`) and app details
+  - Set `applicationId` (e.g., keep existing if already issued, or choose a new one like `org.bluegrass.lexgreen`) and app details
 - Build
   - `bubblewrap build` → outputs a signed AAB/APK (configure keystore when prompted)
 - Digital Asset Links (DAL)
@@ -53,8 +53,8 @@ Capacitor loads your HTTPS site in a WKWebView.
   - In `capacitor.config.ts`:
     ```ts
     export default {
-      appId: 'edu.uky.campusgreen',
-      appName: 'CampusGreen',
+      appId: 'edu.uky.campusgreen', // keep if already used; otherwise consider 'org.bluegrass.lexgreen'
+      appName: 'LexGreen',
       webDir: 'dist', // not used when loading by URL
       server: { url: 'https://campus-greenspace-explorer.fly.dev', cleartext: false }
     };
@@ -86,4 +86,3 @@ Capacitor loads your HTTPS site in a WKWebView.
 - Add an offline fallback page in the service worker for better UX when offline
 - Add “Add to Home Screen” in‑app prompt for non‑Chrome browsers
 - Use a custom domain (CNAME to Fly) for stable branding in store listings
-

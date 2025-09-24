@@ -1,4 +1,4 @@
-# Environment & Configuration — CampusGreen
+# Environment & Configuration — LexGreen
 
 This app keeps configuration minimal. Below are the environment variables and runtime paths used in development and production.
 
@@ -29,4 +29,3 @@ This app keeps configuration minimal. Below are the environment variables and ru
 - Health check: GET `/healthz`
 - Warm instance: in `fly.toml` → `[http_service].min_machines_running = 1`
 - CORS: enabled broadly for development; tighten if you split frontend/domain later.
-

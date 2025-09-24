@@ -1,4 +1,4 @@
-/* Simple service worker for CampusGreen */
+/* Simple service worker for LexGreen */
 const CACHE_VERSION = 'v1';
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 
@@ -97,4 +97,3 @@ async function networkThenCache(req) {
     throw e;
   }
 }
-

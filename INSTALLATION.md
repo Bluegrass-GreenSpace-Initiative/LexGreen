@@ -1,7 +1,7 @@
 # Installation Guide
 
 ## Prerequisites
-- Python 3.7+
+- Python 3.10+
 - Node.js 18+
 - Git
 
@@ -10,8 +10,8 @@
 ### 1. Initial Setup
 ```bash
 # Clone repository
-git clone https://github.com/niveusgh/campus-greenspace-explorer.git
-cd campus-greenspace-explorer
+git clone https://github.com/Bluegrass-GreenSpace-Initiative/LexGreen.git
+cd LexGreen
 
 # Create and activate virtual environment
 python -m venv venv

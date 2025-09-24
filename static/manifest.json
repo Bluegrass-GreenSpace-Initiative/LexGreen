@@ -1,6 +1,6 @@
 {
-  "name": "CampusGreen",
-  "short_name": "CampusGreen",
+  "name": "LexGreen",
+  "short_name": "LexGreen",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -11,4 +11,3 @@
     { "src": "/static/images/logo-og.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
   ]
 }
-
