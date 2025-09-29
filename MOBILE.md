@@ -3,7 +3,7 @@
 This guide explains how to ship LexGreen to the Google Play Store (Android) and Apple App Store (iOS) while keeping a single web codebase.
 
 ## Prerequisites
-- Live HTTPS site: `https://campus-greenspace-explorer.fly.dev` (or your custom domain)
+- Live HTTPS site: `https://lexgreen.fly.dev` 
 - PWA basics in place: Web App Manifest and Service Worker (already scaffolded in this repo)
 - Accounts:
   - Google Play Console (one‑time $25)
@@ -26,7 +26,7 @@ TWA wraps your PWA into a Play‑store app that runs in Chrome.
 - Install Bubblewrap
   - `npm i -g @bubblewrap/cli`
 - Initialize from your live manifest
-  - `bubblewrap init --manifest=https://campus-greenspace-explorer.fly.dev/static/manifest.json`
+  - `bubblewrap init --manifest=https://lexgreen.fly.dev/static/manifest.json`
   - Set `applicationId` (e.g., keep existing if already issued, or choose a new one like `org.bluegrass.lexgreen`) and app details
 - Build
   - `bubblewrap build` → outputs a signed AAB/APK (configure keystore when prompted)
@@ -60,10 +60,10 @@ Capacitor loads your HTTPS site in a WKWebView.
   - In `capacitor.config.ts`:
     ```ts
     export default {
-      appId: 'edu.uky.campusgreen', // keep if already used; otherwise consider 'org.bluegrass.lexgreen'
+      appId: 'org.bluegrass.lexgreen', // consider 'org.bluegrass.lexgreen'
       appName: 'LexGreen',
       webDir: 'dist', // not used when loading by URL
-      server: { url: 'https://campus-greenspace-explorer.fly.dev', cleartext: false }
+      server: { url: 'https://lexgreen.fly.dev', cleartext: false }
     };
     ```
 - Add iOS platform
