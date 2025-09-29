@@ -3,11 +3,10 @@
     "relation": ["delegate_permission/common.handle_all_urls"],
     "target": {
       "namespace": "android_app",
-      "package_name": "REPLACE_WITH_APPLICATION_ID",
+      "package_name": "org.bluegrass.lexgreen",
       "sha256_cert_fingerprints": [
-        "REPLACE_WITH_SHA256_FINGERPRINT"
+        "2A:C9:C2:2D:8B:B5:D8:42:69:65:25:A8:E5:BC:B8:9D:14:6E:88:EF:B8:70:4C:4C:A9:35:DA:0E:A4:A6:58:A5"
       ]
     }
   }
 ]
-
