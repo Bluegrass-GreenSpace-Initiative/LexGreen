@@ -90,6 +90,5 @@ Capacitor loads your HTTPS site in a WKWebView.
 - iOS Capacitor: only update when wrapper or metadata changes; web app content updates automatically
 
 ## 6) Optional Enhancements
-- Add an offline fallback page in the service worker for better UX when offline
 - Add “Add to Home Screen” in‑app prompt for non‑Chrome browsers
 - Use a custom domain (CNAME to Fly) for stable branding in store listings

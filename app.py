@@ -10,6 +10,7 @@ from services.tree_facts import get_tree_fact
 from werkzeug.utils import secure_filename
 from services.staff_service import StaffService
 from services.work_order_service import WorkOrderService
+import html
 
 app = Flask(__name__)
 CORS(app)
@@ -118,6 +119,49 @@ def wellness():
 @app.route('/about')
 def about():
     return render_template('about.html')
+
+@app.route('/privacy')
+def privacy():
+    # Render PRIVACY.md as simple HTML without extra dependencies
+    md_path = os.path.join(os.path.dirname(__file__), 'PRIVACY.md')
+    try:
+        with open(md_path, 'r', encoding='utf-8') as f:
+            md = f.read().splitlines()
+    except Exception:
+        md = ["# Privacy Policy", "This page is temporarily unavailable."]
+
+    html_parts = []
+    in_list = False
+
+    def close_list():
+        nonlocal in_list
+        if in_list:
+            html_parts.append('</ul>')
+            in_list = False
+
+    for line in md:
+        s = line.rstrip()
+        if not s:
+            close_list()
+            continue
+        if s.startswith('## '):
+            close_list()
+            html_parts.append(f"<h2>{html.escape(s[3:])}</h2>")
+        elif s.startswith('# '):
+            close_list()
+            html_parts.append(f"<h1>{html.escape(s[2:])}</h1>")
+        elif s.startswith('- '):
+            if not in_list:
+                html_parts.append('<ul>')
+                in_list = True
+            html_parts.append(f"<li>{html.escape(s[2:])}</li>")
+        else:
+            close_list()
+            html_parts.append(f"<p>{html.escape(s)}</p>")
+
+    close_list()
+    body_html = '\n'.join(html_parts)
+    return render_template('privacy.html', body_html=body_html)
 
 # Greenspace deep-dive page
 @app.route('/greenspace')

@@ -103,8 +103,12 @@
         {% block content %}{% endblock %}
     </main>
 
-    <footer>
-        <p>&copy; {{ current_year }} LexGreen - University of Kentucky · <a href="/admin/login" style="color:#9BBCA7; text-decoration:none;">Staff Login</a></p>
+    <footer role="contentinfo" style="margin-top: 16px;">
+        <p style="font-size: 0.9rem; color: #bcd3c9; text-align: center; padding: 8px 12px;">
+          &copy; {{ current_year }} LexGreen - University of Kentucky
+          &middot; <a href="{{ url_for('privacy') }}" style="color:#9BBCA7; text-decoration:none;">Privacy</a>
+          &middot; <a href="/admin/login" style="color:#9BBCA7; text-decoration:none;">Staff Login</a>
+        </p>
     </footer>
     <script>
       // Page enter: defer if opening intro will run
