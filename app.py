@@ -185,6 +185,11 @@ def my_adoptions():
     # Render a page that fetches user-specific adoptions client-side
     return render_template('my_activity.html')
 
+# Account deletion info page (for Play Console “Delete account URL”)
+@app.route('/account-deletion')
+def account_deletion():
+    return render_template('account_deletion.html')
+
 # Digital Asset Links for Android TWA (served at /.well-known/assetlinks.json)
 @app.route('/.well-known/assetlinks.json')
 def assetlinks():

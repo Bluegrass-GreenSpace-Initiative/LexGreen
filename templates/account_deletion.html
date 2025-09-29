@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Delete Account — LexGreen{% endblock %}
+{% block content %}
+<div class="container" style="max-width: 840px; padding: 24px 16px 40px;">
+  <h1>Delete Your Account and Data</h1>
+  <p>
+    This page explains how to request deletion of your LexGreen account and any
+    associated personal data or user‑generated content (e.g., photos you uploaded).
+  </p>
+
+  <h2>What will be deleted</h2>
+  <ul>
+    <li>Account credentials (email address and password hash) for staff/admin accounts.</li>
+    <li>User‑generated content you own, such as photos you uploaded.</li>
+  </ul>
+
+  <h2>What may be retained</h2>
+  <ul>
+    <li>Operational server logs retained for up to 90 days for security/abuse prevention.</li>
+    <li>Records we must keep to comply with law or enforce our terms.</li>
+  </ul>
+
+  <h2>How to request deletion</h2>
+  <p>
+    Please email your request to <a href="mailto:thea.francis@uky.edu">thea.francis@uky.edu</a>
+    from the email address associated with your account. Include:
+  </p>
+  <ul>
+    <li>Your account email address.</li>
+    <li>Whether you want full account deletion, or removal of specific content (e.g., photo links).</li>
+  </ul>
+  <p>
+    We will verify ownership of the account and process requests within 30 days.
+  </p>
+
+  <h2>Questions</h2>
+  <p>
+    See our <a href="{{ url_for('privacy') }}">Privacy Policy</a> for more details about how we handle data.
+  </p>
+</div>
+{% endblock %}
+
