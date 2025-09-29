@@ -141,6 +141,12 @@ def my_adoptions():
     # Render a page that fetches user-specific adoptions client-side
     return render_template('my_activity.html')
 
+# Digital Asset Links for Android TWA (served at /.well-known/assetlinks.json)
+@app.route('/.well-known/assetlinks.json')
+def assetlinks():
+    # Serve from static/.well-known; fill the file after running Bubblewrap
+    return send_from_directory(os.path.join('static', '.well-known'), 'assetlinks.json')
+
 # Tree detail page with photo gallery/upload
 @app.route('/tree/<int:tree_id>')
 def tree_detail(tree_id: int):

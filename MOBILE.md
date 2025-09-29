@@ -33,16 +33,23 @@ TWA wraps your PWA into a Play‑store app that runs in Chrome.
 - Digital Asset Links (DAL)
   - Bubblewrap prints an `assetlinks.json` snippet
   - Host it at `/.well-known/assetlinks.json` on your domain
-    - Easiest: create `static/.well-known/assetlinks.json` with the content Bubblewrap shows
-    - Then add a tiny Flask route (example):
-      ```python
-      # in app.py
-      @app.route('/.well-known/assetlinks.json')
-      def assetlinks():
-          return send_from_directory('static/.well-known', 'assetlinks.json')
-      ```
+    - Already wired: `app.py` serves `static/.well-known/assetlinks.json`
+    - Replace placeholders in `static/.well-known/assetlinks.json` with your Bubblewrap output
 - Publish to Play Console
   - Create app, upload the AAB, complete listing (icons/screenshots), content rating, privacy policy URL (see PRIVACY.md), rollout
+
+### Lean maintenance model (1‑person)
+- Keep Android wrapper minimal and separate:
+  - Option A (simplest): generate the Bubblewrap project outside this repo (e.g., `~/code/lexgreen-android/`) and do not commit it here.
+  - Option B: place it under `android/` in a separate repository and ignore build artifacts (`/app/build`, `/gradle`, etc.).
+- Store keystore securely outside any repo. Record the SHA‑256 cert fingerprint in a safe place and in the Play Console.
+- Treat the web app as the source of truth; only rebuild/publish Android when:
+  - Manifest or icons change (name, theme, icons)
+  - Play policies require an update
+  - You need to bump the wrapper SDK or Bubblewrap template
+- Handy commands:
+  - `bubblewrap updateConfig --manifest=https://lexgreen.fly.dev/static/manifest.json`
+  - `bubblewrap build && bubblewrap install` (for local device testing)
 
 ## 3) iOS — Capacitor Wrapper
 Capacitor loads your HTTPS site in a WKWebView.

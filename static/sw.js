@@ -7,7 +7,8 @@ const PRECACHE_URLS = [
   '/',
   '/static/css/main.css',
   '/static/images/logo.png',
-  '/static/images/favicon.ico'
+  '/static/images/favicon.ico',
+  '/static/offline.html'
 ];
 
 self.addEventListener('install', (event) => {
@@ -33,6 +34,15 @@ self.addEventListener('fetch', (event) => {
 
   // Only handle GET
   if (req.method !== 'GET') return;
+
+  // HTML navigation requests: network first, offline fallback
+  const accept = req.headers.get('accept') || '';
+  if (req.mode === 'navigate' || accept.includes('text/html')) {
+    event.respondWith(
+      fetch(req).catch(() => caches.match('/static/offline.html'))
+    );
+    return;
+  }
 
   // API: network-first to keep data fresh
   if (url.pathname.startsWith('/api/')) {
