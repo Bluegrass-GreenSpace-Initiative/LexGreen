@@ -1,9 +1,9 @@
-# Mobile Packaging — CampusGreen
+# Mobile Packaging — LexGreen
 
-This guide explains how to ship CampusGreen to the Google Play Store (Android) and Apple App Store (iOS) while keeping a single web codebase.
+This guide explains how to ship LexGreen to the Google Play Store (Android) and Apple App Store (iOS) while keeping a single web codebase.
 
 ## Prerequisites
-- Live HTTPS site: `https://campus-greenspace-explorer.fly.dev` (or your custom domain)
+- Live HTTPS site: `https://lexgreen.fly.dev` 
 - PWA basics in place: Web App Manifest and Service Worker (already scaffolded in this repo)
 - Accounts:
   - Google Play Console (one‑time $25)
@@ -26,23 +26,30 @@ TWA wraps your PWA into a Play‑store app that runs in Chrome.
 - Install Bubblewrap
   - `npm i -g @bubblewrap/cli`
 - Initialize from your live manifest
-  - `bubblewrap init --manifest=https://campus-greenspace-explorer.fly.dev/static/manifest.json`
-  - Set `applicationId` (e.g., `edu.uky.campusgreen`) and app details
+  - `bubblewrap init --manifest=https://lexgreen.fly.dev/static/manifest.json`
+  - Set `applicationId` (e.g., keep existing if already issued, or choose a new one like `org.bluegrass.lexgreen`) and app details
 - Build
   - `bubblewrap build` → outputs a signed AAB/APK (configure keystore when prompted)
 - Digital Asset Links (DAL)
   - Bubblewrap prints an `assetlinks.json` snippet
   - Host it at `/.well-known/assetlinks.json` on your domain
-    - Easiest: create `static/.well-known/assetlinks.json` with the content Bubblewrap shows
-    - Then add a tiny Flask route (example):
-      ```python
-      # in app.py
-      @app.route('/.well-known/assetlinks.json')
-      def assetlinks():
-          return send_from_directory('static/.well-known', 'assetlinks.json')
-      ```
+    - Already wired: `app.py` serves `static/.well-known/assetlinks.json`
+    - Replace placeholders in `static/.well-known/assetlinks.json` with your Bubblewrap output
 - Publish to Play Console
   - Create app, upload the AAB, complete listing (icons/screenshots), content rating, privacy policy URL (see PRIVACY.md), rollout
+
+### Lean maintenance model (1‑person)
+- Keep Android wrapper minimal and separate:
+  - Option A (simplest): generate the Bubblewrap project outside this repo (e.g., `~/code/lexgreen-android/`) and do not commit it here.
+  - Option B: place it under `android/` in a separate repository and ignore build artifacts (`/app/build`, `/gradle`, etc.).
+- Store keystore securely outside any repo. Record the SHA‑256 cert fingerprint in a safe place and in the Play Console.
+- Treat the web app as the source of truth; only rebuild/publish Android when:
+  - Manifest or icons change (name, theme, icons)
+  - Play policies require an update
+  - You need to bump the wrapper SDK or Bubblewrap template
+- Handy commands:
+  - `bubblewrap updateConfig --manifest=https://lexgreen.fly.dev/static/manifest.json`
+  - `bubblewrap build && bubblewrap install` (for local device testing)
 
 ## 3) iOS — Capacitor Wrapper
 Capacitor loads your HTTPS site in a WKWebView.
@@ -53,10 +60,10 @@ Capacitor loads your HTTPS site in a WKWebView.
   - In `capacitor.config.ts`:
     ```ts
     export default {
-      appId: 'edu.uky.campusgreen',
-      appName: 'CampusGreen',
+      appId: 'org.bluegrass.lexgreen', // consider 'org.bluegrass.lexgreen'
+      appName: 'LexGreen',
       webDir: 'dist', // not used when loading by URL
-      server: { url: 'https://campus-greenspace-explorer.fly.dev', cleartext: false }
+      server: { url: 'https://lexgreen.fly.dev', cleartext: false }
     };
     ```
 - Add iOS platform
@@ -83,7 +90,5 @@ Capacitor loads your HTTPS site in a WKWebView.
 - iOS Capacitor: only update when wrapper or metadata changes; web app content updates automatically
 
 ## 6) Optional Enhancements
-- Add an offline fallback page in the service worker for better UX when offline
 - Add “Add to Home Screen” in‑app prompt for non‑Chrome browsers
 - Use a custom domain (CNAME to Fly) for stable branding in store listings
-

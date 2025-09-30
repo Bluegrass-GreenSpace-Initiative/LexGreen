@@ -1,6 +1,8 @@
-# Operations — CampusGreen (Fly.io)
+# Operations — LexGreen (Fly.io)
 
 This document captures routine ops for the production deployment on Fly.io.
+
+Note: The live Fly app currently runs under the existing app slug and domain used by the original project name. Keep the `app` value and references below as-is to avoid disrupting the deployed instance. You can migrate/rename later when ready.
 
 ## Quick Facts
 - App: `campus-greenspace-explorer`
@@ -80,4 +82,3 @@ This document captures routine ops for the production deployment on Fly.io.
   - `fly regions list`
   - `fly regions set ord`
 - Stuck deploy: `fly deploy --strategy immediate`
-

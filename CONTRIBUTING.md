@@ -1,6 +1,6 @@
-# Contributing to CampusGreen
+# Contributing to LexGreen
 
-Thank you for your interest in contributing to CampusGreen! We welcome contributions from everyone.
+Thank you for your interest in contributing to LexGreen! We welcome contributions from everyone.
 
 ## How to Contribute
 
@@ -38,4 +38,4 @@ Please note that this project is released with a Contributor Code of Conduct. By
 
 Feel free to contact the project team at [thea.francis@uky.edu](mailto:thea.francis@uky.edu) if you have any questions.
 
-Thank you for contributing to CampusGreen!
+Thank you for contributing to LexGreen!

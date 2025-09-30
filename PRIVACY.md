@@ -1,8 +1,8 @@
-# Privacy Policy — CampusGreen
+# Privacy Policy — LexGreen
 
 Effective: 2025-09-18
 
-This document explains what data CampusGreen collects, how it’s used, and your choices. CampusGreen is a small, university‑oriented project with minimal data collection by design.
+This document explains what data LexGreen collects, how it’s used, and your choices. LexGreen is a small, community‑oriented project with minimal data collection by design.
 
 ## What We Collect
 - Usage and server logs
@@ -42,12 +42,11 @@ This document explains what data CampusGreen collects, how it’s used, and your
 - To request removal of a photo or submission, contact the maintainer below with sufficient detail (URL, tree ID, timestamp).
 
 ## Children’s Privacy
-- This app is intended for general campus audiences. We do not knowingly collect personal information from children under 13. If you believe we have, contact us to delete it.
+- This app is intended for general audiences in Lexington and the Bluegrass region. We do not knowingly collect personal information from children under 13. If you believe we have, contact us to delete it.
 
 ## Changes to This Policy
 - We may update this policy as the app evolves. Material changes will be noted in the repository and the app footer.
 
 ## Contact
 - Maintainer: Thea Francis — thea.francis@uky.edu
-- Project repository: https://github.com/Niveusgh/Campus-greenspace-explorer
-
+- Project repository: https://github.com/Bluegrass-GreenSpace-Initiative/LexGreen

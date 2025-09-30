@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Privacy Policy — LexGreen{% endblock %}
+
+{% block content %}
+<main class="container" style="max-width:900px;margin:1.5rem auto;padding:0 1rem;">
+  <article class="prose" style="line-height:1.6;color:#e6f0ea;">
+    {{ body_html|safe }}
+  </article>
+  <hr style="border-color:#2BA16C33;margin:2rem 0;">
+  <p style="font-size:.9rem;color:#bcd3c9;">Questions? Contact the maintainer listed on this page.</p>
+  <p style="font-size:.85rem;color:#9db8ac;">Last updated {{ current_year }}.</p>
+  <p><a class="subtle-link" href="{{ url_for('index') }}">← Back to Home</a></p>
+  </main>
+{% endblock %}
+
