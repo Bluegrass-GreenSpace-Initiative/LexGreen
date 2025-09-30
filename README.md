@@ -14,6 +14,7 @@ LexGreen is a mobile-friendly web application for Lexington, KY and the broader 
 - Adoptions, damage reports, and work orders APIs
 - Admin portal (login, amenities, volunteers, CSV exports)
 - PWA scaffold (installable; basic offline caching)
+- Dark/light mode toggle
 
 ## Technology Stack
 - Backend: Python 3 + Flask
