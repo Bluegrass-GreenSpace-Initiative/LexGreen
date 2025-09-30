@@ -1,18 +1,17 @@
 {% extends "base.html" %}
 {% block title %}Admin Login{% endblock %}
 {% block content %}
-<div style="max-width:420px;margin:40px auto;background:#222;border:1px solid #333;border-radius:12px;padding:18px;">
-  <h2 style="margin:0 0 12px 0;color:#9BBCA7">Admin Login</h2>
+<div style="max-width:420px;margin:40px auto;background: var(--surface-2); border:1px solid var(--border); border-radius:12px; padding:18px; color: var(--text);">
+  <h2 style="margin:0 0 12px 0;color: var(--nav-active-bg-end);">Admin Login</h2>
   {% if error %}
-  <div style="background:#3a1f1f;border:1px solid #552525;color:#e9b0b0;padding:8px;border-radius:8px;margin-bottom:10px;">{{ error }}</div>
+  <div style="background: rgba(231,76,60,0.14); border:1px solid rgba(231,76,60,0.35); color:#E74C3C; padding:8px; border-radius:8px; margin-bottom:10px;">{{ error }}</div>
   {% endif %}
   <form method="post">
     <div style="display:flex;flex-direction:column;gap:10px;">
-      <label>Email<br><input type="email" name="email" required style="width:100%;padding:8px;border-radius:8px;border:1px solid #444;background:#111;color:#ddd"></label>
-      <label>Password<br><input type="password" name="password" required style="width:100%;padding:8px;border-radius:8px;border:1px solid #444;background:#111;color:#ddd"></label>
-      <button type="submit" style="padding:10px;border-radius:10px;background:#2d4b3a;color:#e7efe9;border:1px solid #3c5f4c;">Login</button>
+      <label>Email<br><input type="email" name="email" required style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--nav-link-border);background: var(--nav-link-bg); color: var(--text);"></label>
+      <label>Password<br><input type="password" name="password" required style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--nav-link-border);background: var(--nav-link-bg); color: var(--text);"></label>
+      <button type="submit" style="padding:10px;border-radius:10px;background: var(--nav-active-bg-end); color: var(--cta-text); border:1px solid var(--outline); box-shadow: 0 2px 0 var(--outline);">Login</button>
     </div>
   </form>
 </div>
 {% endblock %}
-

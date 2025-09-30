@@ -8,36 +8,37 @@
   .td-grid { display: grid; grid-template-columns: 1fr; gap: 18px; }
   @media(min-width: 1000px){ .td-grid { grid-template-columns: 1.3fr 1fr; } }
   /* removed map on detail page per new UX */
-  .card { background: linear-gradient(180deg, #262626 0%, #202020 100%); border-radius: 16px; padding: 16px; border: 1px solid #2e2e2e; box-shadow: 0 6px 14px rgba(0,0,0,0.25); }
+  .card { background: var(--surface); border-radius: 16px; padding: 16px; border: 1px solid var(--border); box-shadow: 0 6px 14px rgba(0,0,0,0.18); color: var(--text); }
   .photos { display:grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap:12px; }
   .photos img { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 12px; transition: transform 0.2s ease, box-shadow 0.2s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
   .photos img:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 10px 18px rgba(0,0,0,0.35); }
   .back-links a { margin-right: 10px; }
   .hero { display:flex; align-items: center; gap:16px; }
-  .hero .badge { display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius: 999px; background:#2f2f2f; color:#c7c4bf; font-size: 0.9em; border:1px solid #3a3a3a; }
-  .hero .title { margin:0; color:#E5F2EA; letter-spacing: 0.2px; }
-  .hero .latin { margin:0; color:#9BBCA7; font-style: italic; }
-  .hero .icon-wrap { width:64px; height:64px; border-radius: 16px; background: radial-gradient(85% 85% at 50% 20%, #6aa786 0%, #4f8468 60%, #3c6b53 100%); display:flex; align-items:center; justify-content:center; box-shadow: inset 0 2px 8px rgba(0,0,0,0.25), 0 8px 18px rgba(0,0,0,0.35); }
+  .hero .badge { display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius: 999px; background: var(--nav-link-bg); color: var(--text); font-size: 0.9em; border:1px solid var(--nav-link-border); }
+  .hero .title { margin:0; color: var(--text-strong); letter-spacing: 0.2px; }
+  .hero .latin { margin:0; color: var(--muted); font-style: italic; }
+  .hero .icon-wrap { width:64px; height:64px; border-radius: 16px; background: radial-gradient(85% 85% at 50% 20%, var(--nav-active-bg-start) 0%, var(--nav-active-bg-mid) 60%, var(--nav-active-bg-end) 100%); display:flex; align-items:center; justify-content:center; box-shadow: inset 0 2px 8px rgba(0,0,0,0.15), 0 8px 18px rgba(0,0,0,0.25); }
   .hero .icon-wrap img { width:34px; height:34px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3)); }
   .pillbar { display:flex; flex-wrap: wrap; gap:8px; margin-top:8px; }
-  .pill { background:#2a2a2a; border:1px solid #3a3a3a; color:#C7C4BF; padding:6px 10px; border-radius:999px; font-size:0.85em; }
-  .pill--accent { background:#2b3d34; border-color:#3e5a4c; color:#bfe3cf; }
+  .pill { background: var(--nav-link-bg); border:1px solid var(--nav-link-border); color: var(--text); padding:6px 10px; border-radius:999px; font-size:0.85em; }
+  .pill--accent { background:#F4C2C2; border-color:#f1a7a7; color:#111111; }
   /* Fact reveal with branch-like grow-in */
-  .fact { margin:10px 0 14px 0; padding:12px; background:#1f1f1f; border-left:6px solid #558B6E; border-radius:10px; display:flex; gap:10px; align-items:flex-start; position:relative; overflow:hidden; }
+  .fact { margin:10px 0 14px 0; padding:12px; background: var(--surface-2); border-left:6px solid var(--nav-active-bg-end); border-radius:10px; display:flex; gap:10px; align-items:flex-start; position:relative; overflow:hidden; }
   .fact .emoji { font-size:22px; }
   .fact .fact-text { opacity:0; transform: translateY(6px) scale(0.99); animation: factGrow 420ms ease forwards; animation-delay: 140ms; }
-  .fact::before { content:""; position:absolute; left:0; top:0; bottom:0; width:0; background:linear-gradient(180deg,#2b3d34,#1f2a24); opacity:0.6; border-top-right-radius:10px; border-bottom-right-radius:10px; animation: branchSweep 420ms ease forwards; }
+  .fact::before { content:""; position:absolute; left:0; top:0; bottom:0; width:0; background:linear-gradient(180deg, var(--nav-active-bg-mid), var(--nav-active-bg-start)); opacity:0.4; border-top-right-radius:10px; border-bottom-right-radius:10px; animation: branchSweep 420ms ease forwards; }
   @keyframes branchSweep { from { width:0; } to { width:6px; } }
   @keyframes factGrow { from { opacity:0; transform: translateY(6px) scale(0.99);} to { opacity:1; transform: translateY(0) scale(1);} }
   .info-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:10px; margin: 8px 0 12px 0; }
-  .info-box { background:#2a2a2a; border:1px solid #3a3a3a; border-radius:12px; padding:10px; }
-  .info-box .k { color:#9BBCA7; font-size:0.85em; }
-  .info-box .v { color:#E5F2EA; font-weight:600; }
-  .upload-box { background: repeating-linear-gradient(135deg, #232323, #232323 8px, #252525 8px, #252525 16px); border:1px dashed #3a3a3a; border-radius:12px; padding:12px; }
+  .info-box { background: var(--surface); border:1px solid var(--border); border-radius:12px; padding:10px; }
+  .info-box .k { color: var(--muted); font-size:0.85em; }
+  .info-box .v { color: var(--text-strong); font-weight:600; }
+  .upload-box { background: repeating-linear-gradient(135deg, #f7f7f7, #f7f7f7 8px, #f2f2f2 8px, #f2f2f2 16px); border:1px dashed var(--border); border-radius:12px; padding:12px; }
   .upload-box input[type="file"] { display:block; margin-top:8px; margin-bottom:12px; }
   .back-links { display:flex; flex-wrap:wrap; gap:8px; }
   .actions { display:flex; gap:10px; flex-wrap:wrap; }
-  .button { display:inline-block; background:#558B6E; color:#0f1a15; padding:8px 12px; border-radius:12px; border:none; cursor:pointer; font-weight:600; box-shadow: 0 2px 0 #3a5e4c; }
+  .button { display:inline-block; background: var(--nav-active-bg-end); color: var(--cta-text); padding:8px 12px; border-radius:12px; border:none; cursor:pointer; font-weight:600; box-shadow: 0 2px 0 var(--outline); }
+  .small { color: var(--muted); }
   .button:hover { filter: brightness(1.05); transform: translateY(-1px); }
 
   /* CTA and secondary link styles are centralized in static/css/main.css */
@@ -48,29 +49,29 @@
   @keyframes photoIn { from { opacity:0; transform: translateY(4px);} to { opacity:1; transform: translateY(0);} }
 
   /* Adoption card */
-  .adopt-card { background: linear-gradient(180deg, #262626 0%, #202020 100%); border: 1px solid #2e2e2e; border-radius: 16px; padding: 14px; box-shadow: 0 6px 14px rgba(0,0,0,0.25); overflow: hidden; }
+  .adopt-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 14px; box-shadow: 0 6px 14px rgba(0,0,0,0.18); overflow: hidden; }
   .adopt-header { display:flex; align-items:center; justify-content:space-between; gap:10px; }
-  .heart-btn { appearance:none; border:none; background:#242424; border:1px solid #3a3a3a; color:#C7C4BF; padding:10px 14px; border-radius:999px; cursor:pointer; display:inline-flex; align-items:center; gap:8px; font-weight:700; }
-  .heart-btn:hover { background:#262626; }
+  .heart-btn { appearance:none; border:none; background: var(--nav-link-bg); border:1px solid var(--nav-link-border); color: var(--text); padding:10px 14px; border-radius:999px; cursor:pointer; display:inline-flex; align-items:center; gap:8px; font-weight:700; }
+  .heart-btn:hover { background: var(--surface-2); }
   .heart { display:inline-block; font-size:18px; transform-origin:center; }
   .heart.pop { animation: heartPop 420ms cubic-bezier(.2,.8,.2,1); }
   @keyframes heartPop { 0%{ transform: scale(1);} 45%{ transform: scale(1.45);} 70%{ transform: scale(0.92);} 100%{ transform: scale(1);} }
   .adopt-body { grid-template-columns: 1fr; display:grid; gap:10px; margin-top:10px; }
   .adopt-row { display:grid; grid-template-columns: 34px 1fr; align-items:center; gap:8px; }
   .adopt-k { text-align:center; }
-  .sap { position:relative; height: 10px; border-radius: 999px; background:#2a2a2a; border:1px solid #3a3a3a; overflow:hidden; }
-  .sap .fill { position:absolute; left:0; top:0; bottom:0; width:0%; background: linear-gradient(90deg,#6aa786 0%, #4f8468 60%, #3c6b53 100%); box-shadow: inset 0 0 6px rgba(0,0,0,0.35); }
+  .sap { position:relative; height: 10px; border-radius: 999px; background: var(--nav-link-bg); border:1px solid var(--nav-link-border); overflow:hidden; }
+  .sap .fill { position:absolute; left:0; top:0; bottom:0; width:0%; background: linear-gradient(90deg, var(--nav-active-bg-start) 0%, var(--nav-active-bg-mid) 60%, var(--nav-active-bg-end) 100%); box-shadow: inset 0 0 6px rgba(0,0,0,0.15); }
   .sap.anim .fill { animation: sapRise 600ms ease forwards; }
   @keyframes sapRise { from { width:0%; } to { width: var(--to, 0%); } }
   .dots { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
   .quick-adopt { margin-top:10px; display:none; gap:8px; align-items:center; }
-  .qa-input { width: min(280px, 100%); background:#242424; border:1px solid #3a3a3a; color:#E5F2EA; border-radius:10px; padding:8px; }
+  .qa-input { width: min(280px, 100%); background: var(--nav-link-bg); border:1px solid var(--nav-link-border); color: var(--text); border-radius:10px; padding:8px; }
   .qa-actions { display:flex; gap:6px; }
   /* Subtle continuous animations for joy */
   .health-indicator { animation: gentle-pulse 3s ease-in-out infinite; }
   .adoption-heart { animation: heartbeat 1.2s ease-in-out infinite; }
   /* tiny list row style for reports timeline */
-  .row { display:grid; grid-template-columns: 36px 1fr; gap:10px; align-items:center; background:#2a2a2a; border:1px solid #3a3a3a; border-radius:12px; padding:10px; }
+  .row { display:grid; grid-template-columns: 36px 1fr; gap:10px; align-items:center; background: var(--surface); border:1px solid var(--border); border-radius:12px; padding:10px; }
 
   /* Tighten spacing on narrow screens */
   @media (max-width: 600px) {
@@ -169,7 +170,7 @@
         <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
           <div>
             <h3 style="margin:0">Care for this tree?</h3>
-            <small class="small" style="color:#9BBCA7">Adopt to track health and add a name.</small>
+            <small class="small" style="color: var(--muted);">Adopt to track health and add a name.</small>
           </div>
           <button id="open-adopt" class="button" type="button">❤️ Adopt</button>
         </div>
@@ -181,10 +182,10 @@
           <button id="adopt-heart" class="heart-btn" data-haptic="light"><span id="heart-emoji" class="heart adoption-heart">🤍</span><span id="adopt-text">Adopt</span></button>
         </div>
         <div id="adopt-body" class="adopt-body" hidden>
-          <div class="adopt-row"><div class="adopt-k">🏷️</div><div><label for="adopter-name" style="display:block; font-size:.9em; color:#9BBCA7">Name</label><input id="adopter-name" type="text" placeholder="My Oakley" style="width:100%; background:#242424; border:1px solid #3a3a3a; color:#E5F2EA; border-radius:10px; padding:8px;"></div></div>
-          <div class="adopt-row"><div class="adopt-k">📅</div><div><label style="display:block; font-size:.9em; color:#9BBCA7">Adopted</label><div id="adopted-at">—</div></div></div>
+          <div class="adopt-row"><div class="adopt-k">🏷️</div><div><label for="adopter-name" style="display:block; font-size:.9em; color: var(--muted);">Name</label><input id="adopter-name" type="text" placeholder="My Oakley" class="qa-input" style="width:100%"></div></div>
+          <div class="adopt-row"><div class="adopt-k">📅</div><div><label style="display:block; font-size:.9em; color: var(--muted);">Adopted</label><div id="adopted-at">—</div></div></div>
           <div class="adopt-row"><div class="adopt-k">🍃</div><div>
-              <label style="display:block; font-size:.9em; color:#9BBCA7">Health Status</label>
+              <label style="display:block; font-size:.9em; color: var(--muted);">Health Status</label>
               <div class="sap health-indicator" id="sap"><div class="fill" id="sap-fill"></div></div>
               <div class="dots health-indicator" id="health-dots" style="margin-top:6px;">○○○○</div>
               <div style="margin-top:6px; display:flex; gap:6px; flex-wrap: wrap;">
@@ -194,7 +195,7 @@
                 <button class="button" type="button" data-health="4">●●●●</button>
               </div>
           </div></div>
-          <div class="adopt-row"><div class="adopt-k">📊</div><div>Growth Tracker <small style="color:#9BBCA7">(coming soon)</small></div></div>
+          <div class="adopt-row"><div class="adopt-k">📊</div><div>Growth Tracker <small style="color: var(--muted);">(coming soon)</small></div></div>
           <div class="adopt-row"><div class="adopt-k">📸</div><div>My Photos ({{ photos|length }})</div></div>
           <div style="display:flex; gap:8px; margin-top:6px; flex-wrap: wrap;">
             <button id="save-adoption" class="button" type="button">Save</button>
@@ -210,29 +211,29 @@
           <a href="#" class="subtle-link" id="report-issue" data-haptic="soft">Open</a>
         </div>
         <div id="report-form" style="display:none; margin-top:8px;">
-          <label class="small" style="display:block; color:#9BBCA7;">Issue</label>
-          <select id="rf-type" style="width:100%; background:#242424; border:1px solid #3a3a3a; color:#E5F2EA; border-radius:10px; padding:8px; margin-bottom:6px;">
+          <label class="small" style="display:block; color: var(--muted);">Issue</label>
+          <select id="rf-type" class="qa-input" style="width:100%; margin-bottom:6px;">
             <option value="damage">Damage</option>
             <option value="disease">Disease</option>
             <option value="hazard">Hazard</option>
             <option value="other">Other</option>
           </select>
-          <label class="small" style="display:block; color:#9BBCA7;">Severity</label>
+          <label class="small" style="display:block; color: var(--muted);">Severity</label>
           <div style="display:flex; gap:6px; margin:6px 0;">
             <button class="button" type="button" data-rsev="1">●○○○</button>
             <button class="button" type="button" data-rsev="2">●●○○</button>
             <button class="button" type="button" data-rsev="3">●●●○</button>
             <button class="button" type="button" data-rsev="4">●●●●</button>
           </div>
-          <textarea id="rf-desc" rows="3" placeholder="Describe the issue…" style="width:100%; background:#242424; border:1px solid #3a3a3a; color:#E5F2EA; border-radius:10px; padding:8px; resize:vertical;"></textarea>
+          <textarea id="rf-desc" rows="3" placeholder="Describe the issue…" class="qa-input" style="width:100%; resize:vertical;"></textarea>
           <div style="display:flex; gap:8px; margin-top:8px;">
             <button id="rf-submit" class="button" type="button">Submit</button>
             <button id="rf-cancel" class="subtle-link" type="button">Cancel</button>
           </div>
-          <div id="rf-note" class="small" style="margin-top:6px; color:#9BBCA7;"></div>
+          <div id="rf-note" class="small" style="margin-top:6px; color: var(--muted);"></div>
         </div>
-        <div id="reports-timeline" class="list" style="margin-top:12px;">
-          <div class="small" style="color:#9BBCA7;">Recent reports will appear here…</div>
+          <div id="reports-timeline" class="list" style="margin-top:12px;">
+          <div class="small" style="color: var(--muted);">Recent reports will appear here…</div>
         </div>
       </div>
     </div>
@@ -442,7 +443,7 @@
           if (!Array.isArray(list)) return;
           const recent = list.slice(0,5);
           if (recent.length === 0) {
-            timeline.innerHTML = '<div class="small" style="color:#9BBCA7;">No reports yet.</div>';
+            timeline.innerHTML = '<div class="small" style="color: var(--muted);">No reports yet.</div>';
             return;
           }
           timeline.innerHTML = '';

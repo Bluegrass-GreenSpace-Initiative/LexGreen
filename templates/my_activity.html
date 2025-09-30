@@ -5,13 +5,13 @@
 {% block extra_css %}
 <style>
   .ma-container { padding: 18px; }
-  .card { background: linear-gradient(180deg, #262626 0%, #202020 100%); border-radius: 16px; padding: 16px; border: 1px solid #2e2e2e; box-shadow: 0 6px 14px rgba(0,0,0,0.25); }
+  .card { background: var(--surface); border-radius: 16px; padding: 16px; border: 1px solid var(--border); box-shadow: 0 6px 14px rgba(0,0,0,0.18); color: var(--text); }
   .list { display:flex; flex-direction:column; gap:10px; margin-top:10px; }
-  .row { display:grid; grid-template-columns: 36px 1fr auto; gap:10px; align-items:center; background:#2a2a2a; border:1px solid #3a3a3a; border-radius:12px; padding:10px; }
-  .small { color:#9BBCA7; font-size: .9em; }
-  .btn-inline { display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:10px; background:#242424; border:1px solid #3a3a3a; color:#C7C4BF; text-decoration:none; }
-  .btn-inline:hover { background:#262626; }
-  .empty { color:#9BBCA7; font-style: italic; }
+  .row { display:grid; grid-template-columns: 36px 1fr auto; gap:10px; align-items:center; background: var(--surface); border:1px solid var(--border); border-radius:12px; padding:10px; }
+  .small { color: var(--muted); font-size: .9em; }
+  .btn-inline { display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:10px; background: var(--nav-link-bg); border:1px solid var(--nav-link-border); color: var(--text); text-decoration:none; }
+  .btn-inline:hover { background: var(--surface-2); }
+  .empty { color: var(--muted); font-style: italic; }
 
   @media (max-width: 600px) {
     .ma-container { padding: 10px 8px; }
@@ -26,12 +26,12 @@
 {% block content %}
 <div class="ma-container">
   <div class="card" style="margin-bottom:14px;">
-    <h2 style="margin:0;color:#558B6E">My Adopted Trees</h2>
+    <h2 style="margin:0;color: var(--nav-active-bg-end);">My Adopted Trees</h2>
     <div id="count" class="small"></div>
     <div id="list" class="list"><div class="empty">Loading…</div></div>
   </div>
   <div class="card">
-    <h2 style="margin:0;color:#558B6E">My Reports</h2>
+    <h2 style="margin:0;color: var(--nav-active-bg-end);">My Reports</h2>
     <div id="r-count" class="small"></div>
     <div id="r-list" class="list"><div class="empty">Loading…</div></div>
   </div>

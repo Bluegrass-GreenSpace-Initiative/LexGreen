@@ -7,19 +7,19 @@
   .gs-container { padding: 18px; }
   .gs-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
   .gs-actions a { margin-right: 10px; }
-  .card { background: linear-gradient(180deg, #262626 0%, #202020 100%); border-radius: 16px; padding: 14px; border: 1px solid #2e2e2e; box-shadow: 0 6px 14px rgba(0,0,0,0.25); }
+  .card { background: var(--surface); border-radius: 16px; padding: 14px; border: 1px solid var(--border); box-shadow: 0 6px 14px rgba(0,0,0,0.18); color: var(--text); }
   #gs-map { height: calc(60vh); border-radius: 12px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.25); }
   .tree-list { margin-top: 12px; }
-  .list-head { display:flex; align-items:center; gap:8px; color:#E5F2EA; }
+  .list-head { display:flex; align-items:center; gap:8px; color: var(--text-strong); }
   .list { margin-top: 10px; display:flex; flex-direction: column; gap:8px; }
-  .tree-item { display:flex; align-items:center; gap:10px; padding:10px; border-radius:12px; background:#2a2a2a; border:1px solid #3a3a3a; cursor:pointer; transition: transform .15s ease, background .15s ease; }
-  .tree-item:hover { background:#2d2d2d; transform: translateY(-1px); }
-  .ti-icon { width:28px; height:28px; border-radius:8px; background: radial-gradient(85% 85% at 50% 20%, #6aa786 0%, #4f8468 60%, #3c6b53 100%); display:flex; align-items:center; justify-content:center; }
+  .tree-item { display:flex; align-items:center; gap:10px; padding:10px; border-radius:12px; background: var(--surface); border:1px solid var(--border); cursor:pointer; transition: transform .15s ease, background .15s ease, border-color .15s ease; }
+  .tree-item:hover { background: var(--surface-2); border-color: var(--border); transform: translateY(-1px); }
+  .ti-icon { width:28px; height:28px; border-radius:8px; background: radial-gradient(85% 85% at 50% 20%, var(--nav-active-bg-start) 0%, var(--nav-active-bg-mid) 60%, var(--nav-active-bg-end) 100%); display:flex; align-items:center; justify-content:center; }
   .ti-icon img { width:18px; height:18px; filter: drop-shadow(0 2px 2px rgba(0,0,0,.3)); }
   .ti-main { flex:1; }
-  .ti-title { margin:0; color:#E5F2EA; font-weight:600; }
-  .ti-sub { margin:0; color:#9BBCA7; font-style: italic; font-size:.9em; }
-  .ti-arrow { color:#9BBCA7; }
+  .ti-title { margin:0; color: var(--text-strong); font-weight:600; }
+  .ti-sub { margin:0; color: var(--muted); font-style: italic; font-size:.9em; }
+  .ti-arrow { color: var(--muted); }
 
   /* CTA and secondary link styles are centralized in static/css/main.css */
 </style>
@@ -29,7 +29,7 @@
 <div class="gs-container">
   <div class="gs-header">
     <div>
-      <h2 style="margin:0;color:#558B6E">{{ name }}</h2>
+      <h2 style="margin:0;color: var(--nav-active-bg-end);">{{ name }}</h2>
       <small>Explore trees within this greenspace</small>
     </div>
     <div class="gs-actions">

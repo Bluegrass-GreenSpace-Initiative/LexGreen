@@ -15,8 +15,9 @@
 
     /* Sidebar Components */
     .sidebar {
-        background: #222;
-        border-radius: 8px;
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        border-radius: 12px;
         overflow: hidden;
     }
 
@@ -24,28 +25,39 @@
 
     /* Dynamic info card (replaces Welcome when a greenspace is selected) */
     .info-card {
-        background: #2A2A2A;
-        border: 1px solid #333;
-        border-radius: 8px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
         padding: 14px;
-        color: #C7C4BF;
+        color: var(--text);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.18);
     }
 
+    /* Keep welcome title a consistent green to avoid flashing on theme toggle */
     .info-card h3 { color: #558B6E; margin-bottom: 8px; }
+    /* Light theme: playful white with blue accent border */
+    .theme-light .info-card {
+        background: #FFFFFF;
+        border: 1px solid #E2E8F0;
+        box-shadow: 0 8px 22px rgba(0,0,0,0.06);
+    }
+    /* Heading color remains constant across themes */
 
     /* CTA and secondary link styles are centralized in static/css/main.css */
 
     .green-space-list { margin-top: 15px; }
 
     .green-space-item {
-        border-radius: 4px;
+        border-radius: 10px;
         padding: 15px;
         margin-bottom: 10px;
         cursor: pointer;
-        transition: background-color 0.3s;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        transition: background-color 0.2s, border-color 0.2s, transform 0.2s;
     }
 
-    .green-space-item:hover { background: #333; }
+    .green-space-item:hover { background: var(--surface-2); border-color: var(--border); transform: translateY(-1px); }
     .green-space-item h3 { 
         color: #558B6E; 
         margin-bottom: 5px; 

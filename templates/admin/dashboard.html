@@ -3,14 +3,15 @@
 {% block extra_css %}
 <style>
   .table { width: 100%; border-collapse: collapse; }
-  .table th, .table td { border-bottom: 1px solid #333; padding: 8px; }
-  .pill { display:inline-block; padding:2px 8px; border-radius:12px; background:#2a2a2a; border:1px solid #3a3a3a; }
+  .table th, .table td { border-bottom: 1px solid var(--border); padding: 8px; color: var(--text); }
+  .pill { display:inline-block; padding:2px 8px; border-radius:12px; background: var(--nav-link-bg); border:1px solid var(--nav-link-border); }
   .controls { display:flex; gap:6px; align-items:center; }
-  .card { background:#202020; border:1px solid #2e2e2e; border-radius:12px; padding:12px; }
-  input, select, textarea { background:#111; color:#ddd; border:1px solid #444; border-radius:8px; padding:6px; }
-  .btn { padding:6px 10px; border-radius:10px; background:#2d4b3a; color:#e7efe9; border:1px solid #3c5f4c; }
+  .card { background: var(--surface); border:1px solid var(--border); border-radius:12px; padding:12px; color: var(--text); }
+  input, select, textarea { background: var(--nav-link-bg); color: var(--text); border:1px solid var(--nav-link-border); border-radius:8px; padding:6px; }
+  .btn { padding:6px 10px; border-radius:10px; background: var(--nav-active-bg-end); color: var(--cta-text); border:1px solid var(--outline); box-shadow: 0 2px 0 var(--outline); text-decoration: none; display:inline-flex; align-items:center; gap:6px; }
+  .btn:hover { filter: brightness(1.05); transform: translateY(-1px); }
   .toolbar { display:flex; gap:8px; align-items:center; margin-bottom:10px; }
-  .small { color:#9BBCA7; }
+  .small { color: var(--muted); }
   .nowrap { white-space: nowrap; }
   .right { text-align:right; }
 </style>
@@ -18,11 +19,11 @@
 {% block content %}
   <div class="card" style="margin-bottom: 12px;">
     <div class="toolbar">
-      <div style="flex:1"><strong style="color:#9BBCA7">Work Orders</strong></div>
-      <a href="{{ url_for('admin.amenities') }}" class="btn" style="background:#26414a;border-color:#355965;">Amenities</a>
-      <a href="{{ url_for('admin.volunteers') }}" class="btn" style="background:#2d3a4b;border-color:#3c5068;">Volunteers</a>
+      <div style="flex:1"><strong style="color: var(--nav-active-bg-end);">Work Orders</strong></div>
+      <a href="{{ url_for('admin.amenities') }}" class="btn">Amenities</a>
+      <a href="{{ url_for('admin.volunteers') }}" class="btn">Volunteers</a>
       <a href="{{ url_for('admin.export_work_orders_csv') }}" class="btn">Export CSV</a>
-      <a href="{{ url_for('admin.logout') }}" class="btn" style="background:#3a2d2d;border-color:#5f3c3c;">Logout</a>
+      <a href="{{ url_for('admin.logout') }}" class="btn">Logout</a>
     </div>
     <form method="get" class="controls" style="margin-bottom:8px;">
       <label>Status
