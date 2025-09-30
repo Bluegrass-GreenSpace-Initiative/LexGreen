@@ -22,11 +22,14 @@
   .ti-arrow { color: var(--muted); }
 
   /* CTA and secondary link styles are centralized in static/css/main.css */
+
+  
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="gs-container">
+  
   <div class="gs-header">
     <div>
       <h2 style="margin:0;color: var(--nav-active-bg-end);">{{ name }}</h2>
@@ -49,6 +52,7 @@
 {% block extra_js %}
 <script>
   document.addEventListener('DOMContentLoaded', () => {
+    
     const t = document.getElementById('gs-data');
     const b = {
       north: parseFloat(t.dataset.north),

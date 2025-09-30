@@ -41,6 +41,25 @@
   .small { color: var(--muted); }
   .button:hover { filter: brightness(1.05); transform: translateY(-1px); }
 
+  /* Expanders for Leaves/Bark */
+  .expander { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); margin: 10px 0; overflow: hidden; }
+  .expander + .expander { margin-top: 12px; }
+  .expander-h {
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding: 12px 14px; cursor: pointer; background: var(--surface-2);
+  }
+  .expander-h .lh { display:flex; align-items:center; gap:10px; }
+  .expander-h .icon { width:36px; height:36px; border-radius: 10px; display:flex; align-items:center; justify-content:center; background: radial-gradient(85% 85% at 50% 20%, var(--nav-active-bg-start) 0%, var(--nav-active-bg-mid) 60%, var(--nav-active-bg-end) 100%); }
+  .expander-h .icon small { font-size: 18px; }
+  .expander-h h4 { margin:0; color: var(--text-strong); }
+  .expander-h .hint { color: var(--muted); font-size: 0.9em; }
+  .expander-h .chev { transition: transform 0.2s ease; }
+  .expander[aria-expanded="true"] .chev { transform: rotate(180deg); }
+  .expander-b { padding: 12px 14px; display:none; }
+  .expander[aria-expanded="true"] .expander-b { display:block; }
+  .leaf-lottie { width: 86px; height: 86px; flex: 0 0 auto; }
+  .leaf-row { display:flex; align-items:flex-start; gap:12px; }
+
   /* CTA and secondary link styles are centralized in static/css/main.css */
 
   /* Photos fade-in */
@@ -143,6 +162,56 @@
         </div>
         <!-- map removed for cleaner detail view -->
       </div>
+
+      {% if leaf_info or bark_info %}
+      <div class="card" id="morph-card">
+        <h3 style="margin-top:0">Look closely</h3>
+        {% if leaf_info %}
+        <div class="expander" id="xp-leaf" aria-expanded="false">
+          <div class="expander-h" role="button" tabindex="0" aria-controls="xb-leaf">
+            <div class="lh">
+              <div class="icon" aria-hidden="true"><small>🍃</small></div>
+              <div>
+                <h4>Leaves</h4>
+                <div class="hint">Tap to reveal shape and texture</div>
+              </div>
+            </div>
+            <div class="chev" aria-hidden="true">▾</div>
+          </div>
+          <div class="expander-b" id="xb-leaf">
+              <div class="leaf-row">
+                <div id="leaf-lottie" class="leaf-lottie" aria-hidden="true"></div>
+                <div>
+                  <p style="margin:0 0 6px 0"><strong>{{ tree.common_name or 'This tree' }}</strong> {{ leaf_info }}</p>
+                  <div class="small" style="color: var(--muted);">
+                    Hold a leaf to the light • Flip it to see the underside • Notice lobes, teeth, or fuzz
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+
+        {% if bark_info %}
+        <div class="expander" id="xp-bark" aria-expanded="false">
+          <div class="expander-h" role="button" tabindex="0" aria-controls="xb-bark">
+            <div class="lh">
+              <div class="icon" aria-hidden="true"><small>🪵</small></div>
+              <div>
+                <h4>Bark</h4>
+                <div class="hint">Only for species with standout bark</div>
+              </div>
+            </div>
+            <div class="chev" aria-hidden="true">▾</div>
+          </div>
+          <div class="expander-b" id="xb-bark">
+            <p style="margin:0 0 6px 0"><strong>{{ tree.common_name or 'This tree' }}</strong> {{ bark_info }}</p>
+            <div class="small" style="color: var(--muted);">Stand an arm’s length away • Trace a ridge with your eyes • Compare shaded vs. sunlit sides</div>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+      {% endif %}
 
       <div class="card">
         <h3 style="margin-top:0">Photos</h3>
@@ -466,6 +535,39 @@
     }
 
     loadReportsTimeline();
+
+    // Leaves/Bark expanders + tiny leaf animation
+    function bindExpander(xpId){
+      const xp = document.getElementById(xpId); if(!xp) return;
+      const head = xp.querySelector('.expander-h');
+      function toggle(){ xp.setAttribute('aria-expanded', xp.getAttribute('aria-expanded') !== 'true'); }
+      head.addEventListener('click', toggle);
+      head.addEventListener('keydown', (e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); toggle(); }});
+    }
+    bindExpander('xp-leaf');
+    bindExpander('xp-bark');
+
+    // Lazy-init Lottie when leaf panel opens
+    (function(){
+      const xp = document.getElementById('xp-leaf');
+      if (!xp) return;
+      let loaded = false;
+      const init = () => {
+        if (loaded) return; loaded = true;
+        try {
+          lottie.loadAnimation({
+            container: document.getElementById('leaf-lottie'),
+            renderer: 'svg', loop: true, autoplay: true,
+            path: '{{ url_for('static', filename='lottie/falling_leaves.json') }}'
+          });
+        } catch (e) { /* ignore */ }
+      };
+      // If user opens
+      xp.querySelector('.expander-h')?.addEventListener('click', init, { once: true });
+      xp.querySelector('.expander-h')?.addEventListener('keydown', init, { once: true });
+      // Or if already expanded via server-side
+      if (xp.getAttribute('aria-expanded') === 'true') init();
+    })();
   });
 </script>
 {% endif %}

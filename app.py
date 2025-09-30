@@ -7,6 +7,7 @@ from services.database import Database
 from services.uk_tree_service import UKTreeService
 from services.photo_service import PhotoService
 from services.tree_facts import get_tree_fact
+from services.tree_morphology import get_leaf_info, get_bark_info
 from werkzeug.utils import secure_filename
 from services.staff_service import StaffService
 from services.work_order_service import WorkOrderService
@@ -201,10 +202,12 @@ def assetlinks():
 def tree_detail(tree_id: int):
     tree = UKTreeService().get_tree_by_id(tree_id)
     if not tree:
-        return render_template('tree_detail.html', tree=None, photos=[], fact=None, return_to=request.args.get('return_to')), 404
+        return render_template('tree_detail.html', tree=None, photos=[], fact=None, leaf_info=None, bark_info=None, return_to=request.args.get('return_to')), 404
     photos = PhotoService().get_photos_for_tree(tree_id)
     fact = get_tree_fact(tree.get('common_name'), tree.get('latin_name'))
-    return render_template('tree_detail.html', tree=tree, photos=photos, fact=fact, return_to=request.args.get('return_to'))
+    leaf_info = get_leaf_info(tree.get('common_name'), tree.get('latin_name'))
+    bark_info = get_bark_info(tree.get('common_name'), tree.get('latin_name'))
+    return render_template('tree_detail.html', tree=tree, photos=photos, fact=fact, leaf_info=leaf_info, bark_info=bark_info, return_to=request.args.get('return_to'))
 
 @app.route('/tree/<int:tree_id>/upload', methods=['POST'])
 def upload_tree_photo(tree_id: int):
