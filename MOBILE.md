@@ -38,7 +38,7 @@ TWA wraps your PWA into a Play‑store app that runs in Chrome.
 - Publish to Play Console
   - Create app, upload the AAB, complete listing (icons/screenshots), content rating, privacy policy URL (see PRIVACY.md), rollout
 
-### Lean maintenance model (1‑person)
+### Lean maintenance model
 - Keep Android wrapper minimal and separate:
   - Option A (simplest): generate the Bubblewrap project outside this repo (e.g., `~/code/lexgreen-android/`) and do not commit it here.
   - Option B: place it under `android/` in a separate repository and ignore build artifacts (`/app/build`, `/gradle`, etc.).
@@ -60,7 +60,7 @@ Capacitor loads your HTTPS site in a WKWebView.
   - In `capacitor.config.ts`:
     ```ts
     export default {
-      appId: 'org.bluegrass.lexgreen', // consider 'org.bluegrass.lexgreen'
+      appId: 'org.bluegrass.lexgreen', // 'org.bluegrass.lexgreen'
       appName: 'LexGreen',
       webDir: 'dist', // not used when loading by URL
       server: { url: 'https://lexgreen.fly.dev', cleartext: false }
