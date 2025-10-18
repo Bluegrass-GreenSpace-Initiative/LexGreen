@@ -5,6 +5,7 @@ import os
 from services.database import Database
 from services.uk_tree_service import UKTreeService
 from services.custom_tree_service import CustomTreeService
+from services.images import image_url_for_tree
 
 def create_app(test_config=None):
     # Create Flask app instance
@@ -18,6 +19,9 @@ def create_app(test_config=None):
         SECRET_KEY='dev',
         DATABASE=os.path.join(app.instance_path, 'UKTrees.db'),
     )
+        
+    # Make image_url_for_tree available in Jinja2 templates
+    app.jinja_env.globals["image_url_for_tree"] = image_url_for_tree
 
     if test_config is None:
         # Load the instance config, if it exists, when not testing
