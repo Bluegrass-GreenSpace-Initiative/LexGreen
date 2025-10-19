@@ -1,3 +1,4 @@
+<!-- Bugs and theorized causes at lines 197, 420, 475, 499-->
 {% extends "base.html" %}
 
 {% block title %}LexGreen - Interactive Campus Map{% endblock %}
@@ -193,6 +194,7 @@ document.addEventListener('DOMContentLoaded', function() {
         infoCard: document.querySelector('#info-card')
     };
 
+    //location info names are mapped to the wrong bounds
     const locationInfo = {{ location_info|tojson|safe }};
     let lastBounds = null;
     let lastLocationName = null;
@@ -413,8 +415,9 @@ async function loadSVGOverlay(url) {
 
                     return L.latLngBounds([lat1, lon0], [lat0, lon1]);
                 }
-
+                
                 // Add click handlers to paths and polygons
+                //likely causing missnamed greenspaces bug
                 svg.querySelectorAll('path, polygon').forEach(element => {
                     element.addEventListener('click', () => {
                         // Sound: exploring greenspace
@@ -469,6 +472,7 @@ async function loadSVGOverlay(url) {
     });
 
     // Clicking the base map clears tree markers so only greenspaces are interactive
+    //what is causing trees to disappear on click sometimes when clicking a greenspace
     map.on('click', () => {
         if (map.hasLayer(treesLayer)) {
             treesLayer.clearLayers();
@@ -492,6 +496,7 @@ async function loadSVGOverlay(url) {
             treesLayer.clearLayers();
             map.removeLayer(treesLayer);
           }
+          //recommended list does not toggle properly when view is reset
           // Keep recommended list hidden by default on reset
           const listSection = document.querySelector('#recommended-list');
           if (listSection) listSection.style.display = 'none';
