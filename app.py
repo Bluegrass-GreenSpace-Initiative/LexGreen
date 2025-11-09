@@ -11,6 +11,7 @@ from services.tree_morphology import get_leaf_info, get_bark_info
 from werkzeug.utils import secure_filename
 from services.staff_service import StaffService
 from services.work_order_service import WorkOrderService
+from services.images import image_url_for_tree
 import html
 
 app = Flask(__name__)
@@ -207,7 +208,7 @@ def tree_detail(tree_id: int):
     fact = get_tree_fact(tree.get('common_name'), tree.get('latin_name'))
     leaf_info = get_leaf_info(tree.get('common_name'), tree.get('latin_name'))
     bark_info = get_bark_info(tree.get('common_name'), tree.get('latin_name'))
-    return render_template('tree_detail.html', tree=tree, photos=photos, fact=fact, leaf_info=leaf_info, bark_info=bark_info, return_to=request.args.get('return_to'))
+    return render_template('tree_detail.html', tree=tree, photos=photos, fact=fact, leaf_info=leaf_info, bark_info=bark_info, return_to=request.args.get('return_to'), image_url_for_tree=image_url_for_tree)
 
 @app.route('/tree/<int:tree_id>/upload', methods=['POST'])
 def upload_tree_photo(tree_id: int):

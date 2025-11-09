@@ -179,15 +179,19 @@
             <div class="chev" aria-hidden="true">▾</div>
           </div>
           <div class="expander-b" id="xb-leaf">
-              <div class="leaf-row">
-                <div id="leaf-lottie" class="leaf-lottie" aria-hidden="true"></div>
-                <div>
-                  <p style="margin:0 0 6px 0"><strong>{{ tree.common_name or 'This tree' }}</strong> {{ leaf_info }}</p>
-                  <div class="small" style="color: var(--muted);">
-                    Hold a leaf to the light • Flip it to see the underside • Notice lobes, teeth, or fuzz
-                  </div>
+            <div class="leaf-row">
+              <div id="leaf-media"
+                  class="leaf-lottie"
+                  aria-hidden="true"
+                  data-leaf-url="{{ image_url_for_tree(tree.common_name, tree.latin_name, tree.leaf_image if tree.leaf_image is defined else None) }}">
+              </div>
+              <div>
+                <p style="margin:0 0 6px 0"><strong>{{ tree.common_name or 'This tree' }}</strong> {{ leaf_info }}</p>
+                <div class="small" style="color: var(--muted);">
+                  Hold a leaf to the light • Flip it to see the underside • Notice lobes, teeth, or fuzz
                 </div>
               </div>
+            </div>
             </div>
           </div>
           {% endif %}
@@ -547,25 +551,34 @@
     bindExpander('xp-leaf');
     bindExpander('xp-bark');
 
-    // Lazy-init Lottie when leaf panel opens
+    // Lazy-init image when leaf panel opens
     (function(){
       const xp = document.getElementById('xp-leaf');
       if (!xp) return;
+
+      const media = document.getElementById('leaf-media');
+      const leafUrl = media?.dataset.leafUrl || "";
       let loaded = false;
+
       const init = () => {
         if (loaded) return; loaded = true;
         try {
-          lottie.loadAnimation({
-            container: document.getElementById('leaf-lottie'),
-            renderer: 'svg', loop: true, autoplay: true,
-            path: '{{ url_for('static', filename='lottie/falling_leaves.json') }}'
-          });
-        } catch (e) { /* ignore */ }
+          if (!leafUrl || !media) return;
+          const img = document.createElement('img');
+          img.alt = ({{ (tree.common_name or 'This tree')|tojson }}) + ' leaf';
+          img.loading = 'lazy';
+          img.decoding = 'async';
+          img.src = leafUrl;
+          img.style.width = '100%';
+          img.style.height = '100%';
+          img.style.objectFit = 'cover';
+          media.textContent = '';
+          media.appendChild(img);
+        } catch(e) {/* no-op */}
       };
-      // If user opens
+
       xp.querySelector('.expander-h')?.addEventListener('click', init, { once: true });
       xp.querySelector('.expander-h')?.addEventListener('keydown', init, { once: true });
-      // Or if already expanded via server-side
       if (xp.getAttribute('aria-expanded') === 'true') init();
     })();
   });
