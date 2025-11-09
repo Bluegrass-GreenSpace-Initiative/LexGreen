@@ -480,7 +480,7 @@ async function loadSVGOverlay(url) {
         });
     });
 
-    // Clicking the base map clears tree markers so only greenspaces are interactive
+    // Clicking the base map clears tree markers so only greenspaces are interactive (toDo)
     map.on('click', () => {
         if (map.hasLayer(treesLayer)) {
             treesLayer.clearLayers();
