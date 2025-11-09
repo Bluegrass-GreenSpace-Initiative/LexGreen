@@ -2,19 +2,20 @@
 {% block title %}Admin – Volunteers{% endblock %}
 {% block extra_css %}
 <style>
-  .card { background:#202020; border:1px solid #2e2e2e; border-radius:12px; padding:12px; }
+  .card { background: var(--surface); border:1px solid var(--border); border-radius:12px; padding:12px; color: var(--text); }
   table { width:100%; border-collapse: collapse; }
-  th, td { border-bottom:1px solid #333; padding:8px; vertical-align: top; }
-  input, select { background:#111; color:#ddd; border:1px solid #444; border-radius:8px; padding:6px; }
-  .btn { padding:6px 10px; border-radius:10px; background:#2d4b3a; color:#e7efe9; border:1px solid #3c5f4c; }
+  th, td { border-bottom:1px solid var(--border); padding:8px; vertical-align: top; color: var(--text); }
+  input, select { background: var(--nav-link-bg); color: var(--text); border:1px solid var(--nav-link-border); border-radius:8px; padding:6px; }
+  .btn { padding:6px 10px; border-radius:10px; background: var(--nav-active-bg-end); color: var(--cta-text); border:1px solid var(--outline); box-shadow: 0 2px 0 var(--outline); text-decoration: none; display:inline-flex; align-items:center; gap:6px; }
+  .btn:hover { filter: brightness(1.05); transform: translateY(-1px); }
   .row-form { display:flex; gap:6px; flex-wrap:wrap; }
-  .small { color:#9BBCA7; }
+  .small { color: var(--muted); }
 </style>
 {% endblock %}
 {% block content %}
 <div class="card">
   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-    <strong style="color:#9BBCA7">Volunteer Requests</strong>
+    <strong style="color: var(--nav-active-bg-end);">Volunteer Requests</strong>
     <a href="{{ url_for('admin.dashboard') }}" class="btn">Back</a>
   </div>
   <table>
@@ -51,4 +52,3 @@
   </table>
 </div>
 {% endblock %}
-

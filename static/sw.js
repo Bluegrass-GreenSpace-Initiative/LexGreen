@@ -1,5 +1,5 @@
 /* Simple service worker for LexGreen */
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v2';
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 
 // Core assets to pre-cache (keep tiny)
@@ -8,7 +8,9 @@ const PRECACHE_URLS = [
   '/static/css/main.css',
   '/static/images/logo.png',
   '/static/images/favicon.ico',
-  '/static/offline.html'
+  '/static/offline.html',
+  '/static/fonts/Inter-Variable.woff2',
+  '/static/fonts/Inter-Italic-Variable.woff2'
 ];
 
 self.addEventListener('install', (event) => {

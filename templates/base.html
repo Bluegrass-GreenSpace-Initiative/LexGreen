@@ -10,6 +10,7 @@
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="preload" href="{{ url_for('static', filename='fonts/Inter-Variable.woff2') }}" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-osm/leaflet-osm.js"></script>
@@ -28,7 +29,7 @@
           <defs>
             <path id="arc-path" d="M 40 120 C 140 10, 260 10, 360 120" />
           </defs>
-          <text fill="#E5F2EA" font-size="28" font-weight="700" letter-spacing="1">
+          <text style="fill: var(--text-strong)" font-size="28" font-weight="700" letter-spacing="1">
             <textPath href="#arc-path" startOffset="50%" text-anchor="middle">
               <tspan class="opening-letter">L</tspan>
               <tspan class="opening-letter">e</tspan>
@@ -64,7 +65,21 @@
               </a>
             <!-- Decorative flowers banner on desktop -->
             <div class="header-flowers" id="header-flowers" aria-hidden="true"></div>
-            <button id="menu-toggle" class="menu-toggle" aria-controls="primary-nav" aria-expanded="false" title="Menu" data-haptic="soft">☰</button>
+            <div style="display:flex; align-items:center; gap:8px; margin-left:auto;">
+              <!-- Compact day/night toggle button (visual only) -->
+              <button id="theme-toggle" class="theme-toggle" role="switch" aria-label="Toggle theme" aria-checked="true" title="Theme" data-state="dark">
+                <span class="tt-track" aria-hidden="true">
+                  <span class="tt-sky"></span>
+                  <span class="tt-clouds"></span>
+                  <span class="tt-stars"></span>
+                </span>
+                <span class="tt-knob" aria-hidden="true">
+                  <span class="tt-sun"></span>
+                  <span class="tt-moon"></span>
+                </span>
+              </button>
+              <button id="menu-toggle" class="menu-toggle" aria-controls="primary-nav" aria-expanded="false" title="Menu" data-haptic="soft">☰</button>
+            </div>
         </div>
     </header>
 
@@ -104,11 +119,11 @@
     </main>
 
     <footer role="contentinfo" style="margin-top: 16px;">
-        <p style="font-size: 0.9rem; color: #bcd3c9; text-align: center; padding: 8px 12px;">
+        <p style="font-size: 0.9rem; color: var(--muted); text-align: center; padding: 8px 12px;">
           &copy; {{ current_year }} LexGreen - University of Kentucky
-          &middot; <a href="{{ url_for('privacy') }}" style="color:#9BBCA7; text-decoration:none;">Privacy</a>
-          &middot; <a href="{{ url_for('account_deletion') }}" style="color:#9BBCA7; text-decoration:none;">Account Deletion</a>
-          &middot; <a href="/admin/login" style="color:#9BBCA7; text-decoration:none;">Staff Login</a>
+          &middot; <a href="{{ url_for('privacy') }}" style="color: var(--muted); text-decoration:none;">Privacy</a>
+          &middot; <a href="{{ url_for('account_deletion') }}" style="color: var(--muted); text-decoration:none;">Account Deletion</a>
+          &middot; <a href="/admin/login" style="color: var(--muted); text-decoration:none;">Staff Login</a>
         </p>
     </footer>
     <script>
@@ -146,6 +161,61 @@
           menuBtn.setAttribute('aria-expanded', String(open));
         });
       }
+    </script>
+    <script>
+      // Theme toggle (UI only): stores preference and animates control, does not change page theme
+      (function(){
+        const btn = document.getElementById('theme-toggle');
+        if (!btn) return;
+        const KEY = 'lg_theme_pref';
+        const root = document.documentElement;
+        const metaTheme = document.querySelector('meta[name="theme-color"]');
+        const TRANSITION_BUFFER = 60; // ms buffer beyond CSS duration
+
+        function runWithThemeTransition(fn){
+          try {
+            root.classList.add('theme-animating');
+            // Execute the theme change
+            fn && fn();
+          } finally {
+            const dur = getComputedStyle(root).getPropertyValue('--theme-transition-duration').trim() || '700ms';
+            const ms = dur.endsWith('ms') ? parseFloat(dur) : (dur.endsWith('s') ? parseFloat(dur) * 1000 : 700);
+            setTimeout(() => { try { root.classList.remove('theme-animating'); } catch(_){} }, Math.max(0, ms + TRANSITION_BUFFER));
+          }
+        }
+
+        function applyTheme(mode){
+          const isDark = mode === 'dark';
+          root.classList.toggle('theme-light', !isDark);
+          // Update browser UI theme color to match header
+          if (metaTheme) {
+            try { metaTheme.setAttribute('content', isDark ? '#558B6E' : '#FFFFFF'); } catch(_){}
+          }
+          btn.dataset.state = isDark ? 'dark' : 'light';
+          btn.setAttribute('aria-checked', String(isDark));
+        }
+
+        // Initialize from saved preference or prefers-color-scheme
+        try {
+          const saved = localStorage.getItem(KEY);
+          const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          const mode = saved ? saved : (prefersDark ? 'dark' : 'light');
+          applyTheme(mode);
+        } catch(_) { applyTheme('dark'); }
+
+        function toggle(){
+          const isDark = (btn.dataset.state || 'dark') === 'dark';
+          const next = isDark ? 'light' : 'dark';
+          try { localStorage.setItem(KEY, next); } catch(_) {}
+          runWithThemeTransition(() => applyTheme(next));
+          // Emit a custom event so other logic can hook in
+          try { btn.dispatchEvent(new CustomEvent('lg:theme-toggle', { bubbles: true, detail: { theme: next } })); } catch(_) {}
+        }
+        btn.addEventListener('click', toggle);
+        btn.addEventListener('keydown', (e) => {
+          if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggle(); }
+        });
+      })();
     </script>
     <script>
       // Subtle header title/subtitle animation on load using GSAP + CSS variable
