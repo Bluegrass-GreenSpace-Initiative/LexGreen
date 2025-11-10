@@ -52,7 +52,7 @@
     <a href="#leaflet-map" class="skip-link" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;">Skip to map</a>
     <header>
         <div class="header-content">
-            <a href="{{ url_for('index') }}" class="brand-link" aria-label="LexGreen Home">
+            <a href="{{ url_for('pages.index') }}" class="brand-link" aria-label="LexGreen Home">
               <img src="{{ url_for('static', filename='images/logo.png') }}"
                    alt="LexGreen Logo"
                    class="logo"
@@ -86,26 +86,26 @@
     <nav id="primary-nav" class="nav-bar" aria-label="Primary">
         <ul>
             <li>
-              <a href="{{ url_for('index') }}" {% if request.endpoint == 'index' %}class="active" aria-current="page"{% endif %}>
+              <a href="{{ url_for('pages.index') }}" {% if request.endpoint == 'pages.index' %}class="active" aria-current="page"{% endif %}>
                 <span class="nav-icon nav-home" aria-hidden="true"></span>
                 <span>Home</span>
               </a>
             </li>
             <li>
-              <a href="{{ url_for('my_adoptions') }}" {% if request.endpoint == 'my_adoptions' %}class="active" aria-current="page"{% endif %}>
+              <a href="{{ url_for('pages.my_adoptions') }}" {% if request.endpoint == 'pages.my_adoptions' %}class="active" aria-current="page"{% endif %}>
                 <span class="nav-icon nav-activity" aria-hidden="true"></span>
                 <span>My Activity</span>
               </a>
             </li>
-            {% if request.endpoint not in ['greenspace', 'tree_detail', 'my_adoptions'] %}
+            {% if request.endpoint not in ['pages.greenspace', 'pages.tree_detail', 'pages.my_adoptions'] %}
               <li>
-                <a href="{{ url_for('wellness') }}" {% if request.endpoint == 'wellness' %}class="active" aria-current="page"{% endif %}>
+                <a href="{{ url_for('pages.wellness') }}" {% if request.endpoint == 'pages.wellness' %}class="active" aria-current="page"{% endif %}>
                   <span class="nav-icon nav-benefits" aria-hidden="true"></span>
                   <span>Benefits</span>
                 </a>
               </li>
               <li>
-                <a href="{{ url_for('about') }}" {% if request.endpoint == 'about' %}class="active" aria-current="page"{% endif %}>
+                <a href="{{ url_for('pages.about') }}" {% if request.endpoint == 'pages.about' %}class="active" aria-current="page"{% endif %}>
                   <span class="nav-icon nav-about" aria-hidden="true"></span>
                   <span>About</span>
                 </a>
@@ -121,8 +121,8 @@
     <footer role="contentinfo" style="margin-top: 16px;">
         <p style="font-size: 0.9rem; color: var(--muted); text-align: center; padding: 8px 12px;">
           &copy; {{ current_year }} LexGreen - University of Kentucky
-          &middot; <a href="{{ url_for('privacy') }}" style="color: var(--muted); text-decoration:none;">Privacy</a>
-          &middot; <a href="{{ url_for('account_deletion') }}" style="color: var(--muted); text-decoration:none;">Account Deletion</a>
+          &middot; <a href="{{ url_for('pages.privacy') }}" style="color: var(--muted); text-decoration:none;">Privacy</a>
+          &middot; <a href="{{ url_for('pages.account_deletion') }}" style="color: var(--muted); text-decoration:none;">Account Deletion</a>
           &middot; <a href="/admin/login" style="color: var(--muted); text-decoration:none;">Staff Login</a>
         </p>
     </footer>

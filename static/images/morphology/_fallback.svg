@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="240" height="160" viewBox="0 0 240 160" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Leaf placeholder">
+  <defs>
+    <linearGradient id="g" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#8CCFB5"/>
+      <stop offset="100%" stop-color="#558B6E"/>
+    </linearGradient>
+    <filter id="s" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="rgba(0,0,0,0.25)"/>
+    </filter>
+  </defs>
+  <rect width="240" height="160" rx="12" fill="#f7f9f8"/>
+  <g transform="translate(40,20)" filter="url(#s)">
+    <path d="M80 0c30 18 52 44 52 68 0 28-22 48-52 48S28 96 28 68C28 44 50 18 80 0z" fill="url(#g)"/>
+    <path d="M80 16c-8 22-8 44 0 64" stroke="#2f5f4a" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M62 34c10 6 18 14 24 22M100 34c-10 6-18 14-24 22" stroke="#2f5f4a" stroke-width="2" fill="none" stroke-linecap="round"/>
+  </g>
+  <text x="120" y="146" text-anchor="middle" font-family="system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="12" fill="#6b7280">Leaf image coming soon</text>
+</svg>

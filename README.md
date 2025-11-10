@@ -59,9 +59,9 @@ pip install -r requirements.txt
 
 3) Initialize the database and import official trees (one-time)
 ```bash
-# Option A: Flask CLI
-flask --app app init-db
-flask --app app import-trees
+# Option A: Flask CLI (factory entry)
+flask --app lexgreen:create_app init-db
+flask --app lexgreen:create_app import-trees
 
 # Option B: One-shot script
 python init_db.py
@@ -69,6 +69,10 @@ python init_db.py
 
 4) Run the app (development)
 ```bash
+# Option A: via Flask (recommended)
+flask --app lexgreen:create_app run --debug
+
+# Option B: direct (compatible)
 python app.py
 ```
 
@@ -76,8 +80,8 @@ Open http://localhost:5000
 
 ### Admin & Slack (optional)
 - Create a staff user (for the internal admin portal):
-  - Interactive: `flask --app app create-staff`
-  - Or via env vars: `EMAIL=admin@example.com NAME="Admin" PASSWORD='yourpass' flask --app app create-staff`
+  - Interactive: `flask --app lexgreen:create_app create-staff`
+  - Or via env vars: `EMAIL=admin@example.com NAME="Admin" PASSWORD='yourpass' flask --app lexgreen:create_app create-staff`
   - Login at `/admin/login` (linked in the site footer)
 - Slack notifications for high-priority reports (P≥3):
   - Set `SLACK_WEBHOOK_URL` in your environment before starting the app
@@ -126,7 +130,7 @@ fly deploy
 
 7) Initialize the database on the live machine (one-time)
 ```bash
-fly ssh console -C 'export FLASK_APP=app; flask init-db; flask import-trees'
+fly ssh console -C 'export FLASK_APP=lexgreen:create_app; flask init-db; flask import-trees'
 ```
 
 8) Keep exactly one machine for SQLite

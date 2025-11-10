@@ -134,7 +134,7 @@
     {% if return_to %}
       <a class="subtle-link" data-haptic="soft" href="{{ return_to }}">← Back to greenspace</a>
     {% endif %}
-    <a class="subtle-link" data-haptic="soft" href="{{ url_for('index') }}">← Back to Campus Map</a>
+    <a class="subtle-link" data-haptic="soft" href="{{ url_for('pages.index') }}">← Back to Campus Map</a>
   </div>
 
   {% if not tree %}
@@ -230,7 +230,7 @@
         </div>
         <div class="upload-box" style="margin-top:12px;">
           <strong>Share your view 🌿</strong>
-          <form method="post" action="{{ url_for('upload_tree_photo', tree_id=tree.tree_id, return_to=return_to) }}" enctype="multipart/form-data" style="margin-top:8px;">
+          <form method="post" action="{{ url_for('pages.upload_tree_photo', tree_id=tree.tree_id, return_to=return_to) }}" enctype="multipart/form-data" style="margin-top:8px;">
             <label for="photo">Upload a photo (JPG/PNG):</label><br/>
             <input type="file" name="photo" id="photo" accept="image/*" required>
             <div class="actions"><button class="button" type="submit">Upload</button></div>
