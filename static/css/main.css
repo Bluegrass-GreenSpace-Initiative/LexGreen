@@ -259,7 +259,7 @@ nav { background-color: var(--nav-bg); color: var(--nav-link-color); padding: 0.
 .theme-light .menu-toggle { background:#4BA773; border-color:#3b9264; color:#ffffff; }
 
 /* Header controls: visible on all sizes; hide hamburger on desktop */
-.header-controls { display:flex; }
+.header-controls { display:flex; align-items:center; gap:10px; margin-left:auto; }
 @media (min-width: 1024px) {
   .menu-toggle { display: none !important; }
   .header-controls { display:flex !important; }

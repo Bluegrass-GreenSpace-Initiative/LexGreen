@@ -11,6 +11,9 @@
   .gs-actions a { margin-right: 10px; }
   .card { background: var(--surface); border-radius: 16px; padding: 14px; border: 1px solid var(--border); box-shadow: 0 6px 14px rgba(0,0,0,0.18); color: var(--text); }
   #gs-map { height: calc(60vh); border-radius: 12px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.25); }
+  @media (max-width: 767px) {
+    #gs-map { height: 60vh; }
+  }
   /* Map focus breathing frame */
   .map-focus { position: relative; }
   .map-focus::after { content: ''; position: absolute; inset: -2px; border-radius: 14px; pointer-events: none; box-shadow: 0 0 0 2px rgba(85,139,110,.18), 0 0 18px rgba(85,139,110,.08); animation: focusBreath 4.6s ease-in-out infinite; }
@@ -59,13 +62,6 @@
       drop-shadow(0 0 8px rgba(85,139,110,.95))
       drop-shadow(0 0 18px rgba(85,139,110,.55));
   }
-  /* Marker wiggle without touching Leaflet's transform (kept but unused) */
-  @keyframes markerPop { 
-    0%   { width:24px; height:24px; margin-top:0; margin-left:0; filter: saturate(1); }
-    50%  { width:26px; height:26px; margin-top:-1px; margin-left:-1px; filter: saturate(1.15); }
-    100% { width:24px; height:24px; margin-top:0; margin-left:0; filter: saturate(1); }
-  }
-  .marker-waggle { animation: markerPop .55s ease; }
   /* Breeze overlay when toggled */
   .gs-container.breeze::before {
     content: '';

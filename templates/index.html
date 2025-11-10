@@ -110,8 +110,8 @@
 
     /* Mobile improvements */
     @media (max-width: 767px) {
-        /* Show the map first on phones */
-        .map-section { order: -1; height: calc(100vh - 180px); }
+        /* Show the map first on phones and set to ~60% of screen */
+        .map-section { order: -1; height: 60vh; }
         .sidebar { order: 0; }
         /* Tighten header/nav space via global CSS overrides */
         header { padding: .6rem; }
