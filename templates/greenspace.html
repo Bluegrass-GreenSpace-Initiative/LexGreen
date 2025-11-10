@@ -4,11 +4,23 @@
 
 {% block extra_css %}
 <style>
-  .gs-container { padding: 18px; }
-  .gs-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .gs-container { padding: 18px; position: relative; }
+  .gs-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; position: sticky; top: 0; z-index: 5; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 10px 14px; box-shadow: 0 6px 14px rgba(0,0,0,0.14); }
+  .gs-header > div:first-child { display:flex; flex-direction: column; gap: 2px; }
+  .gs-header small { color: var(--muted); }
   .gs-actions a { margin-right: 10px; }
   .card { background: var(--surface); border-radius: 16px; padding: 14px; border: 1px solid var(--border); box-shadow: 0 6px 14px rgba(0,0,0,0.18); color: var(--text); }
   #gs-map { height: calc(60vh); border-radius: 12px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.25); }
+  /* Map focus breathing frame */
+  .map-focus { position: relative; }
+  .map-focus::after { content: ''; position: absolute; inset: -2px; border-radius: 14px; pointer-events: none; box-shadow: 0 0 0 2px rgba(85,139,110,.18), 0 0 18px rgba(85,139,110,.08); animation: focusBreath 4.6s ease-in-out infinite; }
+  @keyframes focusBreath {
+    0%, 100% { box-shadow: 0 0 0 2px rgba(85,139,110,.18), 0 0 18px rgba(85,139,110,.08); }
+    50%      { box-shadow: 0 0 0 2px rgba(85,139,110,.34), 0 0 26px rgba(85,139,110,.16); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .map-focus::after { animation: none; }
+  }
   .tree-list { margin-top: 12px; }
   .list-head { display:flex; align-items:center; gap:8px; color: var(--text-strong); }
   .list { margin-top: 10px; display:flex; flex-direction: column; gap:8px; }
@@ -22,7 +34,61 @@
   .ti-arrow { color: var(--muted); }
 
   /* CTA and secondary link styles are centralized in static/css/main.css */
-
+  /* Greenspace meta UI */
+  .gs-meta { display:grid; gap:12px; grid-template-columns: 1fr; }
+  .gs-desc { color: var(--text); line-height: 1.4; }
+  .gs-section-title { margin: 0; font-weight: 650; color: var(--text-strong); font-size: 0.95rem; }
+  .amenities, .goodfor { display:flex; flex-wrap: wrap; gap:8px; margin-top:6px; }
+  .amenity, .chip { display:inline-flex; align-items:center; gap:6px; padding:6px 9px; border-radius:999px; background: var(--surface-2); border:1px solid var(--border); color: var(--text); transition: transform .12s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease; }
+  .amenity:hover, .chip:hover { transform: translateY(-1px); background: var(--surface); border-color: var(--border-strong); box-shadow: 0 4px 10px rgba(0,0,0,.12); }
+  .amenity .a-emoji { font-size: 1rem; line-height: 1; }
+  .seasonal { display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:12px; background: var(--surface-2); border:1px solid var(--border); color: var(--text); }
+  .seasonal strong { color: var(--text-strong); }
+  .pulse { animation: pulse .9s ease; }
+  .seasonal .s-img { width:20px; height:20px; flex:0 0 20px; border-radius:4px; box-shadow: 0 1px 3px rgba(0,0,0,.25); background: var(--surface); display:inline-flex; align-items:center; justify-content:center; overflow:hidden; }
+  .seasonal .s-img img { width:18px; height:18px; display:block; }
+  @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.04); } 100% { transform: scale(1); } }
+  /* Tree row + marker hover link */
+  .tree-item--active { background: var(--surface); border-color: var(--nav-active-bg-end); box-shadow: 0 4px 12px rgba(0,0,0,.12); }
+  .leaflet-marker-icon.marker--dim { opacity: .5 !important; filter: saturate(.75) contrast(.95) !important; }
+  /* Marker halo (safe glow) */
+  /* Stronger, clearer halo for selected marker */
+  .leaflet-marker-icon.marker-halo {
+    filter:
+      drop-shadow(0 0 2px rgba(255,255,255,.9))
+      drop-shadow(0 0 8px rgba(85,139,110,.95))
+      drop-shadow(0 0 18px rgba(85,139,110,.55));
+  }
+  /* Marker wiggle without touching Leaflet's transform (kept but unused) */
+  @keyframes markerPop { 
+    0%   { width:24px; height:24px; margin-top:0; margin-left:0; filter: saturate(1); }
+    50%  { width:26px; height:26px; margin-top:-1px; margin-left:-1px; filter: saturate(1.15); }
+    100% { width:24px; height:24px; margin-top:0; margin-left:0; filter: saturate(1); }
+  }
+  .marker-waggle { animation: markerPop .55s ease; }
+  /* Breeze overlay when toggled */
+  .gs-container.breeze::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(180px 120px at 10% 20%, rgba(85,139,110,.10), rgba(85,139,110,0) 60%),
+                radial-gradient(160px 100px at 80% 70%, rgba(120,170,140,.09), rgba(120,170,140,0) 60%);
+    background-size: 140% 140%;
+    animation: breezeMove 16s linear infinite;
+    mix-blend-mode: screen;
+  }
+  @keyframes breezeMove {
+    0%   { background-position: 0% 0%, 100% 100%; }
+    50%  { background-position: 60% 40%, 40% 60%; }
+    100% { background-position: 0% 0%, 100% 100%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .gs-container.breeze::before { animation: none; }
+  }
+  @media (min-width: 760px) {
+    .gs-meta { grid-template-columns: 1.2fr .8fr; align-items: start; }
+  }
   
 </style>
 {% endblock %}
@@ -33,23 +99,49 @@
   <div class="gs-header">
     <div>
       <h2 style="margin:0;color: var(--nav-active-bg-end);">{{ name }}</h2>
-      <small>Explore trees within this greenspace</small>
+      <small id="gs-desc-header">Loading description…</small>
     </div>
     <div class="gs-actions">
       <a class="subtle-link" data-haptic="soft" href="{{ url_for('pages.index') }}">← Back to Campus Map</a>
+      <button id="breeze-toggle" class="subtle-link" data-haptic="soft" aria-pressed="false" title="Ambient breeze">〰️ Breeze</button>
     </div>
   </div>
-  <div class="card"><div id="gs-map"></div></div>
+
+  <!-- Seasonal banner on top, above the map -->
+  <div class="card" id="gs-season-card" style="margin-bottom:12px;">
+    <div class="seasonal" id="gs-seasonal" aria-live="polite" aria-atomic="true" hidden>
+      <span class="s-img" aria-hidden="true"><img alt="" /></span>
+      <div>
+        <strong id="gs-season-title"></strong>
+        <div id="gs-season-text" style="opacity:.9"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card map-focus"><div id="gs-map"></div></div>
+  <div class="card" id="gs-info-card" style="margin-top:12px;">
+    <div class="gs-meta">
+      <div>
+        <h3 class="gs-section-title">Amenities</h3>
+        <div class="amenities" id="gs-amenities" aria-label="Amenities list"><em>Loading…</em></div>
+      </div>
+      <div>
+        <h3 class="gs-section-title">Good for</h3>
+        <div class="goodfor" id="gs-goodfor" aria-label="Recommended activities"><em>Loading…</em></div>
+      </div>
+    </div>
+  </div>
   <div class="tree-list card">
     <div class="list-head"><strong>Trees in this area</strong> <span id="tree-count"></span></div>
     <div id="tree-list" class="list"><em>Loading…</em></div>
   </div>
   <!-- Hidden data from server -->
-  <template id="gs-data" data-north="{{ bounds.north }}" data-south="{{ bounds.south }}" data-east="{{ bounds.east }}" data-west="{{ bounds.west }}"></template>
+  <template id="gs-data" data-north="{{ bounds.north }}" data-south="{{ bounds.south }}" data-east="{{ bounds.east }}" data-west="{{ bounds.west }}" data-name="{{ name }}" data-meta='{{ (gs_meta | tojson) if gs_meta else "" }}'></template>
 </div>
 {% endblock %}
 
 {% block extra_js %}
+<script src="{{ url_for('static', filename='js/greenspace.js') }}"></script>
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     
@@ -72,6 +164,22 @@
 
     function iconUrlForTree(t){
       return window.treeIcons.getIconUrl(t.latin_name, t.common_name);
+    }
+
+    const nodeByTreeId = new Map();
+    function dimRest(activeMarker) {
+      try {
+        const icons = document.querySelectorAll('.leaflet-marker-icon');
+        icons.forEach(icon => {
+          if (activeMarker && activeMarker._icon === icon) icon.classList.remove('marker--dim');
+          else icon.classList.add('marker--dim');
+        });
+      } catch (_) {}
+    }
+    function clearDim() {
+      try { document.querySelectorAll('.leaflet-marker-icon.marker--dim').forEach(i => i.classList.remove('marker--dim')); } catch(_) {}
+    }
+    function softHaptic(){ try { if (navigator.vibrate) navigator.vibrate(3); } catch(_) {}
     }
 
     function renderTrees(trees) {
@@ -98,6 +206,20 @@
         m.on('pointerdown', (e) => { try { window.cgAudio && window.cgAudio.play('explore'); } catch(err) {} try { e.originalEvent && e.originalEvent.stopPropagation && e.originalEvent.stopPropagation(); } catch(_) {} });
         m.on('mousedown', (e) => { try { window.cgAudio && window.cgAudio.play('explore'); } catch(err) {} try { e.originalEvent.stopPropagation(); } catch(_) {} });
         m.on('touchstart', (e) => { try { window.cgAudio && window.cgAudio.play('explore'); } catch(err) {} try { e.originalEvent.stopPropagation(); } catch(_) {} });
+        // Hover highlight link: marker <-> list row
+        // On marker hover: add halo and highlight the corresponding row
+        m.on('mouseover', () => {
+          try { if (m._icon) { m._icon.classList.add('marker-halo'); } } catch(_) {}
+          dimRest(m); softHaptic();
+          const pair = nodeByTreeId.get(t.tree_id);
+          if (pair && pair.row) pair.row.classList.add('tree-item--active');
+        });
+        m.on('mouseout', () => {
+          try { if (m._icon) { m._icon.classList.remove('marker-halo'); } } catch(_) {}
+          clearDim();
+          const pair = nodeByTreeId.get(t.tree_id);
+          if (pair && pair.row) pair.row.classList.remove('tree-item--active');
+        });
         m.on('click', (e) => {
           try { if (m._icon) { m._icon.classList.remove('tree-pulse'); void m._icon.offsetWidth; m._icon.classList.add('tree-pulse'); } } catch(_) {}
           navigateWithSound(`/tree/${t.tree_id}?return_to=${returnTo}`);
@@ -113,6 +235,17 @@
           </div>
           <div class="ti-arrow">›</div>
         `;
+        nodeByTreeId.set(t.tree_id, { marker: m, row });
+        row.addEventListener('mouseenter', () => {
+          row.classList.add('tree-item--active');
+          try { if (m._icon) { m._icon.classList.add('marker-halo'); } } catch(_) {}
+          dimRest(m); softHaptic();
+        });
+        row.addEventListener('mouseleave', () => {
+          row.classList.remove('tree-item--active');
+          try { if (m._icon) { m._icon.classList.remove('marker-halo'); } } catch(_) {}
+          clearDim();
+        });
         row.addEventListener('pointerdown', () => {
           try { window.cgAudio && window.cgAudio.play('explore'); } catch(e) {}
           try { const img = row.querySelector('.ti-icon img'); if (img) { img.classList.remove('tree-pulse'); void img.offsetWidth; img.classList.add('tree-pulse'); } } catch(_) {}
@@ -132,6 +265,7 @@
       .then(data => {
         if (Array.isArray(data)) {
           renderTrees(data);
+          try { if (window.gsSeasonal && typeof window.gsSeasonal.update === 'function') { window.gsSeasonal.update(data, t.dataset.name || '{{ name }}'); } } catch(e) { console.debug('seasonal update failed', e); }
         } else {
           console.error('Unexpected response shape for trees/area', data);
           list.innerHTML = '<em>Unable to load trees for this area.</em>';

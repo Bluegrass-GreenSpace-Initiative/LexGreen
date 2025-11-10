@@ -133,7 +133,10 @@ def greenspace():
         }
     except Exception:
         return redirect(url_for('pages.index'))
-    return render_template('greenspace.html', name=name, bounds=bounds)
+    # Pass simple meta (description/features) when available so the page
+    # can render lightweight amenities and suggestions without new APIs.
+    gs_meta = CAMPUS_DATA.get('location_info', {}).get(name)
+    return render_template('greenspace.html', name=name, bounds=bounds, gs_meta=gs_meta)
 
 
 @pages_bp.route('/my-adoptions')
@@ -198,4 +201,3 @@ def upload_tree_photo(tree_id: int):
 @pages_bp.route('/uploads/<path:filename>')
 def uploaded_file(filename):
     return send_from_directory(current_app.config['UPLOAD_FOLDER'], filename)
-
