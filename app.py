@@ -39,6 +39,30 @@ CAMPUS_DATA = {
         'President Garden': {
             'description': 'A serene garden featuring a beautiful lily pond and various native plants.',
             'features': ['Lily Pond', 'Native Plants', 'Benches', 'Shade Trees']
+        },
+        'Gatton College of Business Greenspace': {
+            'description': 'A greenspace filled with tree that praovide shade and a few gardens around the building.',
+            'features': ['Shade Trees', 'Gardens']
+        },
+        'Adminstration Drive Lawn': {
+            'description': 'An open space near the edge of campus that leads to the center of the UK campus.',
+            'features': ['Open Grass Area','Bus Stop for 5, 14, and 15','Nearby Parking Garage']
+        },
+        'Student Center Outdoor Pathway': {
+            'description': 'A pathway along a slope between Patterson Drive and the first floor exit of the Student Center.',
+            'features': ['Benches', 'Less Crowded']
+        },
+        'Signletary Center Lawn': { #Singletary Center for the Arts
+            'description': 'A flat open area with art pieces dotted about.',
+            'features': ['Art Installations', 'Shade Trees', 'Benches']
+        },
+        'Student Center Outdoor Seating': {
+            'description': 'A small area outside the Student Center with seating.',
+            'features': ['Nearby Food', 'Seating','Bike Racks']
+        },
+        'Funkhouser Walkway': {
+            'description': 'A shaded path that accesses the main entrance of Funkhouser.',
+            'features': ['Shaded Trees','Study Spots', 'Benches']
         }
     }
 }
