@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="theme-light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Explore Lexington’s green spaces and urban forest">
-    <meta name="theme-color" content="#3C6B53">
+    <meta name="theme-color" content="#F5D4C2">
     <title>{% block title %}LexGreen{% endblock %}</title>
     
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
@@ -71,7 +71,7 @@
                 <span class="nav-icon nav-home" aria-hidden="true" style="width:24px;height:24px;color:#000;"></span>
               </a>
               <!-- Compact day/night toggle button (visual only) -->
-              <button id="theme-toggle" class="theme-toggle" role="switch" aria-label="Toggle theme" aria-checked="true" title="Theme" data-state="dark">
+              <button id="theme-toggle" class="theme-toggle" role="switch" aria-label="Toggle theme" aria-checked="false" title="Theme" data-state="light">
                 <span class="tt-track" aria-hidden="true">
                   <span class="tt-sky"></span>
                   <span class="tt-clouds"></span>
@@ -218,16 +218,15 @@
           btn.setAttribute('aria-checked', String(isDark));
         }
 
-        // Initialize from saved preference or prefers-color-scheme
+        // Initialize from saved preference; default to light
         try {
           const saved = localStorage.getItem(KEY);
-          const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-          const mode = saved ? saved : (prefersDark ? 'dark' : 'light');
+          const mode = saved ? saved : 'light';
           applyTheme(mode);
-        } catch(_) { applyTheme('dark'); }
+        } catch(_) { applyTheme('light'); }
 
         function toggle(){
-          const isDark = (btn.dataset.state || 'dark') === 'dark';
+          const isDark = (btn.dataset.state || 'light') === 'dark';
           const next = isDark ? 'light' : 'dark';
           try { localStorage.setItem(KEY, next); } catch(_) {}
           runWithThemeTransition(() => applyTheme(next));
