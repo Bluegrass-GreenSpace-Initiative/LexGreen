@@ -208,7 +208,18 @@ def tree_detail(tree_id: int):
     fact = get_tree_fact(tree.get('common_name'), tree.get('latin_name'))
     leaf_info = get_leaf_info(tree.get('common_name'), tree.get('latin_name'))
     bark_info = get_bark_info(tree.get('common_name'), tree.get('latin_name'))
-    return render_template('tree_detail.html', tree=tree, photos=photos, fact=fact, leaf_info=leaf_info, bark_info=bark_info, return_to=request.args.get('return_to'), image_url_for_tree=image_url_for_tree)
+    return render_template(
+    'tree_detail.html',
+    tree=tree,
+    photos=photos,
+    fact=fact,
+    leaf_info=leaf_info,
+    bark_info=bark_info,
+    return_to=request.args.get('return_to'),
+    # remove: image_url_for_tree=image_url_for_tree
+    # Duplicate routes, clean up leaf imge handling
+    )
+
 
 @app.route('/tree/<int:tree_id>/upload', methods=['POST'])
 def upload_tree_photo(tree_id: int):
@@ -234,10 +245,16 @@ def upload_tree_photo(tree_id: int):
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
+
 # Template context processor for global variables
 @app.context_processor
 def utility_processor():
-    return {'current_year': datetime.now().year}
+    return {
+        'current_year': datetime.now().year,
+        'image_url_for_tree': image_url_for_tree,   # added to handle duplicated leaf routes  
+    }
+
 
 if __name__ == '__main__':
     app.run(debug=True)
+

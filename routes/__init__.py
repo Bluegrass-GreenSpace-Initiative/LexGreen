@@ -21,7 +21,8 @@ def create_app(test_config=None):
     )
         
     # Make image_url_for_tree available in Jinja2 templates
-    app.jinja_env.globals["image_url_for_tree"] = image_url_for_tree
+    # Duplicate routes, clean up leaf imge handling
+    # app.jinja_env.globals["image_url_for_tree"] = image_url_for_tree
 
     if test_config is None:
         # Load the instance config, if it exists, when not testing
