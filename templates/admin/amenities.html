@@ -3,13 +3,15 @@
 {% block extra_css %}
 <style>
   .grid { display:grid; grid-template-columns: 1fr; gap:12px; }
-  .card { background: var(--surface); border:1px solid var(--border); border-radius:12px; padding:12px; color: var(--text); }
+  .card { background: var(--surface); border:1px solid var(--border); border-radius:14px; padding:14px; color: var(--text); box-shadow: 0 6px 14px rgba(0,0,0,.08); }
   table { width:100%; border-collapse: collapse; }
-  th, td { border-bottom:1px solid var(--border); padding:8px; color: var(--text); }
-  input, select, textarea { background: var(--nav-link-bg); color: var(--text); border:1px solid var(--nav-link-border); border-radius:8px; padding:6px; }
-  .btn { padding:6px 10px; border-radius:10px; background: var(--nav-active-bg-end); color: var(--cta-text); border:1px solid var(--outline); box-shadow: 0 2px 0 var(--outline); text-decoration: none; display:inline-flex; align-items:center; gap:6px; }
+  th { text-align:left; font-weight:600; color: var(--text-strong); }
+  th, td { border-bottom:1px solid var(--border); padding:10px; color: var(--text); vertical-align: top; }
+  tr:hover { background: var(--surface-2); }
+  input, select, textarea { background: var(--nav-link-bg); color: var(--text); border:1px solid var(--nav-link-border); border-radius:10px; padding:8px; }
+  .btn { padding:8px 12px; border-radius:12px; background: var(--nav-active-bg-end); color: var(--cta-text); border:1px solid var(--outline); box-shadow: 0 2px 0 var(--outline); text-decoration: none; display:inline-flex; align-items:center; gap:6px; }
   .btn:hover { filter: brightness(1.05); transform: translateY(-1px); }
-  .row-form { display:flex; gap:6px; flex-wrap:wrap; }
+  .row-form { display:flex; gap:8px; flex-wrap:wrap; }
   .toolbar { display:flex; justify-content:space-between; align-items:center; }
   .small { color: var(--muted); }
 </style>

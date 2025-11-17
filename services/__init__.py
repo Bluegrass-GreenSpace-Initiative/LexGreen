@@ -8,6 +8,7 @@ from .staff_service import StaffService
 from .work_order_service import WorkOrderService
 from .amenity_service import AmenityService
 from .volunteer_service import VolunteerService
+from .invasive_service import InvasiveReportService
 
 # Make classes available for import directly from services package
 __all__ = [
@@ -19,5 +20,6 @@ __all__ = [
     'StaffService',
     'WorkOrderService',
     'AmenityService',
-    'VolunteerService'
+    'VolunteerService',
+    'InvasiveReportService'
 ]

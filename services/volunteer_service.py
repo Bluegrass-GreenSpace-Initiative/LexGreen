@@ -33,6 +33,26 @@ class VolunteerService:
             )
             conn.commit()
 
+    def create(self, *, user_id: str, task: str, area_id: Optional[int] = None, latitude: Optional[float] = None, longitude: Optional[float] = None, note: str = '') -> Tuple[bool, str, Optional[int]]:
+        """Insert a volunteer request. Returns (ok, msg, request_id)."""
+        self.ensure_tables()
+        uid = (user_id or '').strip()
+        if not uid:
+            return False, 'Missing user id', None
+        task = (task or '').strip() or 'volunteer task'
+        with self.db.get_connection() as conn:
+            cur = conn.cursor()
+            cur.execute(
+                (
+                    "INSERT INTO volunteer_requests (user_id, task, area_id, latitude, longitude, note, status) "
+                    "VALUES (?, ?, ?, ?, ?, ?, 'pending')"
+                ),
+                (uid, task, area_id, latitude, longitude, note)
+            )
+            rid = int(cur.lastrowid)
+            conn.commit()
+            return True, 'Volunteer request submitted', rid
+
     def list(self, status: Optional[str] = None) -> List[Dict]:
         self.ensure_tables()
         if status:
@@ -69,3 +89,10 @@ class VolunteerService:
         self.db.execute_write(f"UPDATE volunteer_requests SET {', '.join(sets)} WHERE id = ?", tuple(params))
         return True, 'Volunteer request updated'
 
+    def delete(self, request_id: int) -> Tuple[bool, str]:
+        self.ensure_tables()
+        rows = self.db.execute_query("SELECT id FROM volunteer_requests WHERE id = ?", (request_id,))
+        if not rows:
+            return False, 'Not found'
+        self.db.execute_write("DELETE FROM volunteer_requests WHERE id = ?", (request_id,))
+        return True, 'Deleted'

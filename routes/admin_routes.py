@@ -6,6 +6,7 @@ from services.staff_service import StaffService
 from services.work_order_service import WorkOrderService
 from services.amenity_service import AmenityService
 from services.volunteer_service import VolunteerService
+from services.invasive_service import InvasiveReportService
 
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
@@ -127,3 +128,28 @@ def volunteers_update(vid: int):
     permit_to = request.form.get('permit_valid_to')
     VolunteerService().update(vid, status=status, permit_valid_from=permit_from, permit_valid_to=permit_to)
     return redirect(url_for('admin.volunteers'))
+
+@admin_bp.route('/volunteers/<int:vid>/delete', methods=['POST'])
+def volunteers_delete(vid: int):
+    VolunteerService().delete(vid)
+    return redirect(url_for('admin.volunteers'))
+
+
+# Invasive plants admin
+@admin_bp.route('/invasives')
+def invasives():
+    items = InvasiveReportService().list_all()
+    return render_template('admin/invasives.html', items=items)
+
+@admin_bp.route('/invasives/export.csv')
+def export_invasives_csv():
+    csv_text = InvasiveReportService().export_csv()
+    resp = make_response(csv_text)
+    resp.headers['Content-Type'] = 'text/csv; charset=utf-8'
+    resp.headers['Content-Disposition'] = 'attachment; filename="invasive_reports.csv"'
+    return resp
+
+@admin_bp.route('/invasives/<int:rid>/delete', methods=['POST'])
+def invasives_delete(rid: int):
+    InvasiveReportService().delete(rid)
+    return redirect(url_for('admin.invasives'))
