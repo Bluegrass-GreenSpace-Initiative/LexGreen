@@ -27,6 +27,28 @@
   .p-2 { background:#fff3bf; border:1px solid #ffe066; }
   .p-3 { background:#d3f9d8; border:1px solid #8ce99a; }
   .p-4 { background:#e7f5ff; border:1px solid #a5d8ff; }
+
+  /* Mobile improvements */
+  @media (max-width: 760px) {
+    /* Stack toolbar buttons and align nicely */
+    .toolbar { gap:8px; }
+    .toolbar .btn { flex: 1 1 48%; justify-content:center; }
+    .controls label { display:block; width:100%; }
+    .controls select,
+    .controls input,
+    .controls textarea { width: 100% !important; min-width: 0; }
+    /* Turn table rows into easy-to-read cards */
+    .table thead { display:none; }
+    .table, .table tbody, .table tr, .table td { display:block; width:100%; }
+    .table tr { margin: 10px 0; padding:10px; border:1px solid var(--border); border-radius:12px; background: var(--surface); box-shadow: 0 4px 10px rgba(0,0,0,.06); }
+    .table td { border:none; padding:6px 4px; }
+    .table td[data-label]::before { content: attr(data-label); display:block; font-weight:600; color: var(--text-strong); margin-bottom:2px; }
+    .right { text-align:left; }
+    /* Stack action controls */
+    .controls { flex-direction: column; align-items: stretch; }
+    .controls select, .controls input { width:100% !important; }
+    .controls .btn { width:100%; justify-content:center; }
+  }
 </style>
 {% endblock %}
 {% block content %}
@@ -77,17 +99,17 @@
       <tbody>
         {% for o in orders %}
         <tr>
-          <td class="nowrap">#{{ o.id }}</td>
-          <td><span class="badge">{{ o.type }}</span></td>
-          <td><span class="badge b-status-{{ o.status }}">{{ o.status }}</span></td>
-          <td><span class="prio p-{{ o.priority }}">P{{ o.priority }}</span></td>
-          <td>{{ o.asset_type or '—' }}{% if o.tree_id %} #{{ o.tree_id }}{% endif %}</td>
-          <td>
+          <td class="nowrap" data-label="ID">#{{ o.id }}</td>
+          <td data-label="Type"><span class="badge">{{ o.type }}</span></td>
+          <td data-label="Status"><span class="badge b-status-{{ o.status }}">{{ o.status }}</span></td>
+          <td data-label="Priority"><span class="prio p-{{ o.priority }}">P{{ o.priority }}</span></td>
+          <td data-label="Asset">{{ o.asset_type or '—' }}{% if o.tree_id %} #{{ o.tree_id }}{% endif %}</td>
+          <td data-label="Title & Description">
             <div><strong>{{ o.title or '(no title)' }}</strong></div>
             <div class="small">{{ o.description }}</div>
           </td>
-          <td class="nowrap small">{{ o.created_at }}</td>
-          <td class="right">
+          <td class="nowrap small" data-label="Created">{{ o.created_at }}</td>
+          <td class="right" data-label="Assign/Resolve">
             <form method="post" action="{{ url_for('admin.update_work_order', wo_id=o.id) }}" class="controls" style="justify-content:flex-end;">
               <select name="status">
                 {% for s in ['open','triaged','in_progress','blocked','resolved','cancelled'] %}

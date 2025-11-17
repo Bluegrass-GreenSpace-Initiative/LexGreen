@@ -11,6 +11,18 @@
   .btn:hover { filter: brightness(1.05); transform: translateY(-1px); }
   .small { color: var(--muted); }
   .nowrap { white-space: nowrap; }
+
+  /* Mobile: convert table to cards */
+  @media (max-width: 760px) {
+    .card > div { flex-wrap: wrap; gap:8px; }
+    table thead { display:none; }
+    table, table tbody, table tr, table td { display:block; width:100%; }
+    table tr { margin: 10px 0; padding:10px; border:1px solid var(--border); border-radius:12px; background: var(--surface); box-shadow: 0 4px 10px rgba(0,0,0,.06); }
+    table td { border:none; padding:6px 4px; }
+    table td[data-label]::before { content: attr(data-label); display:block; font-weight:600; color: var(--text-strong); margin-bottom:2px; }
+    .nowrap { white-space: normal; }
+    .btn { width:100%; justify-content:center; }
+  }
 </style>
 {% endblock %}
 {% block content %}
@@ -37,13 +49,13 @@
     <tbody>
       {% for r in items %}
       <tr>
-        <td class="nowrap">#{{ r.id }}</td>
-        <td class="small nowrap">{{ r.reported_at or '—' }}</td>
-        <td>{{ r.plant_type }}</td>
-        <td class="small">{{ '%.6f'|format(r.latitude) }}, {{ '%.6f'|format(r.longitude) }}</td>
-        <td class="small">{{ r.greenspace_name or '—' }}</td>
-        <td class="small">{{ r.user_id }}</td>
-        <td class="small">
+        <td class="nowrap" data-label="ID">#{{ r.id }}</td>
+        <td class="small nowrap" data-label="When">{{ r.reported_at or '—' }}</td>
+        <td data-label="Plant">{{ r.plant_type }}</td>
+        <td class="small" data-label="Location">{{ '%.6f'|format(r.latitude) }}, {{ '%.6f'|format(r.longitude) }}</td>
+        <td class="small" data-label="Greenspace">{{ r.greenspace_name or '—' }}</td>
+        <td class="small" data-label="User">{{ r.user_id }}</td>
+        <td class="small" data-label="Note">
           <div>{{ r.note or '' }}</div>
           <form method="post" action="{{ url_for('admin.invasives_delete', rid=r.id) }}" onsubmit="return confirm('Delete this report?');" style="margin-top:6px;">
             <button class="btn" type="submit">Delete</button>

@@ -14,6 +14,18 @@
   .row-form { display:flex; gap:8px; flex-wrap:wrap; }
   .toolbar { display:flex; justify-content:space-between; align-items:center; }
   .small { color: var(--muted); }
+
+  /* Mobile responsiveness */
+  @media (max-width: 760px) {
+    .toolbar { flex-wrap: wrap; gap: 8px; }
+    .row-form { flex-direction: column; align-items: stretch; }
+    .row-form input, .row-form select, .row-form textarea, .row-form .btn { width:100% !important; min-width: 0; }
+    table thead { display:none; }
+    table, table tbody, table tr, table td { display:block; width:100%; }
+    table tr { margin: 10px 0; padding:10px; border:1px solid var(--border); border-radius:12px; background: var(--surface); box-shadow: 0 4px 10px rgba(0,0,0,.06); }
+    table td { border:none; padding:6px 4px; }
+    table td[data-label]::before { content: attr(data-label); display:block; font-weight:600; color: var(--text-strong); margin-bottom:2px; }
+  }
 </style>
 {% endblock %}
 {% block content %}
@@ -46,13 +58,13 @@
       <tbody>
         {% for a in items %}
         <tr>
-          <td>#{{ a.id }}</td>
-          <td>{{ a.name }}</td>
-          <td>{{ a.type }}</td>
-          <td>{{ a.status }}</td>
-          <td class="small">{{ a.latitude }}, {{ a.longitude }}</td>
-          <td class="small">{{ a.metadata or '' }}</td>
-          <td>
+          <td data-label="ID">#{{ a.id }}</td>
+          <td data-label="Name">{{ a.name }}</td>
+          <td data-label="Type">{{ a.type }}</td>
+          <td data-label="Status">{{ a.status }}</td>
+          <td class="small" data-label="Coords">{{ a.latitude }}, {{ a.longitude }}</td>
+          <td class="small" data-label="Metadata">{{ a.metadata or '' }}</td>
+          <td data-label="Actions">
             <form method="post" action="{{ url_for('admin.amenities_update', aid=a.id) }}" class="row-form">
               <input name="name" placeholder="Name" value="{{ a.name }}" style="width:120px;">
               <input name="type" placeholder="Type" value="{{ a.type }}" style="width:120px;">
