@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="theme-light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Explore Lexington’s green spaces and urban forest">
-    <meta name="theme-color" content="#2BA16C">
+    <meta name="theme-color" content="#F5D4C2">
     <title>{% block title %}LexGreen{% endblock %}</title>
     
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
@@ -59,15 +59,19 @@
                    width="50"
                    height="50">
               <div class="header-text">
-                  <h1 class="site-title">LexGreen</h1>
+                  <h1 class="site-title"><span class="title-lex">Lex</span><span class="title-green">Green</span></h1>
                   <p class="site-subtitle">Explore the green spaces on our campus</p>
                 </div>
               </a>
             <!-- Decorative flowers banner on desktop -->
             <div class="header-flowers" id="header-flowers" aria-hidden="true"></div>
-            <div style="display:flex; align-items:center; gap:8px; margin-left:auto;">
+            <div class="header-controls">
+              <!-- Home icon button -->
+              <a href="{{ url_for('pages.index') }}" class="home-button" aria-label="Home">
+                <span class="nav-icon nav-home" aria-hidden="true" style="width:24px;height:24px;color:#000;"></span>
+              </a>
               <!-- Compact day/night toggle button (visual only) -->
-              <button id="theme-toggle" class="theme-toggle" role="switch" aria-label="Toggle theme" aria-checked="true" title="Theme" data-state="dark">
+              <button id="theme-toggle" class="theme-toggle" role="switch" aria-label="Toggle theme" aria-checked="false" title="Theme" data-state="light">
                 <span class="tt-track" aria-hidden="true">
                   <span class="tt-sky"></span>
                   <span class="tt-clouds"></span>
@@ -78,6 +82,9 @@
                   <span class="tt-moon"></span>
                 </span>
               </button>
+              <!-- Sound toggle (music note) -->
+              <button id="sound-toggle" class="sound-toggle" aria-pressed="false" aria-label="Toggle sounds" title="Sounds"></button>
+              <!-- Hamburger -->
               <button id="menu-toggle" class="menu-toggle" aria-controls="primary-nav" aria-expanded="false" title="Menu" data-haptic="soft">☰</button>
             </div>
         </div>
@@ -85,7 +92,7 @@
 
     <nav id="primary-nav" class="nav-bar" aria-label="Primary">
         <ul>
-            <li>
+            <li class="nav-item-home">
               <a href="{{ url_for('pages.index') }}" {% if request.endpoint == 'pages.index' %}class="active" aria-current="page"{% endif %}>
                 <span class="nav-icon nav-home" aria-hidden="true"></span>
                 <span>Home</span>
@@ -113,6 +120,7 @@
             {% endif %}
         </ul>
     </nav>
+    <div id="nav-overlay" class="nav-overlay" hidden></div>
 
     <main>
         {% block content %}{% endblock %}
@@ -155,10 +163,25 @@
 
       // Mobile nav toggle
       const menuBtn = document.getElementById('menu-toggle');
+      const nav = document.getElementById('primary-nav');
+      const overlay = document.getElementById('nav-overlay');
+      function setOpen(open){
+        document.body.classList.toggle('nav-open', open);
+        if (menuBtn) menuBtn.setAttribute('aria-expanded', String(open));
+        if (overlay) overlay.hidden = !open;
+      }
       if (menuBtn) {
-        menuBtn.addEventListener('click', () => {
-          const open = document.body.classList.toggle('nav-open');
-          menuBtn.setAttribute('aria-expanded', String(open));
+        menuBtn.addEventListener('click', () => setOpen(!document.body.classList.contains('nav-open')));
+      }
+      if (overlay) {
+        overlay.addEventListener('click', () => setOpen(false));
+      }
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setOpen(false); });
+      // Close when clicking a link inside the panel
+      if (nav) {
+        nav.addEventListener('click', (e) => {
+          const a = e.target.closest('a[href]');
+          if (a) setOpen(false);
         });
       }
     </script>
@@ -189,22 +212,21 @@
           root.classList.toggle('theme-light', !isDark);
           // Update browser UI theme color to match header
           if (metaTheme) {
-            try { metaTheme.setAttribute('content', isDark ? '#558B6E' : '#FFFFFF'); } catch(_){}
+            try { metaTheme.setAttribute('content', isDark ? '#3C6B53' : '#F5D4C2'); } catch(_){}
           }
           btn.dataset.state = isDark ? 'dark' : 'light';
           btn.setAttribute('aria-checked', String(isDark));
         }
 
-        // Initialize from saved preference or prefers-color-scheme
+        // Initialize from saved preference; default to light
         try {
           const saved = localStorage.getItem(KEY);
-          const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-          const mode = saved ? saved : (prefersDark ? 'dark' : 'light');
+          const mode = saved ? saved : 'light';
           applyTheme(mode);
-        } catch(_) { applyTheme('dark'); }
+        } catch(_) { applyTheme('light'); }
 
         function toggle(){
-          const isDark = (btn.dataset.state || 'dark') === 'dark';
+          const isDark = (btn.dataset.state || 'light') === 'dark';
           const next = isDark ? 'light' : 'dark';
           try { localStorage.setItem(KEY, next); } catch(_) {}
           runWithThemeTransition(() => applyTheme(next));
@@ -218,9 +240,30 @@
       })();
     </script>
     <script>
-      // Subtle header title/subtitle animation on load using GSAP + CSS variable
+      // Sound toggle: persist and reflect in cgAudio (via window.lgSoundMuted)
+      (function(){
+        const btn = document.getElementById('sound-toggle');
+        if (!btn) return;
+        const KEY = 'lg_sound_muted';
+        try {
+          window.lgSoundMuted = localStorage.getItem(KEY) === '1';
+        } catch(_) { window.lgSoundMuted = false; }
+        btn.setAttribute('aria-pressed', String(window.lgSoundMuted));
+        btn.addEventListener('click', () => {
+          window.lgSoundMuted = !window.lgSoundMuted;
+          btn.setAttribute('aria-pressed', String(window.lgSoundMuted));
+          try { localStorage.setItem(KEY, window.lgSoundMuted ? '1' : '0'); } catch(_) {}
+          // tiny haptic
+          if (navigator.vibrate) { try { navigator.vibrate(window.lgSoundMuted ? 3 : 5); } catch(_) {} }
+        });
+      })();
+    </script>
+    <script>
+      // Subtle header title/subtitle animation on load using GSAP + CSS variable (desktop only)
       (function(){
         const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        // Run only on desktop view to match original behavior
+        try { if (window.matchMedia && window.matchMedia('(max-width: 1023px)').matches) return; } catch(_) {}
         const titleEl = document.querySelector('.site-title');
         if (!titleEl) return;
         // Ensure CSS variable-driven underline works
@@ -293,7 +336,7 @@
         }
         function play(name){
           const a = get(name);
-          if (!a) return;
+          if (!a || window.lgSoundMuted) return;
           try {
             a.currentTime = 0;
             a.volume = defaults[name] ?? 0.9;

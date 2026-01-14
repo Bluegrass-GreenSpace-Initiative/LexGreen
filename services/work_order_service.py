@@ -132,6 +132,32 @@ class WorkOrderService:
         self.db.execute_write(f"UPDATE work_orders SET {', '.join(sets)} WHERE id = ?", tuple(params))
         return True, 'Updated'
 
+    def create_from_volunteer(self, *, user_id: str, task: str, latitude: Optional[float], longitude: Optional[float], area_name: Optional[str] = None, note: str = '') -> Tuple[bool, str, Optional[int]]:
+        """Create a work order representing a public volunteer task (e.g., remove invasive plants)."""
+        self.ensure_tables()
+        uid = (user_id or '').strip()
+        if not uid:
+            return False, 'Missing user id', None
+        title = (task or 'Volunteer task').strip()
+        desc_parts = []
+        if area_name:
+            desc_parts.append(f"Area: {area_name}")
+        if note:
+            desc_parts.append(note)
+        desc = ' • '.join([p for p in desc_parts if p])
+        with self.db.get_connection() as conn:
+            cur = conn.cursor()
+            cur.execute(
+                (
+                    "INSERT INTO work_orders (source, type, status, priority, asset_type, latitude, longitude, title, description, created_by_user_id) "
+                    "VALUES ('public', 'volunteer', 'open', 2, 'area', ?, ?, ?, ?, ?)"
+                ),
+                (latitude, longitude, title, desc, uid)
+            )
+            wid = int(cur.lastrowid)
+            conn.commit()
+            return True, 'Work order created', wid
+
     def export_csv(self, since_iso: Optional[str] = None) -> str:
         self.ensure_tables()
         where = ''
@@ -157,7 +183,9 @@ class WorkOrderService:
             "SELECT w.id, w.type, w.status, w.priority, w.asset_type, w.tree_id, w.title, w.description, w.created_at, w.updated_at, w.resolved_at, "
             "t.common_name, t.latin_name, t.latitude, t.longitude "
             "FROM work_orders w LEFT JOIN trees t ON t.tree_id = w.tree_id "
-            "WHERE w.created_by_user_id = ? ORDER BY w.created_at DESC"
+            "WHERE w.created_by_user_id = ? "
+            "GROUP BY w.id "
+            "ORDER BY w.created_at DESC"
         )
         rows = self.db.execute_query(q, (user_id,))
         out: List[Dict] = []

@@ -5,6 +5,8 @@ from services.custom_tree_service import CustomTreeService
 from services.adoption_service import AdoptionService
 from services.damage_report_service import DamageReportService
 from services.work_order_service import WorkOrderService
+from services.invasive_service import InvasiveReportService
+from services.volunteer_service import VolunteerService
 import os
 
 tree_routes = Blueprint('tree_routes', __name__)
@@ -15,6 +17,8 @@ custom_service = CustomTreeService()
 adoption_service = AdoptionService()
 damage_service = DamageReportService()
 work_order_service = WorkOrderService()
+invasive_service = InvasiveReportService()
+volunteer_service = VolunteerService()
 
 # GET routes for retrieving tree data
 @tree_routes.route('/api/trees', methods=['GET'])
@@ -221,3 +225,108 @@ def list_work_orders_for_user():
     if not user_id:
         return jsonify([])
     return jsonify(work_order_service.list_for_user(user_id))
+
+# Invasive plant report endpoints (greenspace; map-based)
+@tree_routes.route('/api/invasives/report', methods=['POST'])
+def submit_invasive_report():
+    if not request.is_json:
+        return jsonify({'error': 'Content type must be application/json'}), 400
+    body = request.get_json() or {}
+    user_id = (body.get('user_id') or '').strip()
+    plant_type = (body.get('plant_type') or '').strip()
+    note = (body.get('note') or '').strip()
+    greenspace_name = (body.get('greenspace_name') or '').strip()
+    try:
+        lat = float(body.get('latitude'))
+        lng = float(body.get('longitude'))
+    except Exception:
+        return jsonify({'error': 'Invalid or missing coordinates'}), 400
+    ok, msg, rid = invasive_service.add(user_id=user_id, plant_type=plant_type, latitude=lat, longitude=lng, greenspace_name=greenspace_name, note=note)
+    if ok:
+        return jsonify({'message': msg, 'report_id': rid}), 201
+    return jsonify({'error': msg}), 400
+
+
+@tree_routes.route('/api/invasives/area', methods=['GET'])
+def list_invasives_in_area():
+    try:
+        bounds = {
+            'north': float(request.args.get('north')),
+            'south': float(request.args.get('south')),
+            'east': float(request.args.get('east')),
+            'west': float(request.args.get('west'))
+        }
+    except Exception:
+        return jsonify({'error': 'Invalid boundary parameters'}), 400
+    return jsonify(invasive_service.list_in_bounds(**bounds))
+
+
+@tree_routes.route('/api/volunteer/invasive', methods=['POST'])
+def volunteer_for_invasive():
+    if not request.is_json:
+        return jsonify({'error': 'Content type must be application/json'}), 400
+    body = request.get_json() or {}
+    user_id = (body.get('user_id') or '').strip()
+    plant_type = (body.get('plant_type') or '').strip() or 'invasive plant'
+    greenspace_name = (body.get('greenspace_name') or '').strip()
+    note_parts = []
+    est_hours = (body.get('estimated_hours') or '').strip()
+    when = (body.get('scheduled_at') or '').strip()
+    custom_note = (body.get('note') or '').strip()
+    if est_hours:
+        note_parts.append(f"Est. {est_hours}h")
+    if when:
+        note_parts.append(f"When: {when}")
+    if custom_note:
+        note_parts.append(custom_note)
+    note = ' | '.join([p for p in note_parts if p])
+    try:
+        lat = float(body.get('latitude'))
+        lng = float(body.get('longitude'))
+    except Exception:
+        return jsonify({'error': 'Invalid or missing coordinates'}), 400
+
+    task = f"Remove invasive: {plant_type}"
+    ok, msg, req_id = volunteer_service.create(user_id=user_id, task=task, area_id=None, latitude=lat, longitude=lng, note=f"{greenspace_name} • {note}" if greenspace_name or note else note)
+    # Create a corresponding work order for internal triage
+    try:
+        WorkOrderService().create_from_volunteer(user_id=user_id, task=task, latitude=lat, longitude=lng, area_name=greenspace_name, note=note)
+    except Exception:
+        pass
+    if ok:
+        return jsonify({'message': msg, 'request_id': req_id}), 201
+    return jsonify({'error': msg}), 400
+
+
+@tree_routes.route('/api/volunteer', methods=['POST'])
+def volunteer_general():
+    if not request.is_json:
+        return jsonify({'error': 'Content type must be application/json'}), 400
+    body = request.get_json() or {}
+    user_id = (body.get('user_id') or '').strip()
+    task = (body.get('task') or '').strip() or 'Volunteer service'
+    greenspace_name = (body.get('greenspace_name') or '').strip()
+    note_parts = []
+    est_hours = (body.get('estimated_hours') or '').strip()
+    when = (body.get('scheduled_at') or '').strip()
+    custom_note = (body.get('note') or '').strip()
+    if est_hours:
+        note_parts.append(f"Est. {est_hours}h")
+    if when:
+        note_parts.append(f"When: {when}")
+    if custom_note:
+        note_parts.append(custom_note)
+    note = ' | '.join([p for p in note_parts if p])
+    try:
+        lat = float(body.get('latitude'))
+        lng = float(body.get('longitude'))
+    except Exception:
+        lat = None; lng = None
+    ok, msg, req_id = volunteer_service.create(user_id=user_id, task=task, area_id=None, latitude=lat, longitude=lng, note=f"{greenspace_name} • {note}" if greenspace_name or note else note)
+    try:
+        WorkOrderService().create_from_volunteer(user_id=user_id, task=task, latitude=lat, longitude=lng, area_name=greenspace_name, note=note)
+    except Exception:
+        pass
+    if ok:
+        return jsonify({'message': msg, 'request_id': req_id}), 201
+    return jsonify({'error': msg}), 400

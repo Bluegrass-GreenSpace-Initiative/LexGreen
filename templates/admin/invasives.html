@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Admin – Invasive Plants{% endblock %}
+{% block extra_css %}
+<style>
+  .card { background: var(--surface); border:1px solid var(--border); border-radius:14px; padding:14px; color: var(--text); box-shadow: 0 6px 14px rgba(0,0,0,.08); }
+  table { width:100%; border-collapse: collapse; }
+  th { text-align:left; font-weight:600; color: var(--text-strong); }
+  th, td { border-bottom:1px solid var(--border); padding:10px; vertical-align: top; color: var(--text); }
+  tr:hover { background: var(--surface-2); }
+  .btn { padding:8px 12px; border-radius:12px; background: var(--nav-active-bg-end); color: var(--cta-text); border:1px solid var(--outline); box-shadow: 0 2px 0 var(--outline); text-decoration: none; display:inline-flex; align-items:center; gap:6px; }
+  .btn:hover { filter: brightness(1.05); transform: translateY(-1px); }
+  .small { color: var(--muted); }
+  .nowrap { white-space: nowrap; }
+
+  /* Mobile: convert table to cards */
+  @media (max-width: 760px) {
+    .card > div { flex-wrap: wrap; gap:8px; }
+    table thead { display:none; }
+    table, table tbody, table tr, table td { display:block; width:100%; }
+    table tr { margin: 10px 0; padding:10px; border:1px solid var(--border); border-radius:12px; background: var(--surface); box-shadow: 0 4px 10px rgba(0,0,0,.06); }
+    table td { border:none; padding:6px 4px; }
+    table td[data-label]::before { content: attr(data-label); display:block; font-weight:600; color: var(--text-strong); margin-bottom:2px; }
+    .nowrap { white-space: normal; }
+    .btn { width:100%; justify-content:center; }
+  }
+</style>
+{% endblock %}
+{% block content %}
+<div class="card">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+    <strong style="color: var(--nav-active-bg-end);">Invasive Plant Reports</strong>
+    <div style="display:flex; gap:8px;">
+      <a href="{{ url_for('admin.export_invasives_csv') }}" class="btn">Export CSV</a>
+      <a href="{{ url_for('admin.dashboard') }}" class="btn">Back</a>
+    </div>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>When</th>
+        <th>Plant</th>
+        <th>Location</th>
+        <th>Greenspace</th>
+        <th>User</th>
+        <th>Note</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in items %}
+      <tr>
+        <td class="nowrap" data-label="ID">#{{ r.id }}</td>
+        <td class="small nowrap" data-label="When">{{ r.reported_at or '—' }}</td>
+        <td data-label="Plant">{{ r.plant_type }}</td>
+        <td class="small" data-label="Location">{{ '%.6f'|format(r.latitude) }}, {{ '%.6f'|format(r.longitude) }}</td>
+        <td class="small" data-label="Greenspace">{{ r.greenspace_name or '—' }}</td>
+        <td class="small" data-label="User">{{ r.user_id }}</td>
+        <td class="small" data-label="Note">
+          <div>{{ r.note or '' }}</div>
+          <form method="post" action="{{ url_for('admin.invasives_delete', rid=r.id) }}" onsubmit="return confirm('Delete this report?');" style="margin-top:6px;">
+            <button class="btn" type="submit">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% if not items %}
+    <div class="small" style="margin-top:8px; color: var(--muted);">No invasive plant reports yet.</div>
+  {% endif %}
+  <div style="margin-top:8px;" class="small">To coordinate removals, create volunteer permits/dates on the Volunteers page.</div>
+  </div>
+{% endblock %}

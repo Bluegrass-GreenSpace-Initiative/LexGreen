@@ -2,14 +2,33 @@
 {% block title %}Admin – Volunteers{% endblock %}
 {% block extra_css %}
 <style>
-  .card { background: var(--surface); border:1px solid var(--border); border-radius:12px; padding:12px; color: var(--text); }
+  .card { background: var(--surface); border:1px solid var(--border); border-radius:14px; padding:14px; color: var(--text); box-shadow: 0 6px 14px rgba(0,0,0,.08); }
   table { width:100%; border-collapse: collapse; }
-  th, td { border-bottom:1px solid var(--border); padding:8px; vertical-align: top; color: var(--text); }
-  input, select { background: var(--nav-link-bg); color: var(--text); border:1px solid var(--nav-link-border); border-radius:8px; padding:6px; }
-  .btn { padding:6px 10px; border-radius:10px; background: var(--nav-active-bg-end); color: var(--cta-text); border:1px solid var(--outline); box-shadow: 0 2px 0 var(--outline); text-decoration: none; display:inline-flex; align-items:center; gap:6px; }
+  th { text-align:left; font-weight:600; color: var(--text-strong); }
+  th, td { border-bottom:1px solid var(--border); padding:10px; vertical-align: top; color: var(--text); }
+  tr:hover { background: var(--surface-2); }
+  input, select { background: var(--nav-link-bg); color: var(--text); border:1px solid var(--nav-link-border); border-radius:10px; padding:8px; }
+  .btn { padding:8px 12px; border-radius:12px; background: var(--nav-active-bg-end); color: var(--cta-text); border:1px solid var(--outline); box-shadow: 0 2px 0 var(--outline); text-decoration: none; display:inline-flex; align-items:center; gap:6px; }
   .btn:hover { filter: brightness(1.05); transform: translateY(-1px); }
-  .row-form { display:flex; gap:6px; flex-wrap:wrap; }
+  .row-form { display:flex; gap:8px; flex-wrap:wrap; }
   .small { color: var(--muted); }
+  .badge { display:inline-flex; align-items:center; gap:6px; padding:4px 8px; border-radius:999px; background: var(--nav-link-bg); border:1px solid var(--nav-link-border); font-size:.9em; }
+  .b-pending { background:#fff4e6; border-color:#ffd8a8; }
+  .b-approved { background:#e6fcf5; border-color:#c3fae8; }
+  .b-denied { background:#fff0f6; border-color:#fcc2d7; }
+  .b-completed { background:#f4fce3; border-color:#d8f5a2; }
+
+  /* Mobile: convert table rows into cards and stack form controls */
+  @media (max-width: 760px) {
+    .card > div:first-child { flex-wrap: wrap; gap: 8px; }
+    table thead { display:none; }
+    table, table tbody, table tr, table td { display:block; width:100%; }
+    table tr { margin: 10px 0; padding:10px; border:1px solid var(--border); border-radius:12px; background: var(--surface); box-shadow: 0 4px 10px rgba(0,0,0,.06); }
+    table td { border:none; padding:6px 4px; }
+    table td[data-label]::before { content: attr(data-label); display:block; font-weight:600; color: var(--text-strong); margin-bottom:2px; }
+    .row-form { flex-direction: column; align-items: stretch; }
+    .row-form input, .row-form select, .row-form .btn { width:100% !important; }
+  }
 </style>
 {% endblock %}
 {% block content %}
@@ -27,14 +46,14 @@
     <tbody>
       {% for v in items %}
       <tr>
-        <td>#{{ v.id }}</td>
-        <td class="small">{{ v.user_id }}</td>
-        <td>{{ v.task }}</td>
-        <td class="small">{{ v.latitude }}, {{ v.longitude }}</td>
-        <td class="small">{{ v.note or '' }}</td>
-        <td>{{ v.status }}</td>
-        <td class="small">{{ v.permit_valid_from or '—' }} → {{ v.permit_valid_to or '—' }}</td>
-        <td>
+        <td data-label="ID">#{{ v.id }}</td>
+        <td class="small" data-label="User">{{ v.user_id }}</td>
+        <td data-label="Task">{{ v.task }}</td>
+        <td class="small" data-label="Location">{{ v.latitude }}, {{ v.longitude }}</td>
+        <td class="small" data-label="Note">{{ v.note or '' }}</td>
+        <td data-label="Status"><span class="badge b-{{ v.status }}">{{ v.status }}</span></td>
+        <td class="small" data-label="Permit">{{ v.permit_valid_from or '—' }} → {{ v.permit_valid_to or '—' }}</td>
+        <td data-label="Actions">
           <form method="post" action="{{ url_for('admin.volunteers_update', vid=v.id) }}" class="row-form">
             <select name="status">
               {% for s in ['pending','approved','denied','completed'] %}
@@ -44,6 +63,9 @@
             <input name="permit_valid_from" placeholder="YYYY-MM-DD" value="{{ v.permit_valid_from or '' }}" style="width:130px;">
             <input name="permit_valid_to" placeholder="YYYY-MM-DD" value="{{ v.permit_valid_to or '' }}" style="width:130px;">
             <button class="btn" type="submit">Update</button>
+          </form>
+          <form method="post" action="{{ url_for('admin.volunteers_delete', vid=v.id) }}" onsubmit="return confirm('Delete volunteer request #{{ v.id }}?');" style="margin-top:6px;">
+            <button class="btn" type="submit">Delete</button>
           </form>
         </td>
       </tr>

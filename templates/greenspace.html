@@ -11,6 +11,9 @@
   .gs-actions a { margin-right: 10px; }
   .card { background: var(--surface); border-radius: 16px; padding: 14px; border: 1px solid var(--border); box-shadow: 0 6px 14px rgba(0,0,0,0.18); color: var(--text); }
   #gs-map { height: calc(60vh); border-radius: 12px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.25); }
+  @media (max-width: 767px) {
+    #gs-map { height: 60vh; }
+  }
   /* Map focus breathing frame */
   .map-focus { position: relative; }
   .map-focus::after { content: ''; position: absolute; inset: -2px; border-radius: 14px; pointer-events: none; box-shadow: 0 0 0 2px rgba(85,139,110,.18), 0 0 18px rgba(85,139,110,.08); animation: focusBreath 4.6s ease-in-out infinite; }
@@ -59,13 +62,58 @@
       drop-shadow(0 0 8px rgba(85,139,110,.95))
       drop-shadow(0 0 18px rgba(85,139,110,.55));
   }
-  /* Marker wiggle without touching Leaflet's transform (kept but unused) */
-  @keyframes markerPop { 
-    0%   { width:24px; height:24px; margin-top:0; margin-left:0; filter: saturate(1); }
-    50%  { width:26px; height:26px; margin-top:-1px; margin-left:-1px; filter: saturate(1.15); }
-    100% { width:24px; height:24px; margin-top:0; margin-left:0; filter: saturate(1); }
+  /* Cute sticker marker for invasive reports */
+  .sticker {
+    background: #fff7f7;
+    border: 2px solid #f3b5b5;
+    color: #6b2d2d;
+    border-radius: 14px;
+    padding: 4px 8px;
+    font-weight: 700;
+    box-shadow: 0 4px 10px rgba(0,0,0,.15);
+    transform: rotate(-3deg);
+    display: inline-flex; align-items:center; gap:6px;
   }
-  .marker-waggle { animation: markerPop .55s ease; }
+  .sticker small { font-weight: 600; opacity:.9; }
+  .sticker .pin { filter: drop-shadow(0 1px 1px rgba(0,0,0,.25)); }
+  .sticker-emoji { font-size: 14px; }
+  .inv-popup { font-size: 0.95rem; }
+  .inv-popup .actions { display:flex; gap:8px; margin-top:6px; }
+  .btn { background: var(--nav-active-bg-end); color: var(--cta-text); border:1px solid var(--outline); border-radius:10px; padding:6px 10px; box-shadow: 0 2px 0 var(--outline); text-decoration:none; display:inline-flex; align-items:center; gap:6px; cursor:pointer; }
+  .btn:hover { filter: brightness(1.05); transform: translateY(-1px); }
+  /* Floating mini form */
+  .inv-form { position:absolute; z-index: 1000; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 10px 24px rgba(0,0,0,.28); padding: 10px; width: min(320px, 90vw); }
+  .inv-form h4 { margin: 0 0 6px 0; color: var(--text-strong); }
+  .inv-form label { display:block; font-size:.85em; color: var(--muted); margin-top:6px; }
+  .inv-form select, .inv-form input, .inv-form textarea { width:100%; background: var(--nav-link-bg); color: var(--text); border:1px solid var(--nav-link-border); border-radius:8px; padding:6px; }
+  .inv-form textarea { resize: vertical; }
+  .inv-form .row { display:flex; gap:8px; }
+  .inv-form .row > * { flex: 1; }
+  .inv-form .actions { display:flex; gap:8px; margin-top:8px; }
+  .hint-float { position:absolute; top: 8px; right: 8px; background: rgba(255,255,255,.92); border: 1px solid var(--border); padding:6px 8px; border-radius: 999px; box-shadow: 0 2px 10px rgba(0,0,0,.15); font-size:.9em; }
+
+  /* Volunteer card – clean, mobile-friendly */
+  #vol-card .small { color: var(--muted); }
+  #vol-card .qa-input, #vol-card select, #vol-card input, #vol-card textarea { background: var(--nav-link-bg); color: var(--text); border:1px solid var(--nav-link-border); border-radius:12px; padding:10px; }
+  #vol-card .row { display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; margin-top:8px; }
+  #vol-card .actions { display:flex; gap:10px; align-items:center; flex-wrap: wrap; margin-top:10px; }
+  #vol-card .btn { padding:10px 14px; border-radius:12px; font-weight:600; }
+  #vol-card .btn--ghost { background: var(--surface-2); color: var(--text); border:1px solid var(--border); }
+  #vol-card .loc-pill { display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:999px; background: var(--surface-2); border:1px solid var(--border); }
+  @media (max-width: 720px) {
+    #vol-card .row { grid-template-columns: 1fr; }
+    #vol-card .btn--block { width: 100%; }
+  }
+
+  /* Compact CTA cards with expandable details */
+  .cta-card .cta-head { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .cta-card .lh { display:flex; align-items:center; gap:10px; }
+  .cta-card .icon { width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; background: radial-gradient(85% 85% at 50% 20%, var(--nav-active-bg-start) 0%, var(--nav-active-bg-mid) 60%, var(--nav-active-bg-end) 100%); box-shadow: inset 0 2px 6px rgba(0,0,0,0.12); }
+  .cta-card .icon small { font-size:18px; }
+  .cta-card .cta-title { margin:0; color: var(--text-strong); }
+  .cta-card .cta-desc { color: var(--muted); font-size:.95em; }
+  .cta-card .cta-start { padding:8px 12px; border-radius:12px; background: var(--nav-active-bg-end); color: var(--cta-text); border:1px solid var(--outline); box-shadow: 0 2px 0 var(--outline); cursor:pointer; }
+  .cta-card .cta-start:hover { filter: brightness(1.05); transform: translateY(-1px); }
   /* Breeze overlay when toggled */
   .gs-container.breeze::before {
     content: '';
@@ -107,6 +155,8 @@
     </div>
   </div>
 
+  
+
   <!-- Seasonal banner on top, above the map -->
   <div class="card" id="gs-season-card" style="margin-bottom:12px;">
     <div class="seasonal" id="gs-seasonal" aria-live="polite" aria-atomic="true" hidden>
@@ -118,7 +168,36 @@
     </div>
   </div>
 
-  <div class="card map-focus"><div id="gs-map"></div></div>
+  <div class="card map-focus">
+    <div id="gs-map"></div>
+    <div class="hint-float" id="inv-hint">Tap map to report invasive 🌿</div>
+    <div id="inv-form" class="inv-form" hidden>
+      <h4>Report invasive plant</h4>
+      <div class="row">
+        <div>
+          <label for="inv-type">Type</label>
+          <select id="inv-type">
+            <option value="Honeysuckle">Honeysuckle</option>
+            <option value="Winter Creeper">Winter Creeper</option>
+            <option value="Garlic Mustard">Garlic Mustard</option>
+            <option value="Kudzu">Kudzu</option>
+            <option value="English Ivy">English Ivy</option>
+            <option value="Bush Honeysuckle">Bush Honeysuckle</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+      <label for="inv-when">Date/Time (optional)</label>
+      <input id="inv-when" type="datetime-local">
+      <label for="inv-note">Note (optional)</label>
+      <textarea id="inv-note" rows="2" placeholder="Describe size or location details"></textarea>
+      <div class="actions">
+        <button id="inv-submit" class="btn" type="button">Submit report</button>
+        <button id="inv-cancel" class="subtle-link" type="button">Cancel</button>
+      </div>
+      <div id="inv-msg" class="small" style="margin-top:6px; color: var(--muted);"></div>
+    </div>
+  </div>
   <div class="card" id="gs-info-card" style="margin-top:12px;">
     <div class="gs-meta">
       <div>
@@ -128,6 +207,68 @@
       <div>
         <h3 class="gs-section-title">Good for</h3>
         <div class="goodfor" id="gs-goodfor" aria-label="Recommended activities"><em>Loading…</em></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Invasive Report CTA card (moved below amenities/good for) -->
+  <div class="card" id="inv-card" style="margin:12px 0;">
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+      <div>
+        <h3 class="gs-section-title" style="margin:0">Report invasive plant</h3>
+        <div class="small" style="color: var(--muted);">Tap anywhere on the map to place a sticker, choose plant type, and optionally volunteer.</div>
+      </div>
+      <button id="inv-start" class="btn" type="button" data-haptic="light">Start</button>
+    </div>
+  </div>
+
+  <!-- Volunteer card (compact, expandable) -->
+  <div class="card cta-card" id="vol-card" style="margin:12px 0;">
+    <div class="cta-head">
+      <div class="lh">
+        <div class="icon" aria-hidden="true"><small>🤝</small></div>
+        <div>
+          <h3 class="cta-title">Volunteer</h3>
+          <div class="cta-desc">Pitch in when you can — staff will confirm dates.</div>
+        </div>
+      </div>
+      <button id="vol-start" class="cta-start" type="button" data-haptic="light">Start</button>
+    </div>
+    <div id="vol-body" hidden>
+      <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap: wrap; margin-top:10px;">
+        <div style="flex:1; min-width: 220px;">
+          <div class="small" style="color: var(--muted);">Choose an activity, pick a map spot, and propose a time.</div>
+          <div class="row">
+          <div style="flex: 1 1 220px;">
+            <label class="small" for="vol-task" style="display:block; color: var(--muted);">Activity</label>
+            <select id="vol-task" style="width:100%;" class="qa-input">
+              <option value="Remove invasive plants">🌿 Remove invasive plants</option>
+              <option value="Trash cleanup">🧹 Trash cleanup</option>
+              <option value="Mulching around trees">🪵 Mulching around trees</option>
+              <option value="Weeding native beds">🌸 Weeding native beds</option>
+              <option value="Trail/path light maintenance">🥾 Trail/path light maintenance</option>
+              <option value="Watering young trees">💧 Watering young trees</option>
+            </select>
+          </div>
+          <div style="flex: 1 1 160px;">
+            <label class="small" for="vol-when" style="display:block; color: var(--muted);">Date/Time</label>
+            <input id="vol-when" type="datetime-local" class="qa-input" style="width:100%;">
+          </div>
+          <div style="flex: 1 1 120px;">
+            <label class="small" for="vol-hours" style="display:block; color: var(--muted);">Est. hours</label>
+            <input id="vol-hours" type="number" step="0.5" min="0" placeholder="e.g. 2" class="qa-input" style="width:100%;">
+          </div>
+        </div>
+        <label class="small" for="vol-note" style="display:block; color: var(--muted); margin-top:6px;">Note (optional)</label>
+        <textarea id="vol-note" rows="2" class="qa-input" placeholder="Any details (e.g., meet-up point, tools)"></textarea>
+        <div class="actions">
+          <button id="vol-pick" class="btn btn--ghost btn--block" type="button">Pick map location</button>
+          <div id="vol-loc" class="loc-pill">📍 <span>No location chosen</span></div>
+          <div style="flex:1"></div>
+          <button id="vol-submit" class="btn btn--block" type="button">Send request</button>
+        </div>
+        <div id="vol-msg" class="small" style="margin-top:6px; color: var(--muted);"></div>
+      </div>
       </div>
     </div>
   </div>
@@ -159,6 +300,7 @@
     map.fitBounds(bounds.pad(0.05));
 
     const markers = L.layerGroup().addTo(map);
+    const invasiveMarkers = L.layerGroup().addTo(map);
     const list = document.getElementById('tree-list');
     const countEl = document.getElementById('tree-count');
 
@@ -259,6 +401,158 @@
       }
     }
 
+    // Anonymous user id (shared convention)
+    function getOrCreateUserId(){
+      try {
+        let id = localStorage.getItem('cg_uid');
+        if (!id) {
+          id = 'u-' + ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+            (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+          );
+          localStorage.setItem('cg_uid', id);
+          document.cookie = `cg_uid=${id}; path=/; max-age=31536000`;
+        }
+        return id;
+      } catch(e){ return 'u-fallback'; }
+    }
+    const userId = getOrCreateUserId();
+
+    // Sticker icon for invasive reports
+    function makeStickerIcon(emoji, label){
+      return L.divIcon({
+        className: '',
+        html: `<div class="sticker"><span class="sticker-emoji">${emoji}</span><small>${label}</small></div>`,
+        iconSize: [0,0], iconAnchor: [0,0]
+      });
+    }
+
+    function emojiForPlant(p){
+      const s = (p||'').toLowerCase();
+      if (/honeysuckle/.test(s)) return '🍯';
+      if (/winter|creeper/.test(s)) return '❄️';
+      if (/garlic/.test(s)) return '🧄';
+      if (/kudzu/.test(s)) return '🌿';
+      if (/ivy/.test(s)) return '🌱';
+      return '🌿';
+    }
+
+    function addInvasiveMarker(rep){
+      const m = L.marker([rep.latitude, rep.longitude], { icon: makeStickerIcon(emojiForPlant(rep.plant_type), rep.plant_type) }).addTo(invasiveMarkers);
+      const popup = document.createElement('div');
+      popup.className = 'inv-popup';
+      popup.innerHTML = `
+        <div><strong>${rep.plant_type || 'Invasive plant'}</strong> <span class="small">• ${new Date(rep.reported_at||Date.now()).toLocaleString()}</span></div>
+        ${rep.note ? `<div class=\"small\">${rep.note}</div>` : ''}
+        <div class="actions">
+          <button class="btn" type="button" data-vol="1">Volunteer to remove</button>
+        </div>
+      `;
+      popup.querySelector('[data-vol]')?.addEventListener('click', () => {
+        openVolunteerFor(rep);
+      });
+      m.bindPopup(popup);
+      return m;
+    }
+
+    function loadInvasives(){
+      invasiveMarkers.clearLayers();
+      const qs2 = new URLSearchParams({ north: b.north, south: b.south, east: b.east, west: b.west }).toString();
+      fetch(`/api/invasives/area?${qs2}`)
+        .then(r=>r.json())
+        .then(list => { if (Array.isArray(list)) list.forEach(addInvasiveMarker); })
+        .catch(()=>{});
+    }
+
+    // Floating form handling
+    const form = document.getElementById('inv-form');
+    const msg = document.getElementById('inv-msg');
+    const fType = document.getElementById('inv-type');
+    const fWhen = document.getElementById('inv-when');
+    const fNote = document.getElementById('inv-note');
+    const fSubmit = document.getElementById('inv-submit');
+    const fCancel = document.getElementById('inv-cancel');
+    let pendingLatLng = null;
+
+    function positionForm(latlng){
+      const mapEl = document.getElementById('gs-map');
+      if (!mapEl || !form) return;
+      const pt = map.latLngToContainerPoint(latlng);
+      const formW = Math.min(320, window.innerWidth * 0.9);
+      const formH = 180; // approximate
+      // Clamp within map bounds
+      const xLocal = Math.max(8, Math.min(pt.x + 12, mapEl.clientWidth - formW - 8));
+      const yLocal = Math.max(8, Math.min(pt.y - formH - 12, mapEl.clientHeight - 8));
+      // Offset by map's position inside its positioned parent (.map-focus)
+      const offX = mapEl.offsetLeft || 0;
+      const offY = mapEl.offsetTop || 0;
+      form.style.left = `${offX + xLocal}px`;
+      form.style.top = `${offY + Math.max(8, yLocal)}px`;
+    }
+
+    function openForm(latlng){
+      pendingLatLng = latlng;
+      msg.textContent = '';
+      form.hidden = false;
+      positionForm(latlng);
+      try { const d = document.getElementById('inv-details'); if (d) d.hidden = false; } catch(_) {}
+    }
+    function closeForm(){ form.hidden = true; pendingLatLng = null; }
+
+    fCancel.addEventListener('click', closeForm);
+    window.addEventListener('resize', () => { if (!form.hidden && pendingLatLng) positionForm(pendingLatLng); });
+
+    fSubmit.addEventListener('click', () => {
+      if (!pendingLatLng) return;
+      fSubmit.disabled = true;
+      const payload = {
+        user_id: userId,
+        greenspace_name: t.dataset.name || '{{ name }}',
+        plant_type: fType.value,
+        latitude: pendingLatLng.lat,
+        longitude: pendingLatLng.lng,
+        note: fNote.value || ''
+      };
+      fetch('/api/invasives/report', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) })
+        .then(r=>r.json())
+        .then(data => {
+          if (!data.error) {
+            msg.textContent = 'Thanks! Marked on the map.';
+            addInvasiveMarker({ plant_type: fType.value, latitude: pendingLatLng.lat, longitude: pendingLatLng.lng, note: fNote.value||'', reported_at: new Date().toISOString() });
+            setTimeout(closeForm, 800);
+          } else {
+            msg.textContent = data.error;
+          }
+        })
+        .catch(()=>{ msg.textContent = 'Failed to submit. Try again.'; })
+        .finally(()=>{ fSubmit.disabled = false; });
+    });
+
+    // Volunteer submission helpers are defined below in the dedicated card
+
+    function openVolunteerFor(rep){
+      try {
+        // Open the Volunteer card
+        const volBody = document.getElementById('vol-body');
+        const volStart = document.getElementById('vol-start');
+        const volTask = document.getElementById('vol-task');
+        const volNote = document.getElementById('vol-note');
+        if (volBody) volBody.hidden = false;
+        // Prefill volunteer task and note
+        if (volTask) volTask.value = 'Remove invasive plants';
+        if (volNote && rep.note) volNote.value = rep.note;
+        // Prefill volunteer location to this report's location
+        if (rep && typeof rep.latitude === 'number' && typeof rep.longitude === 'number') {
+          setVolunteerLocation({ lat: rep.latitude, lng: rep.longitude });
+        }
+        // Ensure we are not in pick mode anymore
+        pickVolunteerMode = false;
+        // Hide the invasive report form if it was open
+        form.hidden = true;
+        // Scroll into view for user
+        document.getElementById('vol-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } catch(_) {}
+    }
+
     const qs = new URLSearchParams({ north: b.north, south: b.south, east: b.east, west: b.west }).toString();
     fetch(`/api/trees/area?${qs}`)
       .then(r => r.json())
@@ -275,6 +569,97 @@
         console.error('Failed to load trees for greenspace', e);
         list.innerHTML = '<em>Error loading trees.</em>';
       });
+
+    // Load existing invasive reports and display as stickers
+    loadInvasives();
+
+    // Map click to open quick invasive reporting form
+    map.on('click', (e) => {
+      // If we are in "pick volunteer location" mode, capture it; otherwise open invasive report form
+      if (pickVolunteerMode) {
+        setVolunteerLocation(e.latlng);
+      } else {
+        try { window.cgAudio && window.cgAudio.play('explore'); } catch(_){}
+        openForm(e.latlng);
+      }
+    });
+
+    // CTA card button: expand details, focus the map and highlight the hint
+    const invStart = document.getElementById('inv-start');
+    const invHint = document.getElementById('inv-hint');
+    const invDetails = document.getElementById('inv-details');
+    invStart?.addEventListener('click', () => {
+      try {
+        if (invDetails) invDetails.hidden = false;
+        document.getElementById('gs-map')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        if (invHint) {
+          const prev = invHint.textContent;
+          invHint.textContent = 'Click the location on the map for this plant';
+          invHint.classList.add('pulse');
+          setTimeout(()=>{ invHint.classList.remove('pulse'); invHint.textContent = prev; }, 4000);
+        }
+      } catch(_) {}
+    });
+
+    // Volunteer expand
+    const volStart = document.getElementById('vol-start');
+    const volBody = document.getElementById('vol-body');
+    volStart?.addEventListener('click', () => { if (volBody) volBody.hidden = false; });
+
+    // Volunteer card logic
+    const volPick = document.getElementById('vol-pick');
+    const volSubmit = document.getElementById('vol-submit');
+    const volWhen = document.getElementById('vol-when');
+    const volHours = document.getElementById('vol-hours');
+    const volTask = document.getElementById('vol-task');
+    const volNote = document.getElementById('vol-note');
+    const volLoc = document.getElementById('vol-loc');
+    const volMsg = document.getElementById('vol-msg');
+    let pickVolunteerMode = false;
+    let volunteerLatLng = null;
+    let volunteerMarker = null;
+
+    function setVolunteerLocation(latlng){
+      volunteerLatLng = latlng;
+      volLoc.textContent = `Chosen at ${latlng.lat.toFixed(6)}, ${latlng.lng.toFixed(6)}`;
+      if (volunteerMarker) { try { map.removeLayer(volunteerMarker); } catch(_){} }
+      volunteerMarker = L.circleMarker([latlng.lat, latlng.lng], { radius: 7, color: '#3C6B53', fillColor:'#55906E', fillOpacity:0.9 }).addTo(map);
+      pickVolunteerMode = false;
+    }
+
+    volPick?.addEventListener('click', () => {
+      pickVolunteerMode = true;
+      volMsg.textContent = 'Click the location on the map for your volunteer activity';
+      try { document.getElementById('gs-map')?.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch(_){}
+    });
+
+    volSubmit?.addEventListener('click', () => {
+      volMsg.textContent = '';
+      if (!volunteerLatLng) { volMsg.textContent = 'Please pick a location on the map.'; return; }
+      const payload = {
+        user_id: userId,
+        task: volTask.value,
+        greenspace_name: t.dataset.name || '{{ name }}',
+        latitude: volunteerLatLng.lat,
+        longitude: volunteerLatLng.lng,
+        estimated_hours: (volHours.value||'').toString(),
+        scheduled_at: volWhen.value||'',
+        note: volNote.value||''
+      };
+      volSubmit.disabled = true;
+      fetch('/api/volunteer', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) })
+        .then(r=>r.json())
+        .then(data => {
+          if (!data.error) {
+            volMsg.textContent = 'Thanks! Your volunteer request was sent to staff for approval.';
+            try { window.cgAudio && window.cgAudio.play('adopt'); } catch(_){}
+          } else {
+            volMsg.textContent = data.error || 'Failed to submit';
+          }
+        })
+        .catch(()=>{ volMsg.textContent = 'Failed to submit'; })
+        .finally(()=>{ volSubmit.disabled = false; });
+    });
   });
 </script>
 <script>
